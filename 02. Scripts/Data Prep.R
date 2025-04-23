@@ -1,4 +1,3 @@
-
 #Libraries
 
 
@@ -17,9 +16,9 @@ head(obs);dim(obs)
 
 
 #prepping data
-##remove unneeded columns
-##Remove lepedoptera and wasps
-##remove first survey
+  ##remove unneeded columns
+  ##Remove lepedoptera and wasps
+  ##remove first survey
 
 
 ##Calculate for modelling
@@ -34,4 +33,3 @@ head(obs);dim(obs)
 
 #Then need to check all these calculations for spatial autocorrelation
 #Don't forget to remove all the cordinates etc. after this 
-  
