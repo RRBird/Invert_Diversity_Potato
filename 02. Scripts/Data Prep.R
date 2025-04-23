@@ -69,6 +69,8 @@ hist(point$Plant_Height)
 
 #CORRELATION TO DO----
 
+#transplant same correlation from pred dom since it's the same variables
+
 ##Merging data bases----
 
 variables <- data.frame(Site = point$Site,Height = point$Plant_Height,GC = point$Ground_Cover,Position = point$Spatial_Position,ID = point$Survey_Field)
@@ -141,6 +143,9 @@ variables <- merge(variables,richness, by = "Site",all.x = T)
 names(variables)[names(variables) == "Morphospecies"] <- "Richness_A"
 variables$Richness_A[is.na(variables$Richness_A)] <- 0
 
+
+(table(variables$Richness_A)/sum(table(variables$Richness_A)))*100
+
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Richness_A)
 
@@ -155,6 +160,9 @@ variables <- merge(variables,richness, by = "Site",all.x = T)
 names(variables)[names(variables) == "Morphospecies"] <- "Richness_H"
 variables$Richness_H[is.na(variables$Richness_H)] <- 0
 
+
+(table(variables$Richness_H)/sum(table(variables$Richness_H)))*100
+
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Richness_H)
 
@@ -168,6 +176,10 @@ richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Coleo
 variables <- merge(variables,richness, by = "Site",all.x = T)
 names(variables)[names(variables) == "Morphospecies"] <- "Richness_C"
 variables$Richness_C[is.na(variables$Richness_C)] <- 0
+
+
+
+(table(variables$Richness_C)/sum(table(variables$Richness_C)))*100
 
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Richness_C)
@@ -199,6 +211,9 @@ variables <- merge(variables,Araneae_diversity, by = "Site",all.x = T)
 head(variables);dim(variables)
 variables$Diversity_A[is.na(variables$Diversity_A)] <- 0.000001
 
+
+(table(variables$Diversity_A)/sum(table(variables$Diversity_A)))*100
+
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Diversity_A)
 
@@ -218,6 +233,9 @@ head(Hemiptera_diversity);dim(Hemiptera_diversity)
 variables <- merge(variables,Hemiptera_diversity, by = "Site",all.x = T)
 head(variables);dim(variables)
 variables$Diversity_H[is.na(variables$Diversity_H)] <- 0.000001
+
+
+(table(variables$Diversity_H)/sum(table(variables$Diversity_H)))*100
 
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Diversity_H)
@@ -240,6 +258,9 @@ variables <- merge(variables,Coleoptera_diversity, by = "Site",all.x = T)
 head(variables);dim(variables)
 variables$Diversity_C[is.na(variables$Diversity_C)] <- 0.000001
 
+
+(table(variables$Diversity_C)/sum(table(variables$Diversity_C)))*100
+
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 hist(variables$Diversity_C)
 
@@ -257,6 +278,8 @@ storage.mode(Araneae_matrix2) <- "numeric"  # Forces values to be numeric, not i
 pca_A<-prcomp(Araneae_matrix2,scale = T)
 summary(pca_A)
 pov_A <- summary(pca_A)$importance[2,]
+
+sum(pov_A)
 
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 plot(x=1:length(pov_A),y=pov_A,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
