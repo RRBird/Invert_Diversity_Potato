@@ -116,6 +116,15 @@ invert <- invert[!grepl("^S1", invert$ID), ]
 
 #Diversity measures for modelling----
 
+table(invert$Order)
+dim(variables)
+
+#We will only calculate diversity measures for taxon Orders with more observations than the number of sites
+
+#Araneae, Coleoptera, Hemiptera
+
+
+
 ##Richness----
 
 head(invert);dim(invert)
