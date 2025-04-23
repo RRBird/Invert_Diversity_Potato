@@ -1,6 +1,9 @@
-#Libraries
+options(scipen = 999)
+
+#Libraries----
 
 library("dplyr")
+library('vegan')
 
 
 
@@ -83,7 +86,7 @@ invert <- merge(invert,morpho,by = "Morphospecies")
 head(invert);dim(invert)
 
 
-##removing wasps, Lepidoptera and serpintine leaf miner----
+##removing wasps, Lepidoptera and serpintine leaf miner
 dim(invert)
 
 length(invert$Trophic[invert$Trophic == 'Parasite'])
@@ -100,7 +103,7 @@ invert <- invert[invert$Morphospecies != 'Serpintine_Leaf_Miner',]
 ##Removing first survey observations----
 #diversity measures taken weren't reliable so excluded from analysis
 
-head(variables)
+head(variables);dim(variables)
 
 length(variables$ID[variables$ID == 'S1_F3'])
 variables <- variables[variables$ID != 'S1_F3',]
@@ -115,18 +118,181 @@ invert <- invert[!grepl("^S1", invert$ID), ]
 
 ##Richness----
 
-###Araneae
-richness <- aggregate(Morphospecies ~ ID, data = invert[invert$Order == "Araneae",], FUN = function(x) length(unique(x)))
+head(invert);dim(invert)
+head(variables);dim(variables)
+head(richness);dim(richness)
 
-##Add the richness number to the database
+###Araneae
+
+names(invert)[names(invert) == "ID"] <- "Site"
+
+richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Araneae",], FUN = function(x) length(unique(x)))
+
+variables <- merge(variables,richness, by = "Site",all.x = T)
+names(variables)[names(variables) == "Morphospecies"] <- "Richness_A"
+variables$Richness_A[is.na(variables$Richness_A)] <- 0
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Richness_A)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Richness_A, type = "p", xlab = "Site", ylab = "Richness (spiders)",)
+
+###Hemieptera
+
+richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Hemiptera",], FUN = function(x) length(unique(x)))
+
+variables <- merge(variables,richness, by = "Site",all.x = T)
+names(variables)[names(variables) == "Morphospecies"] <- "Richness_H"
+variables$Richness_H[is.na(variables$Richness_H)] <- 0
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Richness_H)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Richness_H, type = "p", xlab = "Site", ylab = "Richness (True Bugs)",)
+
+###Coleoptera
+
+richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Coleoptera",], FUN = function(x) length(unique(x)))
+
+variables <- merge(variables,richness, by = "Site",all.x = T)
+names(variables)[names(variables) == "Morphospecies"] <- "Richness_C"
+variables$Richness_C[is.na(variables$Richness_C)] <- 0
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Richness_C)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Richness_C, type = "p", xlab = "Site", ylab = "Richness (Beetles)",)
+
+##Diversity (Inverse Simpson's diversity index)----
+
+#creating abundance matrixs
+table(invert$Order)
+
+
+diversity(x = invert[which(invert$Order=='Araneae'),] )
+
+
+dim(invert[which(invert$Order=='Araneae'),])
+###Araneae
+
+Araneae <- invert[which(invert$Order=='Araneae'),]
+head(Araneae);dim(Araneae)
+Araneae_matrix <- table(Araneae$Site, Araneae$Morphospecies)
+head(Araneae_matrix);dim(Araneae_matrix)
+
+Araneae_diversity<-diversity(Araneae_matrix, index = "invsimpson")
+Araneae_diversity<-data.frame(Site = names(Araneae_diversity), Diversity_A = as.numeric(Araneae_diversity))
+head(Araneae_diversity);dim(Araneae_diversity)
+variables <- merge(variables,Araneae_diversity, by = "Site",all.x = T)
+head(variables);dim(variables)
+variables$Diversity_A[is.na(variables$Diversity_A)] <- 0.000001
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Diversity_A)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Diversity_A, type = "p", xlab = "Site", ylab = "Diversity (spiders)",)
+
+###Hemieptera
+
+Hemiptera <- invert[which(invert$Order=='Hemiptera'),]
+head(Hemiptera);dim(Hemiptera)
+Hemiptera_matrix <- table(Hemiptera$Site, Hemiptera$Morphospecies)
+head(Hemiptera_matrix);dim(Hemiptera_matrix)
+
+Hemiptera_diversity<-diversity(Hemiptera_matrix, index = "invsimpson")
+Hemiptera_diversity<-data.frame(Site = names(Hemiptera_diversity), Diversity_H = as.numeric(Hemiptera_diversity))
+head(Hemiptera_diversity);dim(Hemiptera_diversity)
+variables <- merge(variables,Hemiptera_diversity, by = "Site",all.x = T)
+head(variables);dim(variables)
+variables$Diversity_H[is.na(variables$Diversity_H)] <- 0.000001
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Diversity_H)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Diversity_H, type = "p", xlab = "Site", ylab = "Diversity (true bugs)",)
+
+
+###Coleoptera
+
+Coleoptera <- invert[which(invert$Order=='Coleoptera'),]
+head(Coleoptera);dim(Coleoptera)
+Coleoptera_matrix <- table(Coleoptera$Site, Coleoptera$Morphospecies)
+head(Coleoptera_matrix);dim(Coleoptera_matrix)
+
+Coleoptera_diversity<-diversity(Coleoptera_matrix, index = "invsimpson")
+Coleoptera_diversity<-data.frame(Site = names(Coleoptera_diversity), Diversity_C = as.numeric(Coleoptera_diversity))
+head(Coleoptera_diversity);dim(Coleoptera_diversity)
+variables <- merge(variables,Coleoptera_diversity, by = "Site",all.x = T)
+head(variables);dim(variables)
+variables$Diversity_C[is.na(variables$Diversity_C)] <- 0.000001
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+hist(variables$Diversity_C)
+
+dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
+plot(as.factor(variables$Site), variables$Diversity_C, type = "p", xlab = "Site", ylab = "Diversity (beetles)",)
+
+##Community Composition----
+
+###Araneae
+
+Araneae_matrix2 <- as.matrix(Araneae_matrix)
+str(Araneae_matrix2)
+storage.mode(Araneae_matrix2) <- "numeric"  # Forces values to be numeric, not integer
+
+pca_A<-prcomp(Araneae_matrix2,scale = T)
+summary(pca_A)
+pov_A <- summary(pca_A)$importance[2,]
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+plot(x=1:length(pov_A),y=pov_A,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
+
+###Hemieptera
+
+Hemiptera_matrix2 <- as.matrix(Hemiptera_matrix)
+str(Hemiptera_matrix2)
+storage.mode(Hemiptera_matrix2) <- "numeric"  # Forces values to be numeric, not integer
+
+pca_H<-prcomp(Hemiptera_matrix2,scale = T)
+summary(pca_H)
+pov_H <- summary(pca_H)$importance[2,]
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+plot(x=1:length(pov_H),y=pov_H,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
+
+###Coleoptera
+
+Coleoptera_matrix2 <- as.matrix(Coleoptera_matrix)
+str(Coleoptera_matrix2)
+storage.mode(Coleoptera_matrix2) <- "numeric"  # Forces values to be numeric, not integer
+
+pca_C<-prcomp(Coleoptera_matrix2,scale = T)
+summary(pca_C)
+pov_C <- summary(pca_C)$importance[2,]
+
+dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
+plot(x=1:length(pov_C),y=pov_C,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
+
+##Beta Diversity 
+
+###Araneae
 
 ###Hemieptera
 
 ###Coleoptera
 
-  #Diversity -> araneae, hemi, coleoptera
-  #Community Comp -> araneae, hemi, coleoptera
+
   #Beta Diversity -> araneae, hemi, coleoptera
+  ###Araneae
+  
+  ###Hemieptera
+  
+  ###Coleoptera
   #Functional abundance
     #araneae - hunting type
     #hemi - size and trophic
