@@ -311,66 +311,20 @@ pov_C <- summary(pca_C)$importance[2,]
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 plot(x=1:length(pov_C),y=pov_C,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
 
-##Beta Diversity---- 
-
-#Bray-Curtis - abundance data
-
-###Araneae
-
-Araneae_matrix3 <- as.data.frame.matrix(Araneae_matrix2)
-head(Araneae_matrix3);dim(Araneae_matrix3)
-
-Araneae_Beta <- vegdist(Araneae_matrix3, method = 'bray')
 
 
-#TRIAL BELOW TO LOOK AT BETA - IS THIS ENOUGH??
 
-bray_matrix <- as.matrix(Araneae_Beta)
-
-# Create a heatmap
-heatmap(bray_matrix, 
-        main = "Bray-Curtis Dissimilarity Matrix", 
-        col = heat.colors(256),  # Color palette
-        scale = "none")  # No scaling to preserve raw distances
-
-mds <- cmdscale(Araneae_Beta, k = 2)  # k = 2 for 2D MDS plot
-
-# Plot the results
-plot(mds, 
-     xlab = "Dimension 1", 
-     ylab = "Dimension 2", 
-     main = "MDS of Bray-Curtis Dissimilarity")
-
-
-# NMDS (Non-metric Multidimensional Scaling)
-nmds <- metaMDS(Araneae_matrix3, distance = "bray", k = 2)
-#Warning message:
-##In metaMDS(Araneae_matrix3, distance = "bray", k = 2): stress is (nearly) zero: you may have insufficient data
-
-# Plot the NMDS
-plot(nmds, main = "NMDS of Bray-Curtis Dissimilarity")
-
-# Hierarchical clustering using Bray-Curtis dissimilarity
-hclust_result <- hclust(Araneae_Beta)
-
-# Plot the dendrogram
-plot(hclust_result, main = "Hierarchical Clustering of Sites", xlab = "Sites", sub = "")
-
-###Hemieptera
-
-###Coleoptera
-
-
-  #Beta Diversity -> araneae, hemi, coleoptera
+#Beta Diversity -> araneae, hemi, coleoptera
   ###Araneae
   
   ###Hemieptera
   
   ###Coleoptera
-  #Functional abundance
+
+#Functional abundance
     #araneae - hunting type
     #hemi - size and trophic
     #coleoptera - size and trophic
 
 #Then need to check all these calculations for spatial autocorrelation
-#Don't forget to remove all the cordinates etc. after this 
+#Don't forget to remove all the coordinators etc. after this 
