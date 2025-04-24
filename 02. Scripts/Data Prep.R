@@ -125,6 +125,7 @@ dim(variables)
 
 #Araneae, Coleoptera, Hemiptera
 
+#remaining orders don't met the above rule even when combined together into one group (other)
 
 
 ##Richness----
