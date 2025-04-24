@@ -147,9 +147,6 @@ variables$Richness_A[is.na(variables$Richness_A)] <- 0
 
 (table(variables$Richness_A)/sum(table(variables$Richness_A)))*100
 
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Richness_A)
-
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Richness_A, type = "p", xlab = "Site", ylab = "Richness (spiders)",)
 
@@ -163,9 +160,6 @@ variables$Richness_H[is.na(variables$Richness_H)] <- 0
 
 
 (table(variables$Richness_H)/sum(table(variables$Richness_H)))*100
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Richness_H)
 
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Richness_H, type = "p", xlab = "Site", ylab = "Richness (True Bugs)",)
@@ -181,9 +175,6 @@ variables$Richness_C[is.na(variables$Richness_C)] <- 0
 
 
 (table(variables$Richness_C)/sum(table(variables$Richness_C)))*100
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Richness_C)
 
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Richness_C, type = "p", xlab = "Site", ylab = "Richness (Beetles)",)
@@ -215,9 +206,6 @@ variables$Diversity_A[is.na(variables$Diversity_A)] <- 0.000001
 
 (table(variables$Diversity_A)/sum(table(variables$Diversity_A)))*100
 
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Diversity_A)
-
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Diversity_A, type = "p", xlab = "Site", ylab = "Diversity (spiders)",)
 
@@ -237,9 +225,6 @@ variables$Diversity_H[is.na(variables$Diversity_H)] <- 0.000001
 
 
 (table(variables$Diversity_H)/sum(table(variables$Diversity_H)))*100
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Diversity_H)
 
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Diversity_H, type = "p", xlab = "Site", ylab = "Diversity (true bugs)",)
@@ -261,9 +246,6 @@ variables$Diversity_C[is.na(variables$Diversity_C)] <- 0.000001
 
 
 (table(variables$Diversity_C)/sum(table(variables$Diversity_C)))*100
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-hist(variables$Diversity_C)
 
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(as.factor(variables$Site), variables$Diversity_C, type = "p", xlab = "Site", ylab = "Diversity (beetles)",)
@@ -295,6 +277,8 @@ pca_H<-prcomp(Hemiptera_matrix2,scale = T)
 summary(pca_H)
 pov_H <- summary(pca_H)$importance[2,]
 
+sum(pov_H)
+
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 plot(x=1:length(pov_H),y=pov_H,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
 
@@ -307,6 +291,8 @@ storage.mode(Coleoptera_matrix2) <- "numeric"  # Forces values to be numeric, no
 pca_C<-prcomp(Coleoptera_matrix2,scale = T)
 summary(pca_C)
 pov_C <- summary(pca_C)$importance[2,]
+
+sum(pov_C)
 
 dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 plot(x=1:length(pov_C),y=pov_C,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
