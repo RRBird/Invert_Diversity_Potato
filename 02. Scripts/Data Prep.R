@@ -27,10 +27,10 @@ head(obs);dim(obs)
 
 summary(obs)
 obs <- obs[,-which(names(obs) =="Notes")]
+obs <- obs[,-which(names(obs) =="Wings")]
 
 summary(morpho)
 morpho <- morpho[,-which(names(morpho)=='NOTES')]
-morpho <- morpho[,-which(names(morpho)=='In_Database')]
 morpho <- morpho[,-which(names(morpho)=='Duplicates')]
 
 summary(point)
@@ -66,6 +66,43 @@ field <- field[,-which(names(field) =="X1km_Prop_Nat_Graze")]
 
 hist(point$Ground_Cover)
 hist(point$Plant_Height)
+
+#Some data fixes for functional groups----
+
+table(morpho$Size)
+morpho$Size[morpho$Size == "Unknown"] <- NA
+morpho$Size[morpho$Size == "5-Oct"] <- "5-10"
+morpho$Size[morpho$Size == "Oct-15"] <- "10-15"
+
+#Since all levels greater then 10mm only have 1 morphospecies will combine together to  >10
+morpho$Size[morpho$Size == ">30"] <- ">10"
+morpho$Size[morpho$Size == "20-30"] <- ">10"
+morpho$Size[morpho$Size == "15-20"] <- ">10"
+morpho$Size[morpho$Size == "10-15"] <- ">10"
+
+morpho$Size <- as.factor(morpho$Size)
+levels(morpho$Size)
+morpho$Size <- factor(morpho$Size, levels = c("0-2.5","2.5-5","5-10",">10"))
+
+table(morpho$Trophic)
+morpho$Trophic[morpho$Trophic == "Unknown"] <- NA
+
+table(morpho$Hunting.Style)
+morpho$Hunting.Style[morpho$Hunting.Style == "Unknown"] <- NA
+
+table(morpho$Intro_Native) 
+morpho$Intro_Native[morpho$Intro_Native == "Unknown"] <- NA
+morpho$Intro_Native <- as.factor(morpho$Intro_Native)
+levels(morpho$Intro_Native)
+morpho$Intro_Native <- factor(morpho$Intro_Native, levels = c("Native","Introduced"))
+
+table(morpho$Wings) 
+morpho$Wings[morpho$Wings == "Unknown"] <- NA
+
+
+##UP TO HERE----
+##Still need to clear the below to make sure it still fits into the analysis plans
+
 
 #CORRELATION TO DO----
 
