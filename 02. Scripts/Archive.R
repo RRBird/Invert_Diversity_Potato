@@ -1,52 +1,26 @@
 
+#Old Diversity calculation (diversity by orders instead of functional groups)
 
-##Beta Diversity
 
-#NOT COMPLETED
-
-#Bray-Curtis - abundance data
+diversity(x = invert[which(invert$Order=='Araneae'),] )
+dim(invert[which(invert$Order=='Araneae'),])
 
 ###Araneae
 
-Araneae_matrix3 <- as.data.frame.matrix(Araneae_matrix2)
-head(Araneae_matrix3);dim(Araneae_matrix3)
+Araneae <- invert[which(invert$Order=='Araneae'),]
+head(Araneae);dim(Araneae)
+Araneae_matrix <- table(Araneae$Site, Araneae$Morphospecies)
+head(Araneae_matrix);dim(Araneae_matrix)
 
-Araneae_Beta <- vegdist(Araneae_matrix3, method = 'bray')
-
-
-#TRIAL BELOW TO LOOK AT BETA - IS THIS ENOUGH??
-
-bray_matrix <- as.matrix(Araneae_Beta)
-
-# Create a heatmap
-heatmap(bray_matrix, 
-        main = "Bray-Curtis Dissimilarity Matrix", 
-        col = heat.colors(256),  # Color palette
-        scale = "none")  # No scaling to preserve raw distances
-
-mds <- cmdscale(Araneae_Beta, k = 2)  # k = 2 for 2D MDS plot
-
-# Plot the results
-plot(mds, 
-     xlab = "Dimension 1", 
-     ylab = "Dimension 2", 
-     main = "MDS of Bray-Curtis Dissimilarity")
+Araneae_diversity<-diversity(Araneae_matrix, index = "invsimpson")
+Araneae_diversity<-data.frame(Site = names(Araneae_diversity), Diversity_A = as.numeric(Araneae_diversity))
+head(Araneae_diversity);dim(Araneae_diversity)
+variables <- merge(variables,Araneae_diversity, by = "Site",all.x = T)
+head(variables);dim(variables)
+variables$Diversity_A[is.na(variables$Diversity_A)] <- 0.000001
 
 
-# NMDS (Non-metric Multidimensional Scaling)
-nmds <- metaMDS(Araneae_matrix3, distance = "bray", k = 2)
-#Warning message:
-##In metaMDS(Araneae_matrix3, distance = "bray", k = 2): stress is (nearly) zero: you may have insufficient data
 
-# Plot the NMDS
-plot(nmds, main = "NMDS of Bray-Curtis Dissimilarity")
-
-# Hierarchical clustering using Bray-Curtis dissimilarity
-hclust_result <- hclust(Araneae_Beta)
-
-# Plot the dendrogram
-plot(hclust_result, main = "Hierarchical Clustering of Sites", xlab = "Sites", sub = "")
-
-###Hemieptera
-
-###Coleoptera
+#Code I used for finding the speceis rich of all functional groups
+#just change out the column names and the level
+length(unique(invert$Morphospecies[!is.na(invert$Wings) & invert$Wings == 'Polymorphic']))

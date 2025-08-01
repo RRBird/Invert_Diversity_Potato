@@ -5,7 +5,7 @@ options(scipen = 999)
 library("dplyr")
 library('vegan')
 library("corrplot")
-
+library("tidyr")
 
 #Data----
 point <- read.csv("01. Data/Point_Data.csv")
@@ -101,7 +101,6 @@ morpho$Intro_Native <- factor(morpho$Intro_Native, levels = c("Native","Introduc
 table(morpho$Wings) 
 morpho$Wings[morpho$Wings == "Unknown"] <- NA
 
-
 #Correlation for environmental variables----
 
 cordata <- data.frame(ID = point$Survey_Field,Height = point$Plant_Height,GC = point$Ground_Cover,Position = point$Spatial_Position)
@@ -156,23 +155,26 @@ head(invert);dim(invert)
 ##removing wasps, Lepidoptera and serpintine leaf miner
 dim(invert)
 
-length(invert$Trophic[invert$Trophic == 'Parasite'])
-invert <- invert[invert$Trophic != 'Parasite',]
+table(invert$Trophic)
+length(which(invert$Trophic == 'Parasite'))
+invert <- subset(invert, Trophic != 'Parasite' | is.na(Trophic))
 
 table(invert$Order)
-length(invert$Trophic[invert$Order == 'Lepidoptera'])
-invert <- invert[invert$Order != 'Lepidoptera',]
+length(which(invert$Order == 'Lepidoptera'))
+invert <- subset(invert, Order != 'Lepidoptera' | is.na(Order))
 
 length(invert$Morphospecies[invert$Morphospecies == 'Serpintine_Leaf_Miner'])
-invert <- invert[invert$Morphospecies != 'Serpintine_Leaf_Miner',]
+invert <- subset(invert, Morphospecies != 'Serpintine_Leaf_Miner' | is.na(Morphospecies))
 
+dim(morpho)
 
-length(morpho$Trophic[morpho$Trophic == 'Parasite'])
-morpho <- morpho[morpho$Trophic != 'Parasite',]
+table(morpho$Trophic)
+length(which(morpho$Trophic == 'Parasite'))
+morpho <- subset(morpho, Trophic != 'Parasite' | is.na(Trophic))
 
 table(morpho$Order)
-length(morpho$Trophic[morpho$Order == 'Lepidoptera'])
-morpho <- morpho[morpho$Order != 'Lepidoptera',]
+length(which(morpho$Order == 'Lepidoptera'))
+morpho <- subset(morpho, Order != 'Lepidoptera' | is.na(Order))
 
 length(morpho$Morphospecies[morpho$Morphospecies == 'Serpintine_Leaf_Miner'])
 morpho <- morpho[morpho$Morphospecies != 'Serpintine_Leaf_Miner',]
@@ -189,7 +191,20 @@ head(invert);dim(invert)
 
 invert <- invert[!grepl("^S1", invert$ID), ]
 
-#total observations = 2332 
+#total observations = 2329
+
+setdiff(unique(morpho$Morphospecies), unique(invert$Morphospecies))
+
+#need to remove two from morpho to make sure that its got the same species are were observed
+#double checking they aren't there
+invert[invert$Morphospecies == 'Whitefly',]
+invert[invert$Morphospecies == 'Brown_Weevil',] 
+invert[invert$Morphospecies == 'Small_Ant',]
+
+morpho <- morpho[morpho$Morphospecies != 'Brown_Weevil',]
+morpho <- morpho[morpho$Morphospecies != 'Small_Ant',]
+head(morpho);dim(morpho)
+
 
 #Diversity measures for modelling----
 
@@ -343,147 +358,23 @@ head(ModelRich);dim(ModelRich)
 head(richness[,c(2:21)]);dim(richness)
 sapply(richness[,c(2:21)], function(col) mean(col == 0, na.rm = TRUE))
 
+table(morpho$Morphospecies)
+
+sum(table(invert$Wings))
+
+
 #Removing native and introduced - I think this could be very misleading results since only 42 of 215 inverts were able to be classified 
 #None of the functional groups were able to be identified for all species but I think this is the one that's the most in disproportion
 head(ModelRich);dim(ModelRich)
 ModelRich <- ModelRich %>% dplyr::select(-Native,-Introduced)
 
-
-
-
+##Abundance----
+ #Can I write a loop to create the abundance data?
 
 ##Diversity (Inverse Simpson's diversity index)----
 
-#creating abundance matrixs
-table(invert$Order)
-
-
-diversity(x = invert[which(invert$Order=='Araneae'),] )
-
-
-dim(invert[which(invert$Order=='Araneae'),])
-###Araneae
-
-Araneae <- invert[which(invert$Order=='Araneae'),]
-head(Araneae);dim(Araneae)
-Araneae_matrix <- table(Araneae$Site, Araneae$Morphospecies)
-head(Araneae_matrix);dim(Araneae_matrix)
-
-Araneae_diversity<-diversity(Araneae_matrix, index = "invsimpson")
-Araneae_diversity<-data.frame(Site = names(Araneae_diversity), Diversity_A = as.numeric(Araneae_diversity))
-head(Araneae_diversity);dim(Araneae_diversity)
-variables <- merge(variables,Araneae_diversity, by = "Site",all.x = T)
-head(variables);dim(variables)
-variables$Diversity_A[is.na(variables$Diversity_A)] <- 0.000001
-
-
-(table(variables$Diversity_A)/sum(table(variables$Diversity_A)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Diversity_A, type = "p", xlab = "Site", ylab = "Diversity (spiders)",)
-
-###Hemieptera
-
-Hemiptera <- invert[which(invert$Order=='Hemiptera'),]
-head(Hemiptera);dim(Hemiptera)
-Hemiptera_matrix <- table(Hemiptera$Site, Hemiptera$Morphospecies)
-head(Hemiptera_matrix);dim(Hemiptera_matrix)
-
-Hemiptera_diversity<-diversity(Hemiptera_matrix, index = "invsimpson")
-Hemiptera_diversity<-data.frame(Site = names(Hemiptera_diversity), Diversity_H = as.numeric(Hemiptera_diversity))
-head(Hemiptera_diversity);dim(Hemiptera_diversity)
-variables <- merge(variables,Hemiptera_diversity, by = "Site",all.x = T)
-head(variables);dim(variables)
-variables$Diversity_H[is.na(variables$Diversity_H)] <- 0.000001
-
-
-(table(variables$Diversity_H)/sum(table(variables$Diversity_H)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Diversity_H, type = "p", xlab = "Site", ylab = "Diversity (true bugs)",)
-
-
-###Coleoptera
-
-Coleoptera <- invert[which(invert$Order=='Coleoptera'),]
-head(Coleoptera);dim(Coleoptera)
-Coleoptera_matrix <- table(Coleoptera$Site, Coleoptera$Morphospecies)
-head(Coleoptera_matrix);dim(Coleoptera_matrix)
-
-Coleoptera_diversity<-diversity(Coleoptera_matrix, index = "invsimpson")
-Coleoptera_diversity<-data.frame(Site = names(Coleoptera_diversity), Diversity_C = as.numeric(Coleoptera_diversity))
-head(Coleoptera_diversity);dim(Coleoptera_diversity)
-variables <- merge(variables,Coleoptera_diversity, by = "Site",all.x = T)
-head(variables);dim(variables)
-variables$Diversity_C[is.na(variables$Diversity_C)] <- 0.000001
-
-
-(table(variables$Diversity_C)/sum(table(variables$Diversity_C)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Diversity_C, type = "p", xlab = "Site", ylab = "Diversity (beetles)",)
-
-##Community Composition----
-
-###Araneae
-
-Araneae_matrix2 <- as.matrix(Araneae_matrix)
-str(Araneae_matrix2)
-storage.mode(Araneae_matrix2) <- "numeric"  # Forces values to be numeric, not integer
-
-pca_A<-prcomp(Araneae_matrix2,scale = T)
-summary(pca_A)
-pov_A <- summary(pca_A)$importance[2,]
-
-sum(pov_A)
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-plot(x=1:length(pov_A),y=pov_A,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
-
-###Hemieptera
-
-Hemiptera_matrix2 <- as.matrix(Hemiptera_matrix)
-str(Hemiptera_matrix2)
-storage.mode(Hemiptera_matrix2) <- "numeric"  # Forces values to be numeric, not integer
-
-pca_H<-prcomp(Hemiptera_matrix2,scale = T)
-summary(pca_H)
-pov_H <- summary(pca_H)$importance[2,]
-
-sum(pov_H)
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-plot(x=1:length(pov_H),y=pov_H,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
-
-###Coleoptera
-
-Coleoptera_matrix2 <- as.matrix(Coleoptera_matrix)
-str(Coleoptera_matrix2)
-storage.mode(Coleoptera_matrix2) <- "numeric"  # Forces values to be numeric, not integer
-
-pca_C<-prcomp(Coleoptera_matrix2,scale = T)
-summary(pca_C)
-pov_C <- summary(pca_C)$importance[2,]
-
-sum(pov_C)
-
-dev.new(height=20,width=20,dpi=80,pointsize=14,noRStudioGD = T)
-plot(x=1:length(pov_C),y=pov_C,ylab="Propotion Varience Explained",xlab="Components",type="h",las=1)
+#Some old code is in the archive script for me to try
 
 
 
 
-#Beta Diversity -> araneae, hemi, coleoptera
-  ###Araneae
-  
-  ###Hemieptera
-  
-  ###Coleoptera
-
-#Functional abundance
-    #araneae - hunting type
-    #hemi - size and trophic
-    #coleoptera - size and trophic
-
-#Then need to check all these calculations for spatial autocorrelation
-#Don't forget to remove all the coordinators etc. after this 
