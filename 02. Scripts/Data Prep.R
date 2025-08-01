@@ -4,7 +4,7 @@ options(scipen = 999)
 
 library("dplyr")
 library('vegan')
-
+library("corrplot")
 
 
 #Data----
@@ -36,6 +36,8 @@ morpho <- morpho[,-which(names(morpho)=='Duplicates')]
 summary(point)
 point <- point[,-which(names(point)=='X_Cor')]
 point <- point[,-which(names(point)=='Y_Cor')]
+hist(point$Plant_Height)
+hist(point$Ground_Cover)
 
 summary(field)
 field <- field[,-which(names(field)=='Notes')]
@@ -67,7 +69,7 @@ field <- field[,-which(names(field) =="X1km_Prop_Nat_Graze")]
 hist(point$Ground_Cover)
 hist(point$Plant_Height)
 
-#Some data fixes for functional groups----
+##Some data fixes for functional groups----
 
 table(morpho$Size)
 morpho$Size[morpho$Size == "Unknown"] <- NA
@@ -100,13 +102,40 @@ table(morpho$Wings)
 morpho$Wings[morpho$Wings == "Unknown"] <- NA
 
 
-##UP TO HERE----
-##Still need to clear the below to make sure it still fits into the analysis plans
+#Correlation for environmental variables----
 
+cordata <- data.frame(ID = point$Survey_Field,Height = point$Plant_Height,GC = point$Ground_Cover,Position = point$Spatial_Position)
 
-#CORRELATION TO DO----
+cordata <- merge(cordata,field, by = "ID")
 
-#transplant same correlation from pred dom since it's the same variables
+head(cordata);dim(cordata)
+
+cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X500m_Prop_Water,X1km_Prop_Crops,X1km_Prop_Water,NDVImean_Field,NDVIsum_500m,NDVImean_500m,NDVIsum_1km,NDVImean_1km)
+
+cordata$Position[cordata$Position == 'Outer'] <- 1
+cordata$Position[cordata$Position == 'Inner'] <- 2
+cordata$Position <- as.numeric(cordata$Position)
+
+str(cordata)#checking for any other character variables
+cor <- cor(cordata,method = "spearman")
+colnames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
+rownames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
+
+dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
+corrplot::corrplot(cor,method="color",  
+                   type="upper",addCoef.col = 'black',number.cex = 0.6)
+head(cor)
+
+#Crops and water 500m are correlated with a design variable
+#crops 1000m has a high correlation with a design variable also
+
+#Uncorrelated variables listed below based on correlation plot
+
+#Design variables: Crop age, day sampled and spatial position
+#Point Variables: Ground cover, plant height
+#Field variables: Field size, field NDVI (mean)
+#Landscape variable: water 1km, NDVI (sum) (500m or 1km as these are correlated with each other)
+
 
 ##Merging data bases----
 
@@ -117,13 +146,12 @@ variables <- merge(variables,field, by = "ID")
 head(variables);dim(variables)
 
 variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X1km_Prop_Water,NDVImean_Field,NDVIsum_1km)
-
+head(variables);dim(variables)
 
 invert <- data.frame(ID = obs$Site,Morphospecies = obs$Morphospecies)
 
 invert <- merge(invert,morpho,by = "Morphospecies")
 head(invert);dim(invert)
-
 
 ##removing wasps, Lepidoptera and serpintine leaf miner
 dim(invert)
@@ -139,7 +167,17 @@ length(invert$Morphospecies[invert$Morphospecies == 'Serpintine_Leaf_Miner'])
 invert <- invert[invert$Morphospecies != 'Serpintine_Leaf_Miner',]
 
 
-##Removing first survey observations----
+length(morpho$Trophic[morpho$Trophic == 'Parasite'])
+morpho <- morpho[morpho$Trophic != 'Parasite',]
+
+table(morpho$Order)
+length(morpho$Trophic[morpho$Order == 'Lepidoptera'])
+morpho <- morpho[morpho$Order != 'Lepidoptera',]
+
+length(morpho$Morphospecies[morpho$Morphospecies == 'Serpintine_Leaf_Miner'])
+morpho <- morpho[morpho$Morphospecies != 'Serpintine_Leaf_Miner',]
+
+##Removing first survey observations
 #diversity measures taken weren't reliable so excluded from analysis
 
 head(variables);dim(variables)
@@ -147,74 +185,172 @@ head(variables);dim(variables)
 length(variables$ID[variables$ID == 'S1_F3'])
 variables <- variables[variables$ID != 'S1_F3',]
 
-head(invert)
-
-dim(invert)
+head(invert);dim(invert)
 
 invert <- invert[!grepl("^S1", invert$ID), ]
+
+#total observations = 2332 
 
 #Diversity measures for modelling----
 
 table(invert$Order)
 dim(variables)
 
-#We will only calculate diversity measures for taxon Orders with more observations than the number of sites
-
-#Araneae, Coleoptera, Hemiptera
-
-#remaining orders don't met the above rule even when combined together into one group (other)
-
 
 ##Richness----
 
 head(invert);dim(invert)
 head(variables);dim(variables)
-head(richness);dim(richness)
-
-###Araneae
 
 names(invert)[names(invert) == "ID"] <- "Site"
 
-richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Araneae",], FUN = function(x) length(unique(x)))
+richness <- data.frame(Site = variables$Site)
+head(richness);dim(richness)
 
-variables <- merge(variables,richness, by = "Site",all.x = T)
-names(variables)[names(variables) == "Morphospecies"] <- "Richness_A"
-variables$Richness_A[is.na(variables$Richness_A)] <- 0
+#all species richness
+temprich <- aggregate(Morphospecies ~ Site, data = invert, FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[2] <- "All"
+head(richness);dim(richness)
+
+#Trophic - Predator
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Trophic == "Predator",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[3] <- "Predator"
+
+#Trophic - Herbivore
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Trophic == "Herbivore",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[4] <- "Herbivore"
+
+#Trophic - Omnivore
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Trophic == "Ominvore",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[5] <- "Omnivore"
+
+#Trophic - Fungivore
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Trophic == "Fungivore",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[6] <- "Fungivore"
+
+#Trophic - Hematophagous
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Trophic == "Hematophagous",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[7] <- "Hematophagous"
+
+#Hunting Style - Web
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Hunting.Style == "Web",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[8] <- "Web"
+
+#Hunting Style - Active Hunting
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Hunting.Style == "Active_Hunting",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[9] <- "Active_Hunting"
+
+#Hunting Style - Ambush Hunting
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Hunting.Style == "Ambush_Hunter",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[10] <- "Ambush_Hunting"
+
+#Hunting Style - Hawking
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Hunting.Style == "Hawking",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[11] <- "Hawking"
+
+#Size - 0-2.5mm
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Size == "0-2.5",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[12] <- "0-2.5"
+
+#Size - 2.5-5mm
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Size == "2.5-5",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[13] <- "2.5-5"
+
+#Size - 5-10mm
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Size == "5-10",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[14] <- "5-10"
+
+#Size - >10mm
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Size == ">10",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[15] <- ">10"
+
+#Native/intro - Native
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Intro_Native == "Native",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[16] <- "Native"
+
+#Native/intro - Introduced 
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Intro_Native == "Introduced",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[17] <- "Introduced"
+
+#Wings - Always Winged 
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Always_Winged",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[18] <- "Always_Winged"
+
+#Wings - Develops Wings 
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Develops_Wings",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[19] <- "Develops_Wings"
+
+#Wings - Wingless 
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Wingless",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[20] <- "Wingless"
+
+#Wings - Polymorphic 
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Polymorphic",], FUN = function(x) length(unique(x)))
+richness <- merge(richness,temprich,by = "Site",all.x = T)
+head(richness);dim(richness)
+colnames(richness)[21] <- "Polymorphic"
+
+#replacing all NAs with 0's 
+richness[is.na(richness)] <- 0
+
+###Creating modelling data----
+
+head(variables);dim(variables)
+head(richness);dim(richness)
+
+ModelRich <- merge(richness,variables,by = "Site")
+head(ModelRich);dim(ModelRich)
+
+#workong out prop zero for each functional group
+head(richness[,c(2:21)]);dim(richness)
+sapply(richness[,c(2:21)], function(col) mean(col == 0, na.rm = TRUE))
+
+#Removing native and introduced - I think this could be very misleading results since only 42 of 215 inverts were able to be classified 
+#None of the functional groups were able to be identified for all species but I think this is the one that's the most in disproportion
+head(ModelRich);dim(ModelRich)
+ModelRich <- ModelRich %>% dplyr::select(-Native,-Introduced)
 
 
-(table(variables$Richness_A)/sum(table(variables$Richness_A)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Richness_A, type = "p", xlab = "Site", ylab = "Richness (spiders)",)
-
-###Hemieptera
-
-richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Hemiptera",], FUN = function(x) length(unique(x)))
-
-variables <- merge(variables,richness, by = "Site",all.x = T)
-names(variables)[names(variables) == "Morphospecies"] <- "Richness_H"
-variables$Richness_H[is.na(variables$Richness_H)] <- 0
 
 
-(table(variables$Richness_H)/sum(table(variables$Richness_H)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Richness_H, type = "p", xlab = "Site", ylab = "Richness (True Bugs)",)
-
-###Coleoptera
-
-richness <- aggregate(Morphospecies ~ Site, data = invert[invert$Order == "Coleoptera",], FUN = function(x) length(unique(x)))
-
-variables <- merge(variables,richness, by = "Site",all.x = T)
-names(variables)[names(variables) == "Morphospecies"] <- "Richness_C"
-variables$Richness_C[is.na(variables$Richness_C)] <- 0
-
-
-
-(table(variables$Richness_C)/sum(table(variables$Richness_C)))*100
-
-dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(as.factor(variables$Site), variables$Richness_C, type = "p", xlab = "Site", ylab = "Richness (Beetles)",)
 
 ##Diversity (Inverse Simpson's diversity index)----
 
