@@ -34,8 +34,6 @@ morpho <- morpho[,-which(names(morpho)=='NOTES')]
 morpho <- morpho[,-which(names(morpho)=='Duplicates')]
 
 summary(point)
-point <- point[,-which(names(point)=='X_Cor')]
-point <- point[,-which(names(point)=='Y_Cor')]
 hist(point$Plant_Height)
 hist(point$Ground_Cover)
 
@@ -578,5 +576,19 @@ head(diversity);dim(diversity)
 ModelDiv <- merge(diversity,variables,by = "Site")
 head(ModelDiv);dim(ModelDiv)
 
+
+#Binomial data----
+
+head(invert);dim(invert)
+
+occurance <- data.frame(Site = variables$Site)
+head(occurance);dim(occurance)
+
+#Not all functional groups are getting binomial models
+
+
+#Trophic
+
+trophic.list2 <- trophic.list[2:5]
 
 #END----
