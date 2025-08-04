@@ -586,9 +586,112 @@ head(occurance);dim(occurance)
 
 #Not all functional groups are getting binomial models
 
-
 #Trophic
 
 trophic.list2 <- trophic.list[2:5]
+tempoccur<- data.frame(Site = variables$Site)
+
+b <- 2
+for (i in trophic.list2) {
+  
+  tempoccur$pres.abs <- ifelse(tempoccur$Site %in% 
+                        invert$Site[invert$Trophic == i], 1, 0)
+  
+  occurance <- merge(occurance,tempoccur,by = "Site",all.x = T)
+  
+  colnames(occurance)[b] <- i
+  
+  b <- b+1
+}
+
+head(occurance);dim(occurance)
+
+colnames(occurance)[3] <- "Omnivore"
+
+#Hunting Style
+
+for (i in hunt.list) {
+  
+  tempoccur$pres.abs <- ifelse(tempoccur$Site %in% 
+                               invert$Site[invert$Hunting.Style == i],
+                               1, 0)
+  
+  occurance <- merge(occurance,tempoccur,by = "Site",all.x = T)
+  
+  colnames(occurance)[b] <- i
+  
+  b <- b+1
+}
+
+head(occurance);dim(occurance)
+
+#Size
+
+size.list2 <- size.list[2:4]
+
+for (i in size.list2) {
+  
+  tempoccur$pres.abs <- ifelse(tempoccur$Site %in% 
+                                 invert$Site[invert$Size == i], 1, 0)
+  
+  occurance <- merge(occurance,tempoccur,by = "Site",all.x = T)
+  
+  colnames(occurance)[b] <- i
+  
+  b <- b+1
+}
+
+head(occurance);dim(occurance)
+
+#Wings
+
+wing.list2 <- wing.list[c(1,3,4)]
+
+for (i in wing.list) {
+  
+  tempoccur$pres.abs <- ifelse(tempoccur$Site %in% 
+                                 invert$Site[invert$Wings == i], 1, 0)
+  
+  occurance <- merge(occurance,tempoccur,by = "Site",all.x = T)
+  
+  colnames(occurance)[b] <- i
+  
+  b <- b+1
+}
+
+head(occurance);dim(occurance)
+
+
+###Creating modelling data----
+
+
+head(variables);dim(variables)
+head(occurance);dim(occurance)
+
+ModelOccur <- merge(occurance,variables,by = "Site")
+head(ModelOccur);dim(ModelOccur)
+
+#Add coordinates----
+#need in data to check for spatial autocorrelation in models later on in process
+
+head(point);dim(point)
+
+coords <- point %>% dplyr::select(Site, X_Cor,Y_Cor,Survey)
+head(coords);dim(coords)
+
+coords <- coords[coords$Survey != 1, ]
+coords$Survey <- NULL
+
+ModelRich2 <- merge(ModelRich,coords,by = "Site")
+head(ModelRich2);dim(ModelRich2)
+
+ModelAbund2 <- merge(ModelAbund,coords,by = "Site")
+head(ModelAbund2);dim(ModelAbund2)
+
+ModelDiv2 <- merge(ModelDiv,coords,by = "Site")
+head(ModelDiv2);dim(ModelDiv2)
+
+ModelOccur2 <- merge(ModelOccur,coords,by = "Site")
+head(ModelOccur2);dim(ModelOccur2)
 
 #END----
