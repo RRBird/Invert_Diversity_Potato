@@ -36,36 +36,35 @@ for (i in rich_names) {
     allsum [[3]] <- summary(A)
     D <- glmmTMB(as.formula(paste(i, "~ Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[4]] <- summary(D)
-    P+A <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[5]] <- summary(P+A)
-    P+D <- glmmTMB(as.formula(paste(i, "~ Position + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[6]] <- summary(P+D)
-    D+A <- glmmTMB(as.formula(paste(i, "~ Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[7]] <- summary(D+A)
+    PA <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[5]] <- summary(PA)
+    PD <- glmmTMB(as.formula(paste(i, "~ Position + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[6]] <- summary(PD)
+    DA <- glmmTMB(as.formula(paste(i, "~ Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[7]] <- summary(DA)
     PxA <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[8]] <- summary(PxA)
     PxD <- glmmTMB(as.formula(paste(i, "~ Position * Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[9]] <- summary(PxD)
     DxA <- glmmTMB(as.formula(paste(i, "~ Day_Sampled * Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[10]] <- summary(DxA)
-    
-    P+A+D <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[11]] <- summary(DxA)
-    PxA+D <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[12]] <- summary(DxA)
-    PxD+A <- glmmTMB(as.formula(paste(i, "~ Position * Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
-    allsum[[13]] <- summary(DxA)
-    P+AxD <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days * Day_Sampled + (1 | Field)")), data = ModelRich2)
-    allsum[[14]] <- summary(DxA)
+    PAD <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[11]] <- summary(PAD)
+    PxAD <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[12]] <- summary(PxAD)
+    PxDA <- glmmTMB(as.formula(paste(i, "~ Position * Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    allsum[[13]] <- summary(PxDA)
+    PAxD <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days * Day_Sampled + (1 | Field)")), data = ModelRich2)
+    allsum[[14]] <- summary(PAxD)
     PxAxD <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days * Day_Sampled + (1 | Field)")), data = ModelRich2)
-    allsum[[15]] <- summary(DxA)
+    allsum[[15]] <- summary(PxAxD)
     
   #collect models
   tempmodlist <- list("null" = null, "P" = P, "A" = A, "D" = D,
-                      "P+A" = P+A, "P+D" = P+D, "D+A" = D+A, 
+                      "PA" = PA, "PD" = PD, "DA" = DA, 
                       "PxA" = PxA, "PxD" = PxD, "DxA" = DxA, 
-                      "P+A+D"=P+A+D, "PxA+D"=PxA+D, "PxD+A"=PxD+A, 
-                      "P+AxD" = P+AxD, "PxAxD" = PxAxD)
+                      "PAD" = PAD, "PxAD" = PxAD, "PxDA" = PxDA, 
+                      "PAxD" = PAxD, "PxAxD" = PxAxD)
   
   #check which models didn't coverge/had issue to exclude from AIC
   has_na <- sapply(allsum, function(model) is.na(model$AICtab[1]))
@@ -75,40 +74,28 @@ for (i in rich_names) {
  Richlist1 [[i]] <- aictab(cleaned_models,modnames = NULL)
  
 }
+
 length(Richlist1)
 
-
-
-#Sort of working --> only 10 of the richness groups there
-
-#ORGINAL FOR LOOP----
-
-for (i in rich_names) {
-  null <- glmmTMB(i ~ 1 + (1 | Field), family = nbinom2, data = ModelRich2)
-  P <- glmmTMB(i ~ Position + (1 | Field), family = nbinom2, data = ModelRich2)
-  A <- glmmTMB(i ~ Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  D <- glmmTMB(i ~ Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  P+A <- glmmTMB(i ~ Position + Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  P+D <- glmmTMB(i ~ Position + Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  D+A <- glmmTMB(i ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  PxA <- glmmTMB(i ~ Position * Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  PxD <- glmmTMB(i ~ Position * Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  DxA <- glmmTMB(i ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  P+A+D <- glmmTMB(i ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  PxA+D <- glmmTMB(i ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  PxD+A <- glmmTMB(i ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = nbinom2, data = ModelRich2)
-  P+AxD <- glmmTMB(i ~ Position + Crop_Age_Days * Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  PxAxD <- glmmTMB(i ~ Position * Crop_Age_Days * Day_Sampled + (1 | Field), family = nbinom2, data = ModelRich2)
-  
-  tempmodlist <- list(null, P, A, D, P+A, P+D, D+A, PxA, PxD, DxA, P+A+D, PxA+D, PxD+A, P+AxD, PxAxD)
-  
-  Richlist1 [[t]] <- aictab(tempmodlist)
-  
-  t <- t+1
-}
-
+Richlist1[[1]]
 
 ##Step 2 - Environmental Variables----
+
+#can we do a similar thing but would need to be able to shift the variables already there for each 
+#Will probably need to store the formula for each group that needs to be included in a list or something -> Group = Position * Age (or something)
+#Possibly a for loop within a for loop???
+
+#Can i have t = 1 (add to t each time)
+#then inside model richformulas[[1]]
+#e.g. glmmTMB(as.formula(paste(i, "~ richformulas[[1]] + Envrio + (1 | Field)")), family = nbinom2, data = ModelRich2)
+
+#small trial
+trial <- list()
+trial [[1]] <- "Day_Sampled * Crop_Age_Days"
+glmmTMB(All ~ trial [[1]] + GC + (1 | Field), family = nbinom2, data = ModelRich2)
+#that didn't work so see if you can fiund a way around it
+
+#Don't forget need to run the model from step 1 and all the environmental models 
 
 
 ##Step 3 - Check for spatial autocorrelation----
