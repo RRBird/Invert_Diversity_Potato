@@ -20,58 +20,66 @@ colnames(ModelRich2)[13] <- "Size_2"
 colnames(ModelRich2)[14] <- "Size_3"
 colnames(ModelRich2)[15] <- "Size_4"
 
+ModelRich2$Age_Scaled <- scale(ModelRich$Crop_Age_Days)
+ModelRich2$Day_Scaled <- scale(ModelRich$Day_Sampled)
+
 
 rich_names <- colnames(ModelRich2)[2:19]
 length(rich_names)
 Richlist1 <- list()
-allsum <- list()
 
 for (i in rich_names) {
   allsum <- list()
+  
+  cat("=== Processing group:", i, "===\n") #track where loop is up to
   
 #run models and collect summaries
     null <- glmmTMB(as.formula(paste(i, "~ 1 + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum [[1]] <- summary(null)
     P <- glmmTMB(as.formula(paste(i, "~ Position + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum [[2]] <- summary(P)
-    A <- glmmTMB(as.formula(paste(i, "~ Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    A <- glmmTMB(as.formula(paste(i, "~ Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum [[3]] <- summary(A)
-    D <- glmmTMB(as.formula(paste(i, "~ Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    D <- glmmTMB(as.formula(paste(i, "~ Day_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[4]] <- summary(D)
-    PA <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PA <- glmmTMB(as.formula(paste(i, "~ Position + Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[5]] <- summary(PA)
-    PD <- glmmTMB(as.formula(paste(i, "~ Position + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PD <- glmmTMB(as.formula(paste(i, "~ Position + Day_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[6]] <- summary(PD)
-    DA <- glmmTMB(as.formula(paste(i, "~ Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    DA <- glmmTMB(as.formula(paste(i, "~ Day_Scaled + Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[7]] <- summary(DA)
-    PxA <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PxA <- glmmTMB(as.formula(paste(i, "~ Position * Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[8]] <- summary(PxA)
-    PxD <- glmmTMB(as.formula(paste(i, "~ Position * Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PxD <- glmmTMB(as.formula(paste(i, "~ Position * Day_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[9]] <- summary(PxD)
-    DxA <- glmmTMB(as.formula(paste(i, "~ Day_Sampled * Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    DxA <- glmmTMB(as.formula(paste(i, "~ Day_Scaled * Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[10]] <- summary(DxA)
-    PAD <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PAD <- glmmTMB(as.formula(paste(i, "~ Position + Age_Scaled + Day_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[11]] <- summary(PAD)
-    PxAD <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days + Day_Sampled + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PxAD <- glmmTMB(as.formula(paste(i, "~ Position * Age_Scaled + Day_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[12]] <- summary(PxAD)
-    PxDA <- glmmTMB(as.formula(paste(i, "~ Position * Day_Sampled + Crop_Age_Days + (1 | Field)")), family = nbinom2, data = ModelRich2)
+    PxDA <- glmmTMB(as.formula(paste(i, "~ Position * Day_Scaled + Age_Scaled + (1 | Field)")), family = nbinom2, data = ModelRich2)
     allsum[[13]] <- summary(PxDA)
-    PAxD <- glmmTMB(as.formula(paste(i, "~ Position + Crop_Age_Days * Day_Sampled + (1 | Field)")), data = ModelRich2)
+    PAxD <- glmmTMB(as.formula(paste(i, "~ Position + Age_Scaled * Day_Scaled + (1 | Field)")), data = ModelRich2,family = nbinom2,)
     allsum[[14]] <- summary(PAxD)
-    PxAxD <- glmmTMB(as.formula(paste(i, "~ Position * Crop_Age_Days * Day_Sampled + (1 | Field)")), data = ModelRich2)
-    allsum[[15]] <- summary(PxAxD)
     
   #collect models
   tempmodlist <- list("null" = null, "P" = P, "A" = A, "D" = D,
                       "PA" = PA, "PD" = PD, "DA" = DA, 
                       "PxA" = PxA, "PxD" = PxD, "DxA" = DxA, 
                       "PAD" = PAD, "PxAD" = PxAD, "PxDA" = PxDA, 
-                      "PAxD" = PAxD, "PxAxD" = PxAxD)
+                      "PAxD" = PAxD)
   
-  #check which models didn't coverge/had issue to exclude from AIC
-  has_na <- sapply(allsum, function(model) is.na(model$AICtab[1]))
-  na_models <- allsum[has_na]
-  cleaned_models <- tempmodlist[!has_na] #remove models with NA as AIC
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model$fit$convergence != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
   
  Richlist1 [[i]] <- aictab(cleaned_models,modnames = NULL)
  
@@ -79,30 +87,35 @@ for (i in rich_names) {
 
 length(Richlist1)
 
-Richlist1[[1]]
+Richlist1
+
+#check which models didn't coverge/had issue to exclude from AIC
+has_na <- sapply(allsum, function(model) is.na(model$AICtab[1]))
+na_models <- allsum[has_na]
+cleaned_models <- tempmodlist[!has_na] #remove models with NA as AIC
 
 ##Step 2 - Environmental Variables----
 
 rich_names
 Rich_design <- list(
-  All = "Day_Sampled * Crop_Age_Days",
-  Predator = "Day_Sampled * Crop_Age_Days",
-  Herbivore = "Position + Day_Sampled",   
-  Omnivore = "Position + Crop_Age_Days * Day_Sampled",
-  Fungivore = "Position + Crop_Age_Days * Day_Sampled",     
-  Hematophagous = "Position + Crop_Age_Days * Day_Sampled",
-  Web = "Position * Day_Sampled + Crop_Age_Days",          
-  Active_Hunting = "Day_Sampled",
-  Ambush_Hunting = "Position + Crop_Age_Days * Day_Sampled",
-  Hawking = "Position + Crop_Age_Days * Day_Sampled",      
-  Size_1 = "Day_Sampled + Crop_Age_Days",
+  All = "Age_Scaled",
+  Predator = "Day_Scaled + Age_Scaled",
+  Herbivore = "Position + Day_Scaled",   
+  Omnivore = "Age_Scaled",
+  Fungivore = "Age_Scaled",     
+  Hematophagous = NULL,
+  Web = "Position * Day_Scaled + Age_Scaled",          
+  Active_Hunting = "Day_Scaled * Age_Scaled",
+  Ambush_Hunting = "Position + Age_Scaled",
+  Hawking = "Position + Day_Scaled",      
+  Size_1 = "Position + Age_Scaled + Day_Scaled",
   Size_2 = NULL,      
-  Size_3 = "Day_Sampled",
-  Size_4 = "Position + Crop_Age_Days * Day_Sampled",
-  Always_Winged = "Position + Crop_Age_Days * Day_Sampled",
-  Develops_Wings = "Crop_Age_Days",
-  Wingless = "Position * Crop_Age_Days + Day_Sampled",
-  Polymorphic = "Position * Crop_Age_Days * Day_Sampled")
+  Size_3 = "Position + Age_Scaled * Day_Scaled",
+  Size_4 = "Age_Scaled",
+  Always_Winged = NULL,
+  Develops_Wings = "Age_Scaled",
+  Wingless = "Position * Age_Scaled + Day_Scaled",
+  Polymorphic = "Day_Scaled + Age_Scaled *")
 head(Rich_design)
 
 Richlist2 <- list()
@@ -124,6 +137,7 @@ for (i in rich_names) {
     base_formula <- paste(i, "~", design_formula_part, "+ (1 | Field)")}
   base_model <- glmmTMB(as.formula(base_formula),family = nbinom2, data = ModelRich2)
   allsum[[1]] <- summary(base_model)
+
   
   if (is.null(design_formula_part) || design_formula_part == "") {
     height_formula <- paste(i, "~ Height + (1 | Field)")} else {
@@ -166,10 +180,16 @@ for (i in rich_names) {
                       "water" = water_model,"Field NDVI" = NDVIf_model,
                       "NDVI 1km" = NDVI1km_model)
   
-  #check which models didn't coverge/had issue to exclude from AIC
-  has_na <- as.logical(sapply(allsum, function(model) is.na(model$AICtab[1])))
-  na_models <- allsum[has_na]
-  cleaned_models <- tempmodlist[!has_na] #remove models with NA as AIC
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model$fit$convergence != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
   
   Richlist2 [[i]] <- aictab(cleaned_models,modnames = NULL)
   
@@ -177,11 +197,60 @@ for (i in rich_names) {
 
 length(Richlist2)
 
-Richlist2[[1]]
+Richlist2
 
+###Final Richness models ----
 
-#Loop is working currently but might need to rescale variables to make sure that models will converge??? 
-#need to work out what my system is for this?????
+Rich_All <- glmmTMB(All ~ Age_Scaled + Field_Area_m2 + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_All)
+
+Rich_Pred <- glmmTMB(Predator ~ Day_Scaled + Age_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Pred)
+
+Rich_Herb <- glmmTMB(Herbivore ~ Position + Day_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Herb)
+
+Rich_Omni <- glmmTMB(Omnivore ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Omni)
+
+Rich_Fung <- glmmTMB(Fungivore ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Fung)
+
+Rich_Hema <- glmmTMB(Hematophagous ~ NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Hema)
+
+Rich_Web <- glmmTMB(Web ~ Position * Day_Scaled + Age_Scaled + GC + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Web)
+
+Rich_Active <- glmmTMB(Active_Hunting ~ Day_Scaled * Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Active)
+
+Rich_Ambush <- glmmTMB(Ambush_Hunting ~ Position + Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Ambush)
+
+Rich_Hawk <- glmmTMB(Hawking ~ Position + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Hawk)
+
+Rich_Size1 <- glmmTMB(Size_1 ~ Position + Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Size1)
+
+Rich_Size2 <- glmmTMB(Size_2 ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Size2)
+
+Rich_Size3 <- glmmTMB(Size_3 ~ Position + Age_Scaled * Day_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Size3)
+
+Rich_Size4 <- glmmTMB(Size_4 ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Size4)
+
+Rich_DevW <- glmmTMB(Develops_Wings ~ Age_Scaled + NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_DevW)
+
+Rich_Wless <- glmmTMB(Wingless ~ Position * Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Wless)
+
+Rich_Poly <- glmmTMB(Polymorphic ~ Day_Scaled + Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_Poly)
 
 ##Step 3 - Check for spatial autocorrelation----
 
@@ -190,7 +259,7 @@ Richlist2[[1]]
 
 ###Main Figures----
 
-###Supporting Figures----
+###Supporting Figures??----
 
 
 #Abundance Modelling----
