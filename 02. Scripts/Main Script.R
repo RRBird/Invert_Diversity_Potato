@@ -4,6 +4,9 @@
 library("AICcmodavg")
 library('lme4')
 library("glmmTMB")
+library("dplyr")
+library("DHARMa")
+
 
 #Richness Modelling----
 
@@ -253,6 +256,31 @@ Rich_Poly <- glmmTMB(Polymorphic ~ Day_Scaled + Age_Scaled + (1|Field), family =
 summary(Rich_Poly)
 
 ##Step 3 - Check for spatial autocorrelation----
+
+
+#Figured out how to do spatial check for each individual field for spatial autocorrelation within models - need to turn into a loop and work out how I want to collect results in loop 
+#Also can I do all models through loop. Maybe a loop within a loop????
+
+
+
+model_residuals <- simulateResiduals(Rich_All)
+
+#Extracting specific residuals for indivudal fields
+field_indices <- which(ModelRich2$Field == 3)
+field_residuals <- model_residuals
+field_residuals$scaledResiduals <- model_residuals$scaledResiduals[field_indices]
+field_residuals$fittedPredictedResponse <- model_residuals$fittedPredictedResponse[field_indices]
+
+
+
+# Test spatial autocorrelation using your grid coordinates
+spatial_test <- testSpatialAutocorrelation(field_residuals, 
+                          x = ModelRich2$X_Cor[ModelRich2$Field == 3], 
+                          y = ModelRich2$Y_Cor[ModelRich2$Field == 3])
+
+spatial_test$statistic # The test statistic - note important one here is observed - want this to be close to zero 
+spatial_test$p.value # P-value for the test - indicates if there is significant spatial autocorrelation - statistic above indicates the magnitude and the direction (positive or negative)
+spatial_test$method #Method used for statistic
 
 
 ##Step 4 - Visualisation----
