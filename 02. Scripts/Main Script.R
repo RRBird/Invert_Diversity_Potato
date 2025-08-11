@@ -14,7 +14,7 @@ library("DHARMa")
 
 #position, age and day - all the various combinations of these 
 
-#try to write a loop for this first part - can put the results into a list so then I can do list[1] and see the modelling results for just the first grouping
+#tried to write a loop for this first part - can put the results into a list so then I can do list[1] and see the modelling results for just the first grouping
 head(ModelRich2);dim(ModelRich2)
 str(ModelRich2)
 #loop is struggling with the size column names so will just update them
@@ -202,7 +202,7 @@ length(Richlist2)
 
 Richlist2
 
-###Final Richness models ----
+###Richness models after first two steps----
 
 Rich_All <- glmmTMB(All ~ Age_Scaled + Field_Area_m2 + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_All)
@@ -261,27 +261,82 @@ summary(Rich_Poly)
 #Figured out how to do spatial check for each individual field for spatial autocorrelation within models - need to turn into a loop and work out how I want to collect results in loop 
 #Also can I do all models through loop. Maybe a loop within a loop????
 
+field_numbers <- unique(ModelRich2$ID)
 
+richmods <- list(Rich_All = Rich_All, Rich_Pred = Rich_Pred, 
+                 Rich_Herb = Rich_Herb, Rich_Omni = Rich_Omni, 
+                 Rich_Fung = Rich_Fung, Rich_Hema = Rich_Hema, 
+                 Rich_Web = Rich_Web, Rich_Active = Rich_Active, 
+                 Rich_Ambush = Rich_Ambush, Rich_Hawk = Rich_Hawk,
+                 Rich_Size1 = Rich_Size1, Rich_Size2 = Rich_Size2,
+                 Rich_Size3 = Rich_Size3,  Rich_Size4 = Rich_Size4,
+                 Rich_DevW = Rich_DevW, Rich_Wless = Rich_Wless, 
+                 Rich_Poly = Rich_Poly)
+richmods[[3]]
 
-model_residuals <- simulateResiduals(Rich_All)
+rich_spatial_results <- list()
 
-#Extracting specific residuals for indivudal fields
-field_indices <- which(ModelRich2$Field == 3)
-field_residuals <- model_residuals
-field_residuals$scaledResiduals <- model_residuals$scaledResiduals[field_indices]
-field_residuals$fittedPredictedResponse <- model_residuals$fittedPredictedResponse[field_indices]
+for (i in names(richmods)) {
+  
+  cat("=== Processing Model:", i, "===\n") #track which model loop is up to
+  
+  model_residuals <- simulateResiduals(richmods[[i]])
+  spatial_result <- data.frame(
+    field = rep(NA, length(field_numbers)),
+    statistic = rep(NA, length(field_numbers)),
+    p_value = rep(NA, length(field_numbers)),
+    method = rep(NA_character_, length(field_numbers)),
+    stringsAsFactors = FALSE)
+  
+  s <- 1
+  
+  for (f in field_numbers) {
+    
+    cat("Field", f, "\n") #What field is it doing?
+    
+    #Extracting specific residuals for individual fields
+    field_indices <- which(ModelRich2$ID == f)
+    field_residuals <- model_residuals
+    field_residuals$scaledResiduals <- 
+      model_residuals$scaledResiduals[field_indices]
+    field_residuals$fittedPredictedResponse <- 
+      model_residuals$fittedPredictedResponse[field_indices]
+    
+    # Test spatial autocorrelation using your grid coordinates
+    spatial_test <- testSpatialAutocorrelation(field_residuals, 
+               x = ModelRich2$X_Cor[ModelRich2$ID == f], 
+               y = ModelRich2$Y_Cor[ModelRich2$ID == f])
+    
+    
+    spatial_result$field [s] <- f
+    spatial_result$statistic [s] <- spatial_test$statistic[1] 
+    spatial_result$p_value [s] <- spatial_test$p.value
+    spatial_result$method [s] <- spatial_test$method
+    
+    s <- s + 1
+    
+  }
+  
+  rich_spatial_results[[i]] <- spatial_result
+  
+}
 
-
-
-# Test spatial autocorrelation using your grid coordinates
-spatial_test <- testSpatialAutocorrelation(field_residuals, 
-                          x = ModelRich2$X_Cor[ModelRich2$Field == 3], 
-                          y = ModelRich2$Y_Cor[ModelRich2$Field == 3])
-
+#My own notes/explination of different bits of results
 spatial_test$statistic # The test statistic - note important one here is observed - want this to be close to zero 
 spatial_test$p.value # P-value for the test - indicates if there is significant spatial autocorrelation - statistic above indicates the magnitude and the direction (positive or negative)
 spatial_test$method #Method used for statistic
 
+
+names(rich_spatial_results)
+rich_spatial_results$Rich_Poly
+
+#Moran's I
+min(rich_spatial_results$Rich_Poly[2])
+max(rich_spatial_results$Rich_Poly[2])
+
+#p-value
+min(rich_spatial_results$Rich_Poly[3])
+max(rich_spatial_results$Rich_Poly[3])
 
 ##Step 4 - Visualisation----
 
