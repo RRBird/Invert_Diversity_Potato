@@ -73,6 +73,7 @@ for (i in rich_names) {
                       "PAD" = PAD, "PxAD" = PxAD, "PxDA" = PxDA, 
                       "PAxD" = PAxD)
   
+  #check which had issues and remove from the mod list
   has_issues <- sapply(tempmodlist, function(model) {
     if (is.null(model)) return(TRUE) #model failed
     if (model$fit$convergence != 0) return(TRUE) #convergence issues
@@ -91,11 +92,6 @@ for (i in rich_names) {
 length(Richlist1)
 
 Richlist1
-
-#check which models didn't coverge/had issue to exclude from AIC
-has_na <- sapply(allsum, function(model) is.na(model$AICtab[1]))
-na_models <- allsum[has_na]
-cleaned_models <- tempmodlist[!has_na] #remove models with NA as AIC
 
 ##Step 2 - Environmental Variables----
 
@@ -257,10 +253,6 @@ summary(Rich_Poly)
 
 ##Step 3 - Check for spatial autocorrelation----
 
-
-#Figured out how to do spatial check for each individual field for spatial autocorrelation within models - need to turn into a loop and work out how I want to collect results in loop 
-#Also can I do all models through loop. Maybe a loop within a loop????
-
 field_numbers <- unique(ModelRich2$ID)
 
 richmods <- list(Rich_All = Rich_All, Rich_Pred = Rich_Pred, 
@@ -321,10 +313,10 @@ for (i in names(richmods)) {
   
 }
 
-#My own notes/explination of different bits of results
-spatial_test$statistic # The test statistic - note important one here is observed - want this to be close to zero 
+#My own notes/explanation of different bits of results
+spatial_test$statistic # The test statistic - note the important one here is observed - want this to be close to zero 
 spatial_test$p.value # P-value for the test - indicates if there is significant spatial autocorrelation - statistic above indicates the magnitude and the direction (positive or negative)
-spatial_test$method #Method used for statistic
+spatial_test$method #Method used to get statistic
 
 
 names(rich_spatial_results)
@@ -340,9 +332,8 @@ max(rich_spatial_results$Rich_Poly[3])
 
 ##Step 4 - Visualisation----
 
-###Main Figures----
-
-###Supporting Figures??----
+#looking at 17 possibly 13 models (depends on if the ones with no null in step 1 are kept)
+#Also note that if they don't fit visually i.e. don't actually show much at all move into the supporting info
 
 
 #Abundance Modelling----
