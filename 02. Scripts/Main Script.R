@@ -14,10 +14,11 @@ library("DHARMa")
 
 #position, age and day - all the various combinations of these 
 
-#tried to write a loop for this first part - can put the results into a list so then I can do list[1] and see the modelling results for just the first grouping
+
 head(ModelRich2);dim(ModelRich2)
 str(ModelRich2)
-#loop is struggling with the size column names so will just update them
+
+#R is struggling with the size column names so will just update them
 colnames(ModelRich2)[12] <- "Size_1"
 colnames(ModelRich2)[13] <- "Size_2"
 colnames(ModelRich2)[14] <- "Size_3"
@@ -26,8 +27,15 @@ colnames(ModelRich2)[15] <- "Size_4"
 ModelRich2$Age_Scaled <- scale(ModelRich$Crop_Age_Days)
 ModelRich2$Day_Scaled <- scale(ModelRich$Day_Sampled)
 
+#remove groups not being modelled for richness
 
-rich_names <- colnames(ModelRich2)[2:19]
+ModelRich2 <- ModelRich2 %>% dplyr::select(-Omnivore, -Hematophagous, -Ambush_Hunting , -Hawking, -Size_4, -Always_Winged, -Polymorphic)
+
+head(ModelRich2);dim(ModelRich2)
+
+colnames(ModelRich2)
+
+rich_names <- colnames(ModelRich2)[2:12]
 length(rich_names)
 Richlist1 <- list()
 
@@ -93,6 +101,18 @@ length(Richlist1)
 
 Richlist1
 
+#Develops wings null didn't converge properly so investigating that
+
+Richlist1$Develops_Wings
+
+#use optimizer to get a convergence for AIC table
+null_develop <- glmmTMB(Develops_Wings ~ 1 + (1 | Field), family = nbinom2, data = ModelRich2,control = glmmTMBControl(optimizer = optim))
+summary(null_develop)
+
+
+
+
+
 ##Step 2 - Environmental Variables----
 
 rich_names
@@ -100,21 +120,14 @@ Rich_design <- list(
   All = "Age_Scaled",
   Predator = "Day_Scaled + Age_Scaled",
   Herbivore = "Position + Day_Scaled",   
-  Omnivore = "Age_Scaled",
   Fungivore = "Age_Scaled",     
-  Hematophagous = NULL,
   Web = "Position * Day_Scaled + Age_Scaled",          
   Active_Hunting = "Day_Scaled * Age_Scaled",
-  Ambush_Hunting = "Position + Age_Scaled",
-  Hawking = "Position + Day_Scaled",      
   Size_1 = "Position + Age_Scaled + Day_Scaled",
   Size_2 = NULL,      
   Size_3 = "Position + Age_Scaled * Day_Scaled",
-  Size_4 = "Age_Scaled",
-  Always_Winged = NULL,
   Develops_Wings = "Age_Scaled",
-  Wingless = "Position * Age_Scaled + Day_Scaled",
-  Polymorphic = "Day_Scaled + Age_Scaled *")
+  Wingless = "Position * Age_Scaled + Day_Scaled")
 head(Rich_design)
 
 Richlist2 <- list()
@@ -209,26 +222,14 @@ summary(Rich_Pred)
 Rich_Herb <- glmmTMB(Herbivore ~ Position + Day_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Herb)
 
-Rich_Omni <- glmmTMB(Omnivore ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Omni)
-
 Rich_Fung <- glmmTMB(Fungivore ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Fung)
-
-Rich_Hema <- glmmTMB(Hematophagous ~ NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Hema)
 
 Rich_Web <- glmmTMB(Web ~ Position * Day_Scaled + Age_Scaled + GC + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Web)
 
 Rich_Active <- glmmTMB(Active_Hunting ~ Day_Scaled * Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Active)
-
-Rich_Ambush <- glmmTMB(Ambush_Hunting ~ Position + Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Ambush)
-
-Rich_Hawk <- glmmTMB(Hawking ~ Position + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Hawk)
 
 Rich_Size1 <- glmmTMB(Size_1 ~ Position + Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Size1)
@@ -239,31 +240,22 @@ summary(Rich_Size2)
 Rich_Size3 <- glmmTMB(Size_3 ~ Position + Age_Scaled * Day_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Size3)
 
-Rich_Size4 <- glmmTMB(Size_4 ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Size4)
-
 Rich_DevW <- glmmTMB(Develops_Wings ~ Age_Scaled + NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_DevW)
 
 Rich_Wless <- glmmTMB(Wingless ~ Position * Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Wless)
 
-Rich_Poly <- glmmTMB(Polymorphic ~ Day_Scaled + Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Poly)
-
 ##Step 3 - Check for spatial autocorrelation----
 
 field_numbers <- unique(ModelRich2$ID)
 
 richmods <- list(Rich_All = Rich_All, Rich_Pred = Rich_Pred, 
-                 Rich_Herb = Rich_Herb, Rich_Omni = Rich_Omni, 
-                 Rich_Fung = Rich_Fung, Rich_Hema = Rich_Hema, 
+                 Rich_Herb = Rich_Herb, Rich_Fung = Rich_Fung,
                  Rich_Web = Rich_Web, Rich_Active = Rich_Active, 
-                 Rich_Ambush = Rich_Ambush, Rich_Hawk = Rich_Hawk,
                  Rich_Size1 = Rich_Size1, Rich_Size2 = Rich_Size2,
-                 Rich_Size3 = Rich_Size3,  Rich_Size4 = Rich_Size4,
-                 Rich_DevW = Rich_DevW, Rich_Wless = Rich_Wless, 
-                 Rich_Poly = Rich_Poly)
+                 Rich_Size3 = Rich_Size3, Rich_DevW = Rich_DevW, 
+                 Rich_Wless = Rich_Wless)
 richmods[[3]]
 
 rich_spatial_results <- list()
@@ -320,15 +312,15 @@ spatial_test$method #Method used to get statistic
 
 
 names(rich_spatial_results)
-rich_spatial_results$Rich_Poly
+rich_spatial_results$Rich_Wless
 
 #Moran's I
-min(rich_spatial_results$Rich_Poly[2])
-max(rich_spatial_results$Rich_Poly[2])
+min(rich_spatial_results$Rich_Wless[2])
+max(rich_spatial_results$Rich_Wless[2])
 
 #p-value
-min(rich_spatial_results$Rich_Poly[3])
-max(rich_spatial_results$Rich_Poly[3])
+min(rich_spatial_results$Rich_Wless[3])
+max(rich_spatial_results$Rich_Wless[3])
 
 ##Step 4 - Visualisation----
 

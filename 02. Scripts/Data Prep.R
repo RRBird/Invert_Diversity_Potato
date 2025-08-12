@@ -204,6 +204,86 @@ morpho <- morpho[morpho$Morphospecies != 'Small_Ant',]
 head(morpho);dim(morpho)
 
 
+#Calculating for table of info----
+
+length(unique(invert$Morphospecies))
+length(invert$Morphospecies)
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Predator")]))
+length(invert$Morphospecies[which(invert$Trophic == "Predator")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Herbivore")]))
+length(invert$Morphospecies[which(invert$Trophic == "Herbivore")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Ominvore")]))
+length(invert$Morphospecies[which(invert$Trophic == "Ominvore")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Ominvore")]))
+length(invert$Morphospecies[which(invert$Trophic == "Ominvore")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Fungivore")]))
+length(invert$Morphospecies[which(invert$Trophic == "Fungivore")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Trophic == "Hematophagous")]))
+length(invert$Morphospecies[which(invert$Trophic == "Hematophagous")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Hunting.Style == "Web")]))
+length(invert$Morphospecies[which(invert$Hunting.Style == "Web")])
+
+length(unique(invert$Morphospecies
+              [which(invert$Hunting.Style == "Active_Hunting")]))
+length(invert$Morphospecies
+       [which(invert$Hunting.Style == "Active_Hunting")])
+
+length(unique(invert$Morphospecies
+  [which(invert$Hunting.Style == "Ambush_Hunter")]))
+length(invert$Morphospecies
+       [which(invert$Hunting.Style == "Ambush_Hunter")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Hunting.Style == "Hawking")]))
+length(invert$Morphospecies[which(invert$Hunting.Style == "Hawking")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Size == "0-2.5")]))
+length(invert$Morphospecies[which(invert$Size == "0-2.5")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Size == "2.5-5")]))
+length(invert$Morphospecies[which(invert$Size == "2.5-5")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Size == "5-10")]))
+length(invert$Morphospecies[which(invert$Size == "5-10")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Size == ">10")]))
+length(invert$Morphospecies[which(invert$Size == ">10")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Wings == "Always_Winged")]))
+length(invert$Morphospecies[which(invert$Wings == "Always_Winged")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Wings == "Develops_Wings")]))
+length(invert$Morphospecies[which(invert$Wings == "Develops_Wings")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Wings == "Wingless")]))
+length(invert$Morphospecies[which(invert$Wings == "Wingless")])
+
+length(unique(
+  invert$Morphospecies[which(invert$Wings == "Polymorphic")]))
+length(invert$Morphospecies[which(invert$Wings == "Polymorphic")])
+
+
 #Diversity measures for modelling----
 
 table(invert$Order)
@@ -352,7 +432,7 @@ head(richness);dim(richness)
 ModelRich <- merge(richness,variables,by = "Site")
 head(ModelRich);dim(ModelRich)
 
-#workong out prop zero for each functional group
+#working out prop zero for each functional group
 head(richness[,c(2:21)]);dim(richness)
 sapply(richness[,c(2:21)], function(col) mean(col == 0, na.rm = TRUE))
 
