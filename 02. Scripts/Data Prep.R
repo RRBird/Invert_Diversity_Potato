@@ -446,109 +446,6 @@ sum(table(invert$Wings))
 head(ModelRich);dim(ModelRich)
 ModelRich <- ModelRich %>% dplyr::select(-Native,-Introduced)
 
-##Abundance----
-head(invert);dim(invert)
-
-abundance <- data.frame(Site = variables$Site)
-head(abundance);dim(abundance)
-
-#all species 
-
-tempabund <- aggregate(Morphospecies ~ Site, data = invert, FUN = function(x) length(x))
-abundance <- merge(abundance,tempabund,by = "Site",all.x = T)
-head(abundance);dim(abundance)
-colnames(abundance)[2] <- "All"
-head(abundance);dim(abundance)
-
-#Trophic
-
-trophic.list <- list("Predator", "Herbivore","Ominvore","Fungivore","Hematophagous")
-
-p <- 3
-for (i in trophic.list) {
-
-  tempabund <- aggregate(Morphospecies ~ Site, 
-                         data = invert[invert$Trophic == i,], 
-                         FUN = function(x) length(x))
-  
-  abundance <- merge(abundance,tempabund,by = "Site",all.x = T)
-  
-  colnames(abundance)[p] <- i
-  
-  p <- p+1
-}
-
-head(abundance);dim(abundance)
-
-colnames(abundance)[5] <- "Omnivore"
-
-#Hunting Style
-
-hunt.list <- list("Web","Active_Hunting","Ambush_Hunter","Hawking")
-
-for (i in hunt.list) {
-  
-  tempabund <- aggregate(Morphospecies ~ Site, 
-                         data = invert[invert$Hunting.Style == i,], 
-                         FUN = function(x) length(x))
-  
-  abundance <- merge(abundance,tempabund,by = "Site",all.x = T)
-  
-  colnames(abundance)[p] <- i
-  
-  p <- p+1
-}
-
-head(abundance);dim(abundance)
-
-#Size
-
-size.list <- list("0-2.5","2.5-5","5-10",">10")
-
-for (i in size.list) {
-  
-  tempabund <- aggregate(Morphospecies ~ Site, 
-                         data = invert[invert$Size == i,], 
-                         FUN = function(x) length(x))
-  
-  abundance <- merge(abundance,tempabund,by = "Site",all.x = T)
-  
-  colnames(abundance)[p] <- i
-  
-  p <- p+1
-}
-
-head(abundance);dim(abundance)
-
-#Wings
-
-wing.list <- list("Always_Winged","Develops_Wings","Wingless","Polymorphic")
-
-for (i in wing.list) {
-  
-  tempabund <- aggregate(Morphospecies ~ Site, 
-                         data = invert[invert$Wings == i,], 
-                         FUN = function(x) length(x))
-  
-  abundance <- merge(abundance,tempabund,by = "Site",all.x = T)
-  
-  colnames(abundance)[p] <- i
-  
-  p <- p+1
-}
-
-head(abundance);dim(abundance)
-
-###Creating modelling data----
-
-abundance[is.na(abundance)] <- 0 #replacing all NAs with 0's 
-
-head(variables);dim(variables)
-head(abundance);dim(abundance)
-
-ModelAbund <- merge(abundance,variables,by = "Site")
-head(ModelAbund);dim(ModelAbund)
-
 ##Diversity (Inverse Simpson's diversity index)----
 
 #diversity(table(x), index = "invsimpson")
@@ -764,9 +661,6 @@ coords$Survey <- NULL
 
 ModelRich2 <- merge(ModelRich,coords,by = "Site")
 head(ModelRich2);dim(ModelRich2)
-
-ModelAbund2 <- merge(ModelAbund,coords,by = "Site")
-head(ModelAbund2);dim(ModelAbund2)
 
 ModelDiv2 <- merge(ModelDiv,coords,by = "Site")
 head(ModelDiv2);dim(ModelDiv2)

@@ -324,11 +324,45 @@ max(rich_spatial_results$Rich_Wless[3])
 
 ##Step 4 - Visualisation----
 
-#looking at 17 possibly 13 models (depends on if the ones with no null in step 1 are kept)
+#there are 11 models in total with varying degrees of complexity
 #Also note that if they don't fit visually i.e. don't actually show much at all move into the supporting info
+#Remember the predicting is different with random effects - make sure to account for that
+
+###All Species
+summary(Rich_All)
+
+###Predators
+summary(Rich_Pred)
+
+###Herbivores
+summary(Rich_Herb)
+
+###Fungivores
+summary(Rich_Fung)
+
+###Web Building
+summary(Rich_Web)
+
+###Active Hunting
+summary(Rich_Active)
+
+###Size 1 (0-2.5)
+summary(Rich_Size1)
+
+###Size 2 (2.5-5)
+summary(Rich_Size2)
+
+###Size 3 (5-10)
+summary(Rich_Size3)
+
+###Develops Wings
+summary(Rich_DevW)
+
+###Wingless
+summary(Rich_Wless)
 
 
-#Abundance Modelling----
+
 
 #Diversity Modelling----
 
