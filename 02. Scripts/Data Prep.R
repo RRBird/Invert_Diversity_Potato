@@ -1,4 +1,7 @@
-options(scipen = 999)
+options(scipen = 999) #prevents r from automatically displaying large numbers with scientic notation
+
+
+#This script contains the data prepping, exploration and manipulation before moving into actual analysis
 
 #Libraries----
 
