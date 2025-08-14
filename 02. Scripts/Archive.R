@@ -1,4 +1,24 @@
 
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Predator,xlab = expression("Day Sampled"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.1,'a)',cex=1)
+mtext(side=1,line=3,at = -1.5,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-0.7,-3.7,1.15,-3.7, length =0.1)
+
+axis(side=1, at=seq(from=min(richpred_herb.1$Day_Scaled),to=max(richpred_herb.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(richpred_preds.1$Day_Scaled[ADD],rev(richpred_preds.1$Day_Scaled[ADD])), y = c(richpred_preds.1$lci[ADD],rev(richpred_preds.1$uci[ADD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+
+lines(x=richpred_preds.1$Day_Scaled[ADD],y = richpred_preds.1$fit[ADD],lwd = 2,col = 'grey30')
+
+
+Predictions_Age[5]
+Predictions_Age[15]
+seq(min(ModelRich2$Crop_Age_Days),max(ModelRich2$Crop_Age_Days),length.out=20)[5]
+seq(min(ModelRich2$Crop_Age_Days),max(ModelRich2$Crop_Age_Days),length.out=20)[15]
+
+
+#on line 2 I think
 #Code to run for checking spatial autocorrelation on models----
 
 #includes checking all and checking each field individually - use on top models only to check 
