@@ -557,7 +557,7 @@ ModelDiv <- merge(diversity,variables,by = "Site")
 head(ModelDiv);dim(ModelDiv)
 
 
-#Binomial data----
+#Occurrence data----
 
 head(invert);dim(invert)
 

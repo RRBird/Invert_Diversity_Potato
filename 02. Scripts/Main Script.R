@@ -11,7 +11,7 @@ library("dplyr")
 library("DHARMa")
 
 
-#Richness Modelling----
+#RICHNESS MODELLING----
 
 ##Step 1 - Design Variables----
 
@@ -421,21 +421,343 @@ for (i in 1:11) {
 head(richpredresults[[1]])
 
 
-#Diversity Modelling----
+#DIVERSITY MODELLING----
+
+##Step 1 - Design Variables----
+
+head(ModelDiv2);dim(ModelDiv2)
+str(ModelDiv2)
+colnames(ModelDiv2)
+
+colnames(ModelDiv2)[12] <- "Size_1"
+colnames(ModelDiv2)[13] <- "Size_2"
+colnames(ModelDiv2)[14] <- "Size_3"
+colnames(ModelDiv2)[15] <- "Size_4"
+
+ModelDiv2$Age_Scaled <- scale(ModelDiv2$Crop_Age_Days)
+ModelDiv2$Day_Scaled <- scale(ModelDiv2$Day_Sampled)
+
+#remove groups not modelling diversity for
+
+ModelDiv2 <- ModelDiv2 %>% dplyr::select(-Omnivore,-Hematophagous,-Ambush_Hunter,-Hawking,-Size_4,-Always_Winged,-Polymorphic)
+
+head(ModelDiv2);dim(ModelDiv2)
+
+colnames(ModelDiv2)
+
+div_names <- colnames(ModelDiv2)[2:12]
+length(div_names)
+divlist1 <- list()
+
+#LOOP GOES HERE - WHAT MODEL AM I USING?
+#TO DO----
+
+#OCCURRENCE MODELLING----
+
+##Step 1 - Design Variables----
+
+head(ModelOccur2);dim(ModelOccur2)
+str(ModelOccur2)
+colnames(ModelOccur2)
+
+colnames(ModelOccur2)[10] <- "Size_2"
+colnames(ModelOccur2)[11] <- "Size_3"
+colnames(ModelOccur2)[12] <- "Size_4"
+
+ModelOccur2$Age_Scaled <- scale(ModelOccur2$Crop_Age_Days)
+ModelOccur2$Day_Scaled <- scale(ModelOccur2$Day_Sampled)
+
+#remove develops wings
+
+ModelOccur2 <- ModelOccur2 %>% dplyr::select(-Develops_Wings)
+
+head(ModelOccur2);dim(ModelOccur2)
+
+colnames(ModelOccur2)
+
+occur_names <- colnames(ModelOccur2)[2:15]
+length(occur_names)
+occurlist1 <- list()
+
+for (i in occur_names) {
+  allsum <- list()
+  
+  cat("=== Processing group:", i, "===\n") #track where loop is up to
+  
+  #run models and collect summaries
+  null <- glmer(as.formula(paste(i, "~ 1 + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum [[1]] <- summary(null)
+  P <- glmer(as.formula(paste(i, "~ Position + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum [[2]] <- summary(P)
+  A <- glmer(as.formula(paste(i, "~ Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum [[3]] <- summary(A)
+  D <- glmer(as.formula(paste(i, "~ Day_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[4]] <- summary(D)
+  PA <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[5]] <- summary(PA)
+  PD <- glmer(as.formula(paste(i, "~ Position + Day_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[6]] <- summary(PD)
+  DA <- glmer(as.formula(paste(i, "~ Day_Scaled + Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[7]] <- summary(DA)
+  PxA <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[8]] <- summary(PxA)
+  PxD <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[9]] <- summary(PxD)
+  DxA <- glmer(as.formula(paste(i, "~ Day_Scaled * Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[10]] <- summary(DxA)
+  PAD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + Day_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[11]] <- summary(PAD)
+  PxAD <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + Day_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[12]] <- summary(PxAD)
+  PxDA <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + Age_Scaled + (1 | Field)")), family = binomial, data = ModelOccur2)
+  allsum[[13]] <- summary(PxDA)
+  PAxD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled * Day_Scaled + (1 | Field)")), data = ModelOccur2,family = binomial,)
+  allsum[[14]] <- summary(PAxD)
+  
+  #collect models
+  tempmodlist <- list("null" = null, "P" = P, "A" = A, "D" = D,
+                      "PA" = PA, "PD" = PD, "DA" = DA, 
+                      "PxA" = PxA, "PxD" = PxD, "DxA" = DxA, 
+                      "PAD" = PAD, "PxAD" = PxAD, "PxDA" = PxDA, 
+                      "PAxD" = PAxD)
+  
+  #check which had issues and remove from the mod list
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model@optinfo$conv$opt != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
+  
+  occurlist1 [[i]] <- aictab(cleaned_models,modnames = NULL)
+  
+}
+
+length(occurlist1)
+
+occurlist1
+
+##Step 2 - Environmental Variables----
+
+occur_names
+Occur_design <- list(
+  Herbivore = "Day_Scaled",
+  Omnivore = NULL,
+  Fungivore = "Day_Scaled + Age_Scaled",   
+  Hematophagous = 'Day_Scaled * Age_Scaled',
+  Web = "Day_Scaled + Age_Scaled",          
+  Active_Hunting = "Day_Scaled",
+  Ambush_Hunter = NULL,          
+  Hawking = "Position + Age_Scaled * Day_Scaled",
+  Size_2 = NULL,      
+  Size_3 = "Day_Scaled * Age_Scaled",
+  Size_4 = "Age_Scaled",
+  Always_Winged = NULL,
+  Wingless = "Position * Age_Scaled + Day_Scaled",
+  Polymorphic = "Position * Day_Scaled")
+head(Occur_design)
+
+occurlist2 <- list()
 
 
-#Binomial Modelling----
+for (i in occur_names) {
+  allsum <- list()
+  
+  design_formula_part <- Occur_design[[i]]
+  
+  cat("=== Processing group:", i, "===\n") #track where loop is up to
+  cat("Design formula part:", design_formula_part, "\n") #making sure it's taken the right formula
+  
+  #Handle groups without null model as top in step 1
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    # No design variables - intercept only model
+    base_formula <- paste(i, "~ 1 + (1 | Field)")} else {
+      # Has design variables
+      base_formula <- paste(i, "~", design_formula_part, "+ (1 | Field)")}
+  base_model <- glmer(as.formula(base_formula),family = binomial, data = ModelOccur2)
+  allsum[[1]] <- summary(base_model)
+  
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    height_formula <- paste(i, "~ Height + (1 | Field)")} else {
+      height_formula <- paste(i, "~", design_formula_part, "+ Height + (1 | Field)")}
+  height_model <- glmer(as.formula(height_formula), family = binomial, data = ModelOccur2)
+  allsum[[2]] <- summary(height_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    gc_formula <- paste(i, "~ GC  + (1 | Field)")} else {
+      gc_formula <- paste(i, "~", design_formula_part, "+ GC + (1 | Field)")}
+  gc_model <- glmer(as.formula(gc_formula), family = binomial, data = ModelOccur2)
+  allsum[[3]] <- summary(gc_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    Fsize_formula <- paste(i, "~ Field_Area_m2  + (1 | Field)")} else {
+      Fsize_formula <- paste(i, "~", design_formula_part, "+ Field_Area_m2 + (1 | Field)")}
+  Fsize_model <- glmer(as.formula(Fsize_formula), family = binomial, data = ModelOccur2)
+  allsum[[4]] <- summary(Fsize_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    water_formula <- paste(i, "~ X1km_Prop_Water  + (1 | Field)")} else {water_formula <- paste(i, "~", design_formula_part, "+ X1km_Prop_Water + (1 | Field)")}
+  water_model <- glmer(as.formula(water_formula), family = binomial, data = ModelOccur2)
+  allsum[[5]] <- summary(water_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    NDVIf_formula <- paste(i, "~ NDVImean_Field  + (1 | Field)")} else {NDVIf_formula <- paste(i, "~", design_formula_part, "+ NDVImean_Field + (1 | Field)")}
+  NDVIf_model <- glmer(as.formula(NDVIf_formula), family = binomial, data = ModelOccur2)
+  allsum[[6]] <- summary(NDVIf_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    NDVI1km_formula <- paste(i, "~ NDVIsum_1km  + (1 | Field)")} else {
+      NDVI1km_formula <- paste(i, "~", design_formula_part, "+ NDVIsum_1km + (1 | Field)")}
+  NDVI1km_model <- glmer(as.formula(NDVI1km_formula), family = binomial, data = ModelOccur2)
+  allsum[[7]] <- summary(NDVI1km_model)
+  
+  
+  #collect models
+  tempmodlist <- list("base" = base_model, "height" = height_model, 
+                      "GC" = gc_model, "Feild Size" = Fsize_model,
+                      "water" = water_model,"Field NDVI" = NDVIf_model,
+                      "NDVI 1km" = NDVI1km_model)
+  
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model@optinfo$conv$opt != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
+  
+  occurlist2 [[i]] <- aictab(cleaned_models,modnames = NULL)
+  
+}
+
+length(occurlist2)
+
+occurlist2
+
+###Occurrence models after first two steps----
+occur_names
+Age_Scaled
+
+Occur_herb <- glmer(Herbivore ~ Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_herb)
+
+Occur_omni <- glmer(Omnivore ~ GC + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_omni)
+
+ModelOccur2$FieldSize_Scaled <- scale(ModelOccur2$Field_Area_m2)
+#Needed to scale field size for the model to be more identifiable
+Occur_fung <- glmer(Fungivore ~ Day_Scaled + Age_Scaled + FieldSize_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_fung)
+
+Occur_hema <- glmer(Hematophagous ~ Day_Scaled * Age_Scaled + NDVImean_Field + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_hema)
+
+Occur_web <- glmer(Web ~ Day_Scaled * Age_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_web)
+
+Occur_active <- glmer(Active_Hunting ~ Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_active)
+
+Occur_hawk <- glmer(Hawking ~ Position + Age_Scaled * Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_hawk)
+
+Occur_size2 <- glmer(Size_2 ~ Height + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_size2)
+
+Occur_size3 <- glmer(Size_3 ~ Day_Scaled * Age_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_size3)
+
+Occur_size4 <- glmer(Size_4 ~ Age_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_size4)
+
+Occur_AlWing <- glmer(Always_Winged ~ X1km_Prop_Water + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_AlWing)
+
+Occur_Wless <- glmer(Wingless ~ Position * Age_Scaled + Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_Wless)
+
+Occur_poly <- glmer(Polymorphic ~ Position * Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+summary(Occur_poly)
+
+##Step 3 - Check for spatial autocorrelation----
+
+field_numbers3 <- unique(ModelOccur2$ID)
+
+occurmods <- list(Occur_herb = Occur_herb, Occur_omni = Occur_omni, 
+                 Occur_fung = Occur_fung, Occur_hema = Occur_hema,
+                 Occur_web = Occur_web, Occur_active = Occur_active, 
+                 Occur_hawk = Occur_hawk, Occur_size2 = Occur_size2,
+                 Occur_size3 = Occur_size3, Occur_size4 = Occur_size4, 
+                Occur_AlWing = Occur_AlWing, Occur_Wless = Occur_Wless,
+                Occur_poly = Occur_poly)
+occurmods[[3]]
+
+occur_spatial_results <- list()
+
+for (i in names(occurmods)) {
+  
+  cat("=== Processing Model:", i, "===\n") #track which model loop is up to
+  
+  model_residuals <- simulateResiduals(occurmods[[i]])
+  spatial_result <- data.frame(
+    field = rep(NA, length(field_numbers3)),
+    statistic = rep(NA, length(field_numbers3)),
+    p_value = rep(NA, length(field_numbers3)),
+    method = rep(NA_character_, length(field_numbers3)),
+    stringsAsFactors = FALSE)
+  
+  s <- 1
+  
+  for (f in field_numbers3) {
+    
+    cat("Field", f, "\n") #What field is it doing?
+    
+    #Extracting specific residuals for individual fields
+    field_indices <- which(ModelOccur2$ID == f)
+    field_residuals <- model_residuals
+    field_residuals$scaledResiduals <- 
+      model_residuals$scaledResiduals[field_indices]
+    field_residuals$fittedPredictedResponse <- 
+      model_residuals$fittedPredictedResponse[field_indices]
+    
+    # Test spatial autocorrelation using your grid coordinates
+    spatial_test <- testSpatialAutocorrelation(field_residuals, 
+                                               x = ModelOccur2$X_Cor[ModelOccur2$ID == f], 
+                                               y = ModelOccur2$Y_Cor[ModelOccur2$ID == f])
+    
+    
+    spatial_result$field [s] <- f
+    spatial_result$statistic [s] <- spatial_test$statistic[1] 
+    spatial_result$p_value [s] <- spatial_test$p.value
+    spatial_result$method [s] <- spatial_test$method
+    
+    s <- s + 1
+    
+  }
+  
+  occur_spatial_results[[i]] <- spatial_result
+  
+}
 
 
+names(occur_spatial_results)
+occur_spatial_results$Occur_poly
 
+#Moran's I
+min(occur_spatial_results$Occur_poly[2])
+max(occur_spatial_results$Occur_poly[2])
 
-
-
-
-
-
-
-
+#p-value
+min(occur_spatial_results$Occur_poly[3])
+max(occur_spatial_results$Occur_poly[3])
 
 
 

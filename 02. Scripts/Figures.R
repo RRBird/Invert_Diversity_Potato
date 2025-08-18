@@ -145,9 +145,40 @@ lines(x=richpred_fung.1$Age_Scaled,y = richpred_fung.1$fit,lwd = 2,col = 'grey30
 axis(side=1, at=seq(from=min(richpred_fung.1$Age_Scaled),to=max(richpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
 ###Web Building TO DO----
-summary(Rich_Web)
+summary(Rich_Web) #Position * Day + Age + GC
 
-D
+richpred_web.1 <- richpredresults[[5]]
+head(richpred_web.1);dim(richpred_web.1)
+
+D <- richpred_web.1$Position == "Inner" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
+DD <- richpred_web.1$Position == "Outer" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
+
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
+
+#Position * Day 
+
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Web, xlab = "Day Sampled",ylab = 'Web Building Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=1,line=3,at = -1.5,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-0.7,-2.1,1.1,-2.1, length =0.1)
+
+axis(side=1, at=seq(from=min(richpred_web.1$Day_Scaled),to=max(richpred_web.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
+
+polygon(x = c(richpred_web.1$Day_Scaled[D],rev(richpred_web.1$Day_Scaled[D])), y = c(richpred_web.1$lci[D],rev(richpred_web.1$uci[D])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_web.1$Day_Scaled[D],y = richpred_web.1$fit[D],lwd = 2,lty = 1, col = 'grey30')
+
+polygon(x = c(richpred_web.1$Day_Scaled[DD],rev(richpred_web.1$Day_Scaled[DD])), y = c(richpred_web.1$lci[DD],rev(richpred_web.1$uci[DD])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_web.1$Day_Scaled[DD],y = richpred_web.1$fit[DD],lwd = 2,lty = 2, col = 'grey30')
+
+legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#Age
+
+#GC
+
+
 
 ###Active Hunting----
 summary(Rich_Active) # Day * Age
@@ -262,7 +293,10 @@ lines(x=richpred_size2.1$Age_Scaled,y = richpred_size2.1$fit,lwd = 2,col = 'grey
 axis(side=1, at=seq(from=min(richpred_size2.1$Age_Scaled),to=max(richpred_size2.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
 ###Size 3 (5-10) TO DO----
-summary(Rich_Size3)
+summary(Rich_Size3) #Position + Age * Day + Water
+
+richpred_size3.1 <- richpredresults[[9]]
+head(richpred_size3.1);dim(richpred_size3.1)
 
 G
 GG
@@ -301,14 +335,16 @@ polygon(x = c(richpred_DevW.1$NDVIsum_1km[HH],rev(richpred_DevW.1$NDVIsum_1km[HH
 lines(x=richpred_DevW.1$NDVIsum_1km[HH],y = richpred_DevW.1$fit[HH],lwd = 2,col = 'grey30')
 
 
-###Wingless TO DO----
+###Wingless----
 summary(Rich_Wless) #postion * age + day
 
 richpred_Wless.1 <- richpredresults[[11]]
 head(richpred_Wless.1);dim(richpred_Wless.1)
 
-I
-II
+I <- richpred_Wless.1$Position == "Inner" & richpred_Wless.1$Day_Scaled == Predictions_Day[10]
+II <- richpred_Wless.1$Position == "Outer" & richpred_Wless.1$Day_Scaled == Predictions_Day[10]
+
+III <- richpred_Wless.1$Position == "Inner" & richpred_Wless.1$Age_Scaled == Predictions_Age[10]
 
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
@@ -320,8 +356,22 @@ mtext(side=3,line=0,at = -2.7,'a)',cex=1)
 
 axis(side=1, at=seq(from=min(richpred_Wless.1$Age_Scaled),to=max(richpred_Wless.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
+polygon(x = c(richpred_Wless.1$Age_Scaled[I],rev(richpred_Wless.1$Age_Scaled[I])), y = c(richpred_Wless.1$lci[I],rev(richpred_Wless.1$uci[I])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_Wless.1$Age_Scaled[I],y = richpred_Wless.1$fit[I],lwd = 2,lty = 1, col = 'grey30')
 
+polygon(x = c(richpred_Wless.1$Age_Scaled[II],rev(richpred_Wless.1$Age_Scaled[II])), y = c(richpred_Wless.1$lci[II],rev(richpred_Wless.1$uci[II])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_Wless.1$Age_Scaled[II],y = richpred_Wless.1$fit[II],lwd = 2,lty = 2, col = 'grey30')
 
+legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
+#Day
 
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Wingless, xlab = "Day Sampled",ylab = 'Wingless Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=1,line=3,at = -1.5,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1,-1.8,1.3,-1.8, length =0.1)
 
+axis(side=1, at=seq(from=min(richpred_Wless.1$Day_Scaled),to=max(richpred_Wless.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
+
+polygon(x = c(richpred_Wless.1$Day_Scaled[III],rev(richpred_Wless.1$Day_Scaled[III])), y = c(richpred_Wless.1$lci[III],rev(richpred_Wless.1$uci[III])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_Wless.1$Day_Scaled[III],y = richpred_Wless.1$fit[III],lwd = 2,lty = 1, col = 'grey30')
