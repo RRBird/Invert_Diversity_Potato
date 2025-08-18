@@ -144,14 +144,16 @@ lines(x=richpred_fung.1$Age_Scaled,y = richpred_fung.1$fit,lwd = 2,col = 'grey30
 
 axis(side=1, at=seq(from=min(richpred_fung.1$Age_Scaled),to=max(richpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
-###Web Building TO DO----
+###Web Building----
 summary(Rich_Web) #Position * Day + Age + GC
 
 richpred_web.1 <- richpredresults[[5]]
 head(richpred_web.1);dim(richpred_web.1)
 
-D <- richpred_web.1$Position == "Inner" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
-DD <- richpred_web.1$Position == "Outer" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
+DD <- richpred_web.1$Position == "Inner" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
+DDD <- richpred_web.1$Position == "Outer" & richpred_web.1$Age_Scaled == Predictions_Age[10] & richpred_web.1$GC == Predictions_GC[10]
+DDDD <- richpred_web.1$Position == "Inner" & richpred_web.1$Day_Scaled == Predictions_Day[10] & richpred_web.1$GC == Predictions_GC[10]
+DDDDD <- richpred_web.1$Position == "Inner" & richpred_web.1$Day_Scaled == Predictions_Day[10] & richpred_web.1$Age_Scaled == Predictions_Age[10]
 
 
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
@@ -163,21 +165,34 @@ plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Web, xlab = "Day Sampled",ylab = '
 mtext(side=1,line=3,at = -1.5,'Autumn/Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-0.7,-2.1,1.1,-2.1, length =0.1)
+mtext(side=3,line=0,at = -2,'a)',cex=1)
 
 axis(side=1, at=seq(from=min(richpred_web.1$Day_Scaled),to=max(richpred_web.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
 
-polygon(x = c(richpred_web.1$Day_Scaled[D],rev(richpred_web.1$Day_Scaled[D])), y = c(richpred_web.1$lci[D],rev(richpred_web.1$uci[D])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
-lines(x=richpred_web.1$Day_Scaled[D],y = richpred_web.1$fit[D],lwd = 2,lty = 1, col = 'grey30')
-
 polygon(x = c(richpred_web.1$Day_Scaled[DD],rev(richpred_web.1$Day_Scaled[DD])), y = c(richpred_web.1$lci[DD],rev(richpred_web.1$uci[DD])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
-lines(x=richpred_web.1$Day_Scaled[DD],y = richpred_web.1$fit[DD],lwd = 2,lty = 2, col = 'grey30')
+lines(x=richpred_web.1$Day_Scaled[DD],y = richpred_web.1$fit[DD],lwd = 2,lty = 1, col = 'grey30')
+
+polygon(x = c(richpred_web.1$Day_Scaled[DDD],rev(richpred_web.1$Day_Scaled[DDD])), y = c(richpred_web.1$lci[DDD],rev(richpred_web.1$uci[DDD])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
+lines(x=richpred_web.1$Day_Scaled[DDD],y = richpred_web.1$fit[DDD],lwd = 2,lty = 2, col = 'grey30')
 
 legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 #Age
 
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Web,xlab = "Crop Age (Days)",ylab = 'Web Buliding Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(richpred_web.1$Age_Scaled),to=max(richpred_web.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.6,'b)',cex=1)
+
+polygon(x = c(richpred_web.1$Age_Scaled[DDDD],rev(richpred_web.1$Age_Scaled[DDDD])), y = c(richpred_web.1$lci[DDDD],rev(richpred_web.1$uci[DDDD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred_web.1$Age_Scaled[DDDD],y = richpred_web.1$fit[DDDD],lwd = 2,col = 'grey30')
+
 #GC
 
+plot(x = ModelRich2$GC,y = ModelRich2$Web,xlab = "Ground Cover (%)",ylab = 'Web Buliding Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = -6,'c)',cex=1)
+
+polygon(x = c(richpred_web.1$GC[DDDDD],rev(richpred_web.1$GC[DDDDD])), y = c(richpred_web.1$lci[DDDDD],rev(richpred_web.1$uci[DDDDD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred_web.1$GC[DDDDD],y = richpred_web.1$fit[DDDDD],lwd = 2,col = 'grey30')
 
 
 ###Active Hunting----

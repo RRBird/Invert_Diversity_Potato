@@ -365,7 +365,7 @@ richpred_size2 <- data.frame(Age_Scaled = Predictions_Age)
 head(richpred_size2);dim(richpred_size2)
 
 richpred_size3 <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, X1km_Prop_Water = Predictions_Water)
-head(richpred_web);dim(richpred_web)
+head(richpred_size3);dim(richpred_size3)
 
 richpred_DevW <- expand.grid(Age_Scaled = Predictions_Age, NDVIsum_1km = Predictions_1kmNDVI)
 head(richpred_DevW);dim(richpred_DevW)
@@ -760,5 +760,109 @@ min(occur_spatial_results$Occur_poly[3])
 max(occur_spatial_results$Occur_poly[3])
 
 
+##Step 4 - Predictions----
 
+#variables included in the top models (not already done earlier in process)
+
+Predictions_Height <- seq(min(ModelOccur2$Height),max(ModelOccur2$Height),length.out = 20)
+Predictions_Areascale <- seq(min(ModelOccur2$FieldSize_Scaled),max(ModelOccur2$FieldSize_Scaled),length.out = 20)
+Predictions_NDVIfield <- seq(min(ModelOccur2$NDVImean_Field ),max(ModelOccur2$NDVImean_Field ),length.out = 20)
+
+
+###Creating new data for predictions----
+colnames(ModelOccur2)
+
+occurpred_herb <- data.frame(Day_Scaled = Predictions_Day)
+head(occurpred_herb);dim(occurpred_herb)
+
+occurpred_omni <- data.frame(GC = Predictions_GC)
+head(occurpred_omni);dim(occurpred_omni)
+
+occurpred_fung <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, FieldSize_Scaled  = Predictions_Areascale)
+head(occurpred_fung);dim(occurpred_fung)
+
+occurpred_hema <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, NDVImean_Field  = Predictions_NDVIfield)
+head(occurpred_hema);dim(occurpred_hema)
+
+occurpred_web <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
+head(occurpred_web);dim(occurpred_web)
+
+occurpred_active <- data.frame(Day_Scaled = Predictions_Day)
+head(occurpred_active);dim(occurpred_active)
+
+occurpred_hawk <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Age_Scaled = Predictions_Age,Day_Scaled = Predictions_Day)
+head(occurpred_hawk);dim(occurpred_hawk)
+
+occurpred_size2 <- data.frame(Height = Predictions_Height)
+head(occurpred_size2);dim(occurpred_size2)
+
+occurpred_size3 <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
+head(occurpred_size3);dim(occurpred_size3)
+
+occurpred_size4 <- data.frame(Age_Scaled = Predictions_Age)
+head(occurpred_size4);dim(occurpred_size4)
+
+occurpred_AlWing <- data.frame(X1km_Prop_Water = Predictions_Water)
+head(occurpred_AlWing);dim(occurpred_AlWing)
+
+occurpred_Wless <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day)
+head(occurpred_Wless);dim(occurpred_Wless)
+
+occurpred_poly <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day)
+head(occurpred_poly);dim(occurpred_poly)
+
+occurpredlist <- list(occurpred_herb = occurpred_herb, 
+                      occurpred_omni = occurpred_omni, 
+                     occurpred_fung = occurpred_fung,
+                     occurpred_hema = occurpred_hema, 
+                     occurpred_web = occurpred_web, 
+                     occurpred_active = occurpred_active,
+                     occurpred_hawk = occurpred_hawk, 
+                     occurpred_size2 = occurpred_size2, 
+                     occurpred_size3 = occurpred_size3,
+                     occurpred_size4 = occurpred_size4,
+                     occurpred_AlWing = occurpred_AlWing,
+                     occurpred_Wless= occurpred_Wless,
+                     occurpred_poly = occurpred_poly)
+
+occurpredlist[["occurpred_AlWing"]]
+
+names(occurmods)[1]
+
+
+###Loop predictions----
+
+predict(occurmods[[1]],newdata=occurpredlist[[1]],se.fit = T, type = "link",re.form = NA)
+
+occurpredresults <- list()
+occurpredlist[[1]]
+length(occurpredlist)
+
+for (i in 1:13) {
+  
+  d <- names(occurpredlist)[i]
+  
+  cat("=== Processing Predictions:", d, "===\n") #track which prediction the loop is up to
+  
+  prediction1 <- predict(object = occurmods[[i]],newdata= occurpredlist[[i]],se.fit = T, type = "link",re.form = NA)
+  
+  prediction2<-data.frame(occurpredlist[[i]],fit.link=prediction1$fit,se.link=prediction1$se.fit)
+  
+  prediction2$lci.link<-prediction2$fit.link-(1.96*prediction2$se.link)
+  prediction2$uci.link<-prediction2$fit.link+(1.96*prediction2$se.link)
+  
+  prediction2$fit<-exp(prediction2$fit.link)
+  prediction2$se<-exp(prediction2$se.link)
+  prediction2$lci<-exp(prediction2$lci.link)
+  prediction2$uci<-exp(prediction2$uci.link)
+  
+  occurpredresults[[d]] <- prediction2
+  
+}
+
+head(occurpredresults[[1]])
+
+
+
+#END----
 
