@@ -791,7 +791,7 @@ head(occurpred_web);dim(occurpred_web)
 occurpred_active <- data.frame(Day_Scaled = Predictions_Day)
 head(occurpred_active);dim(occurpred_active)
 
-occurpred_hawk <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Age_Scaled = Predictions_Age,Day_Scaled = Predictions_Day)
+occurpred_hawk <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age,Day_Scaled = Predictions_Day)
 head(occurpred_hawk);dim(occurpred_hawk)
 
 occurpred_size2 <- data.frame(Height = Predictions_Height)

@@ -14,8 +14,9 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 #Age
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$All,xlab = "Crop Age (Days)",ylab = 'All Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-mtext(side=3,line=0,at = -2.7,'a)',cex=1)
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$All,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=3,line=0,at = -2.3,'a)',cex=1)
+mtext(side=3,line=0.1,at = 2,expression(bold('All')),cex=1.2)
 
 polygon(x = c(richpred_all.1$Age_Scaled[richpred_all.1$Field_Area_m2 == Predictions_Area[10]],rev(richpred_all.1$Age_Scaled[richpred_all.1$Field_Area_m2 == Predictions_Area[10]])), y = c(richpred_all.1$lci[richpred_all.1$Field_Area_m2 == Predictions_Area[10]],rev(richpred_all.1$uci[richpred_all.1$Field_Area_m2 == Predictions_Area[10]])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 
@@ -25,8 +26,8 @@ axis(side=1, at=seq(from=min(richpred_all.1$Age_Scaled),to=max(richpred_all.1$Ag
 
 #Field Size
 
-plot(x = ModelRich2$Field_Area_m2,y = ModelRich2$All,xlab = expression("Field Size (ha)"),ylab = 'All Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = 3000,'b)',cex=1)
+plot(x = ModelRich2$Field_Area_m2,y = ModelRich2$All,xlab = expression("Field Size (ha)"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = 10000,'b)',cex=1)
 
 polygon(x = c(richpred_all.1$Field_Area_m2[richpred_all.1$Age_Scaled == Predictions_Age[10]],rev(richpred_all.1$Field_Area_m2[richpred_all.1$Age_Scaled == Predictions_Age[10]])), y = c(richpred_all.1$lci[richpred_all.1$Age_Scaled == Predictions_Age[10]],rev(richpred_all.1$uci[richpred_all.1$Age_Scaled == Predictions_Age[10]])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 
@@ -35,7 +36,7 @@ lines(x=richpred_all.1$Field_Area_m2[richpred_all.1$Age_Scaled == Predictions_Ag
 axis(1, at = axTicks(1), labels = axTicks(1)/10000)
 
 
-###Predators----
+###Predator----
 summary(Rich_Pred) # Day + Age + Water
 
 richpred_preds.1 <- richpredresults[[2]]
@@ -52,11 +53,12 @@ par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
 
 #Day
 
-plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Predator,xlab = expression("Day Sampled"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.1,'a)',cex=1)
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Predator,xlab = expression("Day Sampled"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -1.7,'a)',cex=1)
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.1,-3.7,1.15,-3.7, length =0.1)
+mtext(side=3,line=0.1,at = 2,expression(bold('Predator')),cex=1.2)
 
 axis(side=1, at=seq(from=min(richpred_preds.1$Day_Scaled),to=max(richpred_preds.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
 
@@ -66,8 +68,8 @@ lines(x=richpred_preds.1$Day_Scaled[AA],y = richpred_preds.1$fit[AA],lwd = 2,col
 
 #Age
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Predator,xlab = expression("Crop Age (Days)"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.8,'b)',cex=1)
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Predator,xlab = expression("Crop Age (Days)"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.3,'b)',cex=1)
 
 axis(side=1, at=seq(from=min(richpred_preds.1$Age_Scaled),to=max(richpred_preds.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
 
@@ -77,14 +79,14 @@ lines(x=richpred_preds.1$Age_Scaled[AAA],y = richpred_preds.1$fit[AAA],lwd = 2,c
 
 #Water
 
-plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Predator,xlab = expression("Proportion Water within 1km"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = -0.5,'c)',cex=1)
+plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Predator,xlab = expression("Proportion Water within 1km"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 0.8,'c)',cex=1)
 
 polygon(x = c(richpred_preds.1$X1km_Prop_Water[AAAA],rev(richpred_preds.1$X1km_Prop_Water[AAAA])), y = c(richpred_preds.1$lci[AAAA],rev(richpred_preds.1$uci[AAAA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 
 lines(x=richpred_preds.1$X1km_Prop_Water[AAAA],y = richpred_preds.1$fit[AAAA],lwd = 2,col = 'grey30')
 
-###Herbivores----
+###Herbivore----
 summary(Rich_Herb) #position + day
 
 richpred_herb.1 <- richpredresults[[3]]
@@ -102,9 +104,10 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 #position
 #To make sure the order is right for position had to do 2:1
 
-plot(x = 2:1,y = richpred_herb.1$fit [B],xlab = " ",ylab = 'Herbivore Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2.5),xaxt = "n",xlim = c(0,3))
-mtext(side=3,line=0,at = -0.7,'a)',cex=1)
+plot(x = 2:1,y = richpred_herb.1$fit [B],xlab = " ",ylab = 'Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2.5),xaxt = "n",xlim = c(0,3))
+mtext(side=3,line=0,at = -0.25,'a)',cex=1)
 axis(side=1,at=2:1,labels=c('Outer','Inner'))
+mtext(side=3,line=0.1,at = 3.5,expression(bold('Herbivore')),cex=1.2)
 
 arrows(x0=2:1, y0=richpred_herb.1$lci [B],x1=2:1, y1=richpred_herb.1$uci[B],angle=90,length=0.2, code=3, lwd=2,col = "black")
 
@@ -112,8 +115,8 @@ points(x = jitter(raw_x, factor = 1),y = ModelRich2$Herbivore, pch = 16, cex = 0
 
 #Day
 
-plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Herbivore,xlab = expression("Day Sampled"),ylab = 'Herbivore Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.1,'b)',cex=1)
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Herbivore,xlab = expression("Day Sampled"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -1.6,'b)',cex=1)
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.2,-1.2,1.25,-1.2, length =0.1)
@@ -124,7 +127,7 @@ polygon(x = c(richpred_herb.1$Day_Scaled[BB],rev(richpred_herb.1$Day_Scaled[BB])
 lines(x=richpred_herb.1$Day_Scaled[BB],y = richpred_herb.1$fit[BB],lwd = 2,col = 'grey30')
 
 
-###Fungivores ----
+###Fungivore ----
 summary(Rich_Fung) #age
 
 richpred_fung.1 <- richpredresults[[4]]
@@ -134,13 +137,12 @@ head(richpred_fung.1);dim(richpred_fung.1)
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Fungivore,xlab = "Crop Age (Days)",ylab = 'Fungivore Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Fungivore,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',main = "Fungivore")
+axis(side=1, at=seq(from=min(richpred_fung.1$Age_Scaled),to=max(richpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
 polygon(x = c(richpred_fung.1$Age_Scaled,rev(richpred_fung.1$Age_Scaled)), y = c(richpred_fung.1$lci,rev(richpred_fung.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
 lines(x=richpred_fung.1$Age_Scaled,y = richpred_fung.1$fit,lwd = 2,col = 'grey30')
 
-axis(side=1, at=seq(from=min(richpred_fung.1$Age_Scaled),to=max(richpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
 ###Web Building----
 summary(Rich_Web) #Position * Day + Age + GC
@@ -159,11 +161,12 @@ par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
 
 #Position * Day 
 
-plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Web, xlab = "Day Sampled",ylab = 'Web Building Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Web, xlab = "Day Sampled",ylab = 'Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.1,-2.1,1.1,-2.1, length =0.1)
-mtext(side=3,line=0,at = -2,'a)',cex=1)
+mtext(side=3,line=0,at = -1.65,'a)',cex=1)
+mtext(side=3,line=0.1,at = 1.8,expression(bold('Web Building')),cex=1.2)
 
 axis(side=1, at=seq(from=min(richpred_web.1$Day_Scaled),to=max(richpred_web.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
 
@@ -177,17 +180,17 @@ legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.c
 
 #Age
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Web,xlab = "Crop Age (Days)",ylab = 'Web Buliding Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Web,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
 axis(side=1, at=seq(from=min(richpred_web.1$Age_Scaled),to=max(richpred_web.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
-mtext(side=3,line=0,at = -2.6,'b)',cex=1)
+mtext(side=3,line=0,at = -2.2,'b)',cex=1)
 
 polygon(x = c(richpred_web.1$Age_Scaled[DDDD],rev(richpred_web.1$Age_Scaled[DDDD])), y = c(richpred_web.1$lci[DDDD],rev(richpred_web.1$uci[DDDD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=richpred_web.1$Age_Scaled[DDDD],y = richpred_web.1$fit[DDDD],lwd = 2,col = 'grey30')
 
 #GC
 
-plot(x = ModelRich2$GC,y = ModelRich2$Web,xlab = "Ground Cover (%)",ylab = 'Web Buliding Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = -6,'c)',cex=1)
+plot(x = ModelRich2$GC,y = ModelRich2$Web,xlab = "Ground Cover (%)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 3,'c)',cex=1)
 
 polygon(x = c(richpred_web.1$GC[DDDDD],rev(richpred_web.1$GC[DDDDD])), y = c(richpred_web.1$lci[DDDDD],rev(richpred_web.1$uci[DDDDD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=richpred_web.1$GC[DDDDD],y = richpred_web.1$fit[DDDDD],lwd = 2,col = 'grey30')
@@ -212,7 +215,7 @@ EE <- richpred_active.1$Day_Scaled == Predictions_Day[15]
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Active_Hunting, xlab = "Crop Age (Days)",ylab = 'Active Hunting Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',ylim=c(0,7))
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Active_Hunting, xlab = "Crop Age (Days)",ylab = 'Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',ylim=c(0,7),main = "Active Hunting")
 axis(side=1, at=seq(from=min(richpred_active.1$Age_Scaled),to=max(richpred_active.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
 
 polygon(x = c(richpred_active.1$Age_Scaled[E],rev(richpred_active.1$Age_Scaled[E])), y = c(richpred_active.1$lci[E],rev(richpred_active.1$uci[E])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
@@ -242,18 +245,18 @@ par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
 
 #position
 
-plot(x = 1:2,y = richpred_size1.1$fit [FF],xlab = " ",ylab = 'Size 0-2.5cm Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,3),xaxt = "n",xlim = c(0,3))
-mtext(side=3,line=0,at = -0.7,'a)',cex=1)
+plot(x = 1:2,y = richpred_size1.1$fit [FF],xlab = " ",ylab = 'Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,3),xaxt = "n",xlim = c(0,3))
+mtext(side=3,line=0,at = -0.3,'a)',cex=1)
 axis(side=1,at=1:2,labels=c('Inner','Outer'))
+mtext(side=3,line=0.1,at = 3.5,expression(bold('0-2.5cm')),cex=1.2)
 
 arrows(x0=1:2, y0=richpred_size1.1$lci [FF],x1=1:2, y1=richpred_size1.1$uci[FF],angle=90,length=0.1, code=3, lwd=2,col = "black")
-
 points(x = jitter(raw_x2, factor = 1),y = ModelRich2$Size_1, pch = 16, cex = 0.4, col = "grey")
 
 #Age
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_1,xlab = expression("Crop Age (Days)"),ylab = 'Size 0-2.5cm Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.7,'b)',cex=1)
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_1,xlab = expression("Crop Age (Days)"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.2,'b)',cex=1)
 
 axis(side=1, at=seq(from=min(richpred_size1.1$Age_Scaled),to=max(richpred_size1.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
 
@@ -263,19 +266,19 @@ lines(x=richpred_size1.1$Age_Scaled[FFF],y = richpred_size1.1$fit[FFF],lwd = 2,c
 
 #Day 
 
-plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Size_1,xlab = expression("Day Sampled"),ylab = 'Size 0-2.5cm Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.1,'a)',cex=1)
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Size_1,xlab = expression("Day Sampled"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -1.7,'c)',cex=1)
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.1,-2.1,1.15,-2.1, length =0.1)
 
 axis(side=1, at=seq(from=min(richpred_size1.1$Day_Scaled),to=max(richpred_size1.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
 
-polygon(x = c(richpred_size1.1$Day_Scaled[FFFF],rev(richpred_size1.1$Day_Scaled[FFFF])), y = c(richpred_size1.1$lci[FFFF],rev(richpred_size1.1$uci[FFFF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
+polygon(x = c(richpred_size1.1$Day_Scaled[FFFF],rev(richpred_size1.1$Day_Scaled[FFFF])), y = c(richpred_size1.1$lci[FFFF],rev(richpred_size1.1$uci[FFFF])),col = rgb(0.5, 0.5, 0.5, 0.5),border= NA)
 lines(x=richpred_size1.1$Day_Scaled[FFFF],y = richpred_size1.1$fit[FFFF],lwd = 2,col = 'grey30')
 
-###Size 2 (2.5-5)----
+###Size 2 (2.5-5) ?SI----
+#Possible for supporting info - it doesn't show much of a change over crop age
 summary(Rich_Size2) #Age
 
 richpred_size2.1 <- richpredresults[[8]]
@@ -284,15 +287,15 @@ head(richpred_size2.1);dim(richpred_size2.1)
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_2,xlab = "Crop Age (Days)",ylab = '2.5-5cm Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-
-polygon(x = c(richpred_size2.1$Age_Scaled,rev(richpred_size2.1$Age_Scaled)), y = c(richpred_size2.1$lci,rev(richpred_size2.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
-lines(x=richpred_size2.1$Age_Scaled,y = richpred_size2.1$fit,lwd = 2,col = 'grey30')
-
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_2,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',main = "2.5-5cm")
 axis(side=1, at=seq(from=min(richpred_size2.1$Age_Scaled),to=max(richpred_size2.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
-###Size 3 (5-10)----
+polygon(x = c(richpred_size2.1$Age_Scaled,rev(richpred_size2.1$Age_Scaled)), y = c(richpred_size2.1$lci,rev(richpred_size2.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred_size2.1$Age_Scaled,y = richpred_size2.1$fit,lwd = 2,col = 'grey30')
+
+
+###Size 3 (5-10) ?SI----
+#Possible for supporting info - it doesn't show much and what it does show is very marginal
 summary(Rich_Size3) #Position + Age * Day + Water
 
 richpred_size3.1 <- richpredresults[[9]]
@@ -318,18 +321,18 @@ par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
 
 #position
 
-plot(x = 2:1,y = richpred_size3.1$fit [G],xlab = " ",ylab = 'Size 5-10cm Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1,xaxt = "n",ylim = c(0,1), xlim = c(0,3))
-mtext(side=3,line=0,at = -0.7,'a)',cex=1)
+plot(x = 2:1,y = richpred_size3.1$fit [G],xlab = " ",ylab = 'Species Richness', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1,xaxt = "n",ylim = c(0,1), xlim = c(0,3))
+mtext(side=3,line=0,at = -0.3,'a)',cex=1)
 axis(side=1,at=2:1,labels=c('Outer','Inner'))
+mtext(side=3,line=0.1,at = 3.5,expression(bold('5-10cm')),cex=1.2)
 
 arrows(x0=2:1, y0=richpred_size3.1$lci[G],x1=2:1, y1=richpred_size3.1$uci[G],angle=90,length=0.2, code=3, lwd=2,col = "black")
-
 points(x = jitter(raw_x2, factor = 1),y = ModelRich2$Size_3, pch = 16, cex = 0.4, col = "grey")
 
 #Age * Day
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_3,xlab = "Crop Age (Days)",ylab = '5-10cm Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',ylim = c(0,7))
-mtext(side=3,line=0,at = -2.6,'b)',cex=1)
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Size_3,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',ylim = c(0,7))
+mtext(side=3,line=0,at = -2.3,'b)',cex=1)
 axis(side=1, at=seq(from=min(richpred_size3.1$Age_Scaled),to=max(richpred_size3.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
 
 polygon(x = c(richpred_size3.1$Age_Scaled[GG],rev(richpred_size3.1$Age_Scaled[GG])), y = c(richpred_size3.1$lci[GG],rev(richpred_size3.1$uci[GG])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -342,8 +345,8 @@ legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt
 
 #Water
 
-plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Size_3,xlab = expression("Proportion Water within 1km"),ylab = '5-10cm Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = -0.5,'c)',cex=1)
+plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Size_3,xlab = expression("Proportion Water within 1km"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 0.9,'c)',cex=1)
 
 polygon(x = c(richpred_size3.1$X1km_Prop_Water[GGGG],rev(richpred_size3.1$X1km_Prop_Water[GGGG])), y = c(richpred_size3.1$lci[GGGG],rev(richpred_size3.1$uci[GGGG])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
 lines(x=richpred_size3.1$X1km_Prop_Water[GGGG],y = richpred_size3.1$fit[GGGG],lwd = 2,col = 'grey30')
@@ -362,28 +365,25 @@ dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 #Crop age 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Develops_Wings,xlab = "Crop Age (Days)",ylab = 'Develops Wings Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-mtext(side=3,line=0,at = -2.7,'a)',cex=1)
-
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Develops_Wings,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
+mtext(side=3,line=0.1,at= 1.5,expression(bold('Develops Wings')),cex=1.2)
 axis(side=1, at=seq(from=min(richpred_DevW.1$Age_Scaled),to=max(richpred_DevW.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
 polygon(x = c(richpred_DevW.1$Age_Scaled[H],rev(richpred_DevW.1$Age_Scaled[H])), y = c(richpred_DevW.1$lci[H],rev(richpred_DevW.1$uci[H])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
 lines(x=richpred_DevW.1$Age_Scaled[H],y = richpred_DevW.1$fit[H],lwd = 2,col = 'grey30')
-
 
 #NDVI
 
-plot(x = ModelRich2$NDVIsum_1km,y = ModelRich2$Develops_Wings,xlab = "NDVI (sum) within 1km",ylab = 'Develops Wings Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 3, lwd = 2)
-mtext(side=3,line=0,at = 260,'b)',cex=1)
+plot(x = ModelRich2$NDVIsum_1km,y = ModelRich2$Develops_Wings,xlab = "Total NDVI within 1km",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 3, lwd = 2)
+mtext(side=3,line=0,at = 370,'b)',cex=1)
 
 polygon(x = c(richpred_DevW.1$NDVIsum_1km[HH],rev(richpred_DevW.1$NDVIsum_1km[HH])), y = c(richpred_DevW.1$lci[HH],rev(richpred_DevW.1$uci[HH])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
 lines(x=richpred_DevW.1$NDVIsum_1km[HH],y = richpred_DevW.1$fit[HH],lwd = 2,col = 'grey30')
 
-
-###Wingless----
-summary(Rich_Wless) #postion * age + day
+###Wingless ?SI----
+#Possible for supporting info - is this showing enough to be included in paper? I'm leaning towards no
+summary(Rich_Wless) #posiiton * age + day
 
 richpred_Wless.1 <- richpredresults[[11]]
 head(richpred_Wless.1);dim(richpred_Wless.1)
@@ -398,8 +398,9 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 #Position * Age 
 
-plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Wingless,xlab = "Crop Age (Days)",ylab = 'Wingless Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-mtext(side=3,line=0,at = -2.7,'a)',cex=1)
+plot(x = ModelRich2$Age_Scaled,y = ModelRich2$Wingless,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
+mtext(side=3,line=0.1,at = 1.5,expression(bold('Wingless')),cex=1.2)
 
 axis(side=1, at=seq(from=min(richpred_Wless.1$Age_Scaled),to=max(richpred_Wless.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Crop_Age_Days),to=max(ModelRich2$Crop_Age_Days),length.out=6),-1))
 
@@ -413,11 +414,11 @@ legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.c
 
 #Day
 
-plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Wingless, xlab = "Day Sampled",ylab = 'Wingless Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Wingless, xlab = "Day Sampled",ylab = 'Species Richness',type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+mtext(side=3,line=0,at = -1.65,'b)',cex=1)
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.2,-1.8,1.2,-1.8, length =0.1)
-
 axis(side=1, at=seq(from=min(richpred_Wless.1$Day_Scaled),to=max(richpred_Wless.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
 
 polygon(x = c(richpred_Wless.1$Day_Scaled[III],rev(richpred_Wless.1$Day_Scaled[III])), y = c(richpred_Wless.1$lci[III],rev(richpred_Wless.1$uci[III])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
@@ -475,6 +476,7 @@ par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(2,2))
 #Day
 
 plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Fungivore,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -1.7,'a)',cex=1)
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
 arrows(-1.1,-0.42,1.1,-0.42, length =0.1)
@@ -487,6 +489,7 @@ lines(x=occurpred_fung.1$Day_Scaled[J],y = occurpred_fung.1$fit[J],lwd = 2,col =
 #Age
 
 plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Fungivore,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.2,'b)',cex=1)
 axis(side=1, at=seq(from=min(occurpred_fung.1$Age_Scaled),to=max(occurpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
 
 polygon(x = c(occurpred_fung.1$Age_Scaled[JJ],rev(occurpred_fung.1$Age_Scaled[JJ])), y = c(occurpred_fung.1$lci[JJ],rev(occurpred_fung.1$uci[JJ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -494,13 +497,15 @@ lines(x=occurpred_fung.1$Age_Scaled[JJ],y = occurpred_fung.1$fit[JJ],lwd = 2,col
 
 #Field Size
 
-plot(x = ModelOccur2$FieldSize_Scaled,y = ModelOccur2$Fungivore,xlab = "Field Size (km2)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-axis(side=1, at=seq(from=min(occurpred_fung.1$FieldSize_Scaled),to=max(occurpred_fung.1$FieldSize_Scaled),length.out=5),labels=round(seq(from=min(ModelOccur2$Field_Area_m2),to=max(ModelOccur2$Field_Area_m2),length.out=5)/1000000,2),cex.axis = 0.9)
+plot(x = ModelOccur2$FieldSize_Scaled,y = ModelOccur2$Fungivore,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.4,'c)',cex=1)
+axis(side=1, at=seq(from=min(occurpred_fung.1$FieldSize_Scaled),to=max(occurpred_fung.1$FieldSize_Scaled),length.out=5),labels=round(seq(from=min(ModelOccur2$Field_Area_m2),to=max(ModelOccur2$Field_Area_m2),length.out=5)/10000,1),cex.axis = 0.9)
 
 polygon(x = c(occurpred_fung.1$FieldSize_Scaled[JJJ],rev(occurpred_fung.1$FieldSize_Scaled[JJJ])), y = c(occurpred_fung.1$lci[JJJ],rev(occurpred_fung.1$uci[JJJ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=occurpred_fung.1$FieldSize_Scaled[JJJ],y = occurpred_fung.1$fit[JJJ],lwd = 2,col = 'grey30')
 
-##Hematophagous----
+##Hematophagous ?SI----
+#Possible for supporting info - is this showing enough to be included in paper? I'm leaning towards no
 
 summary(Occur_hema) #Day * Age + NDVI Field
 occurpred_hema.1 <- occurpredresults[[4]]
@@ -517,7 +522,8 @@ par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
 
 plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Hematophagous,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
 axis(side=1, at=seq(from=min(occurpred_hema.1$Age_Scaled),to=max(occurpred_hema.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
-mtext(side=3,line=0.1,at = 2,expression(bold('Hematophagous')),cex=1.2)
+mtext(side=3,line=0.1,at = 1.6,expression(bold('Hematophagous')),cex=1.2)
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
 
 polygon(x = c(occurpred_hema.1$Age_Scaled[K],rev(occurpred_hema.1$Age_Scaled[K])), y = c(occurpred_hema.1$lci[K],rev(occurpred_hema.1$uci[K])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=occurpred_hema.1$Age_Scaled[K],y = occurpred_hema.1$fit[K],lwd = 2,col = 'grey30',lty = 1)
@@ -530,6 +536,7 @@ legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt
 #NDVI Field
 
 plot(x = ModelOccur2$NDVImean_Field,y = ModelOccur2$Hematophagous,xlab = "Mean Field NDVI",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 0.12,'b)',cex=1)
 
 polygon(x = c(occurpred_hema.1$NDVImean_Field[K_K],rev(occurpred_hema.1$NDVImean_Field[K_K])), y = c(occurpred_hema.1$lci[K_K],rev(occurpred_hema.1$uci[K_K])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=occurpred_hema.1$NDVImean_Field[K_K],y = occurpred_hema.1$fit[K_K],lwd = 2,col = 'grey30',lty = 1)
@@ -581,9 +588,10 @@ axis(side=1, at=seq(from=min(occurpred_active.1$Day_Scaled),to=max(occurpred_act
 polygon(x = c(occurpred_active.1$Day_Scaled,rev(occurpred_active.1$Day_Scaled)), y = c(occurpred_active.1$lci,rev(occurpred_active.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=occurpred_active.1$Day_Scaled,y = occurpred_active.1$fit,lwd = 2,col = 'grey30')
 
-##Hawking----
+##Hawking (SI)----
+#For the supporting information (or cut completely) - despite being top model - this doesn't fit well at all, we can see that visually for both panels
 
-summary(Occur_hawk) #Position + Age * Day Scaled 
+summary(Occur_hawk) #Position + Age * Day 
 occurpred_hawk.1 <- occurpredresults[[7]]
 head(occurpred_hawk.1);dim(occurpred_hawk.1)
 
@@ -592,7 +600,8 @@ Predictions_Day[15] #Spring
 
 M <- occurpred_hawk.1$Age_Scaled == Predictions_Age[10] & occurpred_hawk.1$Day_Scaled == Predictions_Day [10]
 MM <- occurpred_hawk.1$Position == "Outer" & occurpred_hawk.1$Day_Scaled == Predictions_Day[4]
-MMM <- occurpred_hawk.1$Position == "Outer" & occurpred_hawk.1$Day_Scaled == Predictions_Day[4]
+MMM <- occurpred_hawk.1$Position == "Outer" & occurpred_hawk.1$Day_Scaled == Predictions_Day[15]
+
 
 raw_x4 <- ifelse(ModelOccur2$Position == "Inner", 1, 
                 ifelse(ModelOccur2$Position == "Outer", 2, NA))
@@ -600,16 +609,28 @@ raw_x4 <- ifelse(ModelOccur2$Position == "Inner", 1,
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
 
-#Not fully updated yet
-#the y= in plot isn't bringing up only two why?
+plot(x = 2:1,y = occurpred_hawk.1$fit[M],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
+mtext(side=3,line=0,at = -0.3,'a)',cex=1)
+axis(side=1,at=2:1,labels=c('Outer','Inner'))
+mtext(side=3,line=0.1,at = 3.5,expression(bold('Hawking')),cex=1.2)
 
-plot(x = 1:2,y = occurpred_hawk.1$fit[M],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2.5),xaxt = "n",xlim = c(0,3))
-mtext(side=3,line=0,at = -0.7,'a)',cex=1)
-axis(side=1,at=1:2,labels=c('Outer','Inner'))
-
-arrows(x0=1:2, y0=occurpred_hawk.1$lci [M],x1=1:2, y1=richpred_herb.1$uci[M],angle=90,length=0.2, code=3, lwd=2,col = "black")
+arrows(x0=2:1, y0=occurpred_hawk.1$lci[M],x1=2:1, y1=occurpred_hawk.1$uci[M],angle=90,length=0.2, code=3, lwd=2,col = "black")
 
 points(x = jitter(raw_x4, factor = 1),y = ModelOccur2$Hawking, pch = 16, cex = 0.4, col = "grey")
+
+#Age * Day
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Hawking,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(occurpred_hawk.1$Age_Scaled),to=max(occurpred_hawk.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.2,'b)',cex=1)
+
+polygon(x = c(occurpred_hawk.1$Age_Scaled[MM],rev(occurpred_hawk.1$Age_Scaled[MM])), y = c(occurpred_hawk.1$lci[MM],rev(occurpred_hawk.1$uci[MM])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_hawk.1$Age_Scaled[MM],y = occurpred_hawk.1$fit[MM],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_hawk.1$Age_Scaled[MMM],rev(occurpred_hawk.1$Age_Scaled[MMM])), y = c(occurpred_hawk.1$lci[MMM],rev(occurpred_hawk.1$uci[MMM])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_hawk.1$Age_Scaled[MMM],y = occurpred_hawk.1$fit[MMM],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topright',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 
 
@@ -622,7 +643,7 @@ head(occurpred_size2.1);dim(occurpred_size2.1)
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelOccur2$Height,y = ModelOccur2$Size_2,xlab = "Plant Height (cm)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,main = "Size 2 (2.5-5cm)")
+plot(x = ModelOccur2$Height,y = ModelOccur2$Size_2,xlab = "Plant Height (cm)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,main = "2.5-5cm")
 
 polygon(x = c(occurpred_size2.1$Height,rev(occurpred_size2.1$Height)), y = c(occurpred_size2.1$lci,rev(occurpred_size2.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=occurpred_size2.1$Height,y = occurpred_size2.1$fit,lwd = 2,col = 'grey30')
@@ -642,7 +663,7 @@ NN <- occurpred_size3.1$Day_Scaled == Predictions_Day[15]
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_3,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Size 3 (5-10cm)")
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_3,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "5-10cm")
 axis(side=1, at=seq(from=min(occurpred_size3.1$Age_Scaled),to=max(occurpred_size3.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
 
 polygon(x = c(occurpred_size3.1$Age_Scaled[N],rev(occurpred_size3.1$Age_Scaled[N])), y = c(occurpred_size3.1$lci[N],rev(occurpred_size3.1$uci[N])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -662,7 +683,7 @@ head(occurpred_size4.1);dim(occurpred_size4.1)
 dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_4,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Size 4 (>10cm)")
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_4,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = ">10cm")
 axis(side=1, at=seq(from=min(occurpred_size4.1$Age_Scaled),to=max(occurpred_size4.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
 
 polygon(x = c(occurpred_size4.1$Age_Scaled,rev(occurpred_size4.1$Age_Scaled)), y = c(occurpred_size4.1$lci,rev(occurpred_size4.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -689,9 +710,40 @@ summary(Occur_Wless) #Position * Age + Day
 occurpred_Wless.1 <- occurpredresults[[12]]
 head(occurpred_Wless.1);dim(occurpred_Wless.1)
 
-O
-OO
-OOO
+O <- occurpred_Wless.1$Position == "Inner" & occurpred_Wless.1$Day_Scaled == Predictions_Day[10]
+OO <- occurpred_Wless.1$Position == "Outer" & occurpred_Wless.1$Day_Scaled == Predictions_Day[10]
+OOO <- occurpred_Wless.1$Position == "Outer" & occurpred_Wless.1$Age_Scaled == Predictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow=c(1,2))
+
+#position * Age
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Wingless,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(occurpred_Wless.1$Age_Scaled),to=max(occurpred_Wless.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0.1,at = 1.8,expression(bold('Wingless')),cex=1.2)
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
+
+polygon(x = c(occurpred_Wless.1$Age_Scaled[O],rev(occurpred_Wless.1$Age_Scaled[O])), y = c(occurpred_Wless.1$lci[O],rev(occurpred_Wless.1$uci[O])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_Wless.1$Age_Scaled[O],y = occurpred_Wless.1$fit[O],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_Wless.1$Age_Scaled[OO],rev(occurpred_Wless.1$Age_Scaled[OO])), y = c(occurpred_Wless.1$lci[OO],rev(occurpred_Wless.1$uci[OO])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_Wless.1$Age_Scaled[OO],y = occurpred_Wless.1$fit[OO],lwd = 2,col = 'grey30',lty = 2)
+
+legend('bottomright',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#Day
+
+plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Wingless,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -1.65,'b)',cex=1)
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.2,-0.3,1.25,-0.3, length =0.1)
+axis(side=1, at=seq(from=min(occurpred_Wless.1$Day_Scaled),to=max(occurpred_Wless.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Day_Sampled),to=max(ModelOccur2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(occurpred_Wless.1$Day_Scaled[OOO],rev(occurpred_Wless.1$Day_Scaled[OOO])), y = c(occurpred_Wless.1$lci[OOO],rev(occurpred_Wless.1$uci[OOO])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=occurpred_Wless.1$Day_Scaled[OOO],y = occurpred_Wless.1$fit[OOO],lwd = 2,col = 'grey30')
+
 
 ##Polymorphic----
 
