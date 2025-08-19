@@ -121,7 +121,6 @@ arrows(-1.2,-1.2,1.25,-1.2, length =0.1)
 axis(side=1, at=seq(from=min(richpred_herb.1$Day_Scaled),to=max(richpred_herb.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelRich2$Day_Sampled),to=max(ModelRich2$Day_Sampled),length.out=6),-1))
 
 polygon(x = c(richpred_herb.1$Day_Scaled[BB],rev(richpred_herb.1$Day_Scaled[BB])), y = c(richpred_herb.1$lci[BB],rev(richpred_herb.1$uci[BB])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-
 lines(x=richpred_herb.1$Day_Scaled[BB],y = richpred_herb.1$fit[BB],lwd = 2,col = 'grey30')
 
 
@@ -423,3 +422,154 @@ axis(side=1, at=seq(from=min(richpred_Wless.1$Day_Scaled),to=max(richpred_Wless.
 
 polygon(x = c(richpred_Wless.1$Day_Scaled[III],rev(richpred_Wless.1$Day_Scaled[III])), y = c(richpred_Wless.1$lci[III],rev(richpred_Wless.1$uci[III])),col = rgb(0.7, 0.7, 0.7, 0.7),border = NA)
 lines(x=richpred_Wless.1$Day_Scaled[III],y = richpred_Wless.1$fit[III],lwd = 2,lty = 1, col = 'grey30')
+
+
+#OCCURRENCE----
+
+##Herbivore----
+
+summary(Occur_herb) #Day
+occurpred_herb.1 <- occurpredresults[[1]]
+head(occurpred_herb.1);dim(occurpred_herb.1)
+
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Herbivore,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Herbivore")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.2,-0.3,1.25,-0.3, length =0.1)
+axis(side=1, at=seq(from=min(occurpred_herb.1$Day_Scaled),to=max(occurpred_herb.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Day_Sampled),to=max(ModelOccur2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(occurpred_herb.1$Day_Scaled,rev(occurpred_herb.1$Day_Scaled)), y = c(occurpred_herb.1$lci,rev(occurpred_herb.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_herb.1$Day_Scaled,y = occurpred_herb.1$fit,lwd = 2,col = 'grey30')
+
+##Omnivore----
+
+summary(Occur_omni) #Ground Cover
+occurpred_omni.1 <- occurpredresults[[2]]
+head(occurpred_omni.1);dim(occurpred_omni.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$GC,y = ModelOccur2$Omnivore,xlab = "Ground Cover (%)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,main = "Omnivore")
+
+polygon(x = c(occurpred_omni.1$GC,rev(occurpred_omni.1$GC)), y = c(occurpred_omni.1$lci,rev(occurpred_omni.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_omni.1$GC,y = occurpred_omni.1$fit,lwd = 2,col = 'grey30')
+
+##Fungivore----
+
+summary(Occur_fung) #Day + Age + Field Size
+occurpred_fung.1 <- occurpredresults[[3]]
+head(occurpred_fung.1);dim(occurpred_fung.1)
+
+J
+JJ
+JJJ
+
+##Hematophagous----
+
+summary(Occur_hema) #Day * Age + NDVI Field
+occurpred_hema.1 <- occurpredresults[[4]]
+head(occurpred_hema.1);dim(occurpred_hema.1)
+
+K
+KK
+K_K
+
+##Web----
+
+summary(Occur_web) #Day * Age
+occurpred_web.1 <- occurpredresults[[5]]
+head(occurpred_web.1);dim(occurpred_web.1)
+
+L
+LL
+
+##Active Hunting----
+
+summary(Occur_active) #Day 
+occurpred_active.1 <- occurpredresults[[6]]
+head(occurpred_active.1);dim(occurpred_active.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Active_Hunting,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Active Hunting")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.2,-0.3,1.25,-0.3, length =0.1)
+axis(side=1, at=seq(from=min(occurpred_active.1$Day_Scaled),to=max(occurpred_active.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Day_Sampled),to=max(ModelOccur2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(occurpred_active.1$Day_Scaled,rev(occurpred_active.1$Day_Scaled)), y = c(occurpred_active.1$lci,rev(occurpred_active.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_active.1$Day_Scaled,y = occurpred_active.1$fit,lwd = 2,col = 'grey30')
+
+##Hawking----
+
+summary(Occur_hawk) #Position + Age * Day Scaled 
+occurpred_hawk.1 <- occurpredresults[[7]]
+head(occurpred_hawk.1);dim(occurpred_hawk.1)
+
+M
+MM
+MMM
+
+##Size 2 (2.5-5cm)----
+
+summary(Occur_size2) #Height 
+occurpred_size2.1 <- occurpredresults[[8]]
+head(occurpred_size2.1);dim(occurpred_size2.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Height,y = ModelOccur2$Size_2,xlab = "Plant Height (cm)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,main = "Size 2 (2.5-5cm)")
+
+polygon(x = c(occurpred_size2.1$Height,rev(occurpred_size2.1$Height)), y = c(occurpred_size2.1$lci,rev(occurpred_size2.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_size2.1$Height,y = occurpred_size2.1$fit,lwd = 2,col = 'grey30')
+
+##Size 3 (5-10cm)----
+
+summary(Occur_size3) #Day * Age 
+occurpred_size3.1 <- occurpredresults[[9]]
+head(occurpred_size3.1);dim(occurpred_size3.1)
+
+N
+NN
+NNN
+
+##Size 4 (>10cm)----
+
+summary(Occur_size4) #Age 
+occurpred_size4.1 <- occurpredresults[[10]]
+head(occurpred_size4.1);dim(occurpred_size4.1)
+
+##Always Winged----
+
+summary(Occur_AlWing) #Water 
+occurpred_AlWing.1 <- occurpredresults[[11]]
+head(occurpred_AlWing.1);dim(occurpred_AlWing.1)
+
+##Wingless----
+
+summary(Occur_Wless) #Position * Age + Day 
+occurpred_Wless.1 <- occurpredresults[[12]]
+head(occurpred_Wless.1);dim(occurpred_Wless.1)
+
+O
+OO
+OOO
+
+##Polymorphic----
+
+summary(Occur_poly) #Position * Day 
+occurpred_poly.1 <- occurpredresults[[13]]
+head(occurpred_poly.1);dim(occurpred_poly.1)
+
+PP
+PPP
+
+
+#END----

@@ -9,6 +9,7 @@ library('lme4')
 library("glmmTMB")
 library("dplyr")
 library("DHARMa")
+library("arm")
 
 
 #RICHNESS MODELLING----
@@ -851,17 +852,16 @@ for (i in 1:13) {
   prediction2$lci.link<-prediction2$fit.link-(1.96*prediction2$se.link)
   prediction2$uci.link<-prediction2$fit.link+(1.96*prediction2$se.link)
   
-  prediction2$fit<-exp(prediction2$fit.link)
-  prediction2$se<-exp(prediction2$se.link)
-  prediction2$lci<-exp(prediction2$lci.link)
-  prediction2$uci<-exp(prediction2$uci.link)
+  prediction2$fit<-invlogit(prediction2$fit.link) #to make sure everything stays between 0 and 1
+  prediction2$se<-invlogit(prediction2$se.link)
+  prediction2$lci<-invlogit(prediction2$lci.link)
+  prediction2$uci<-invlogit(prediction2$uci.link)
   
   occurpredresults[[d]] <- prediction2
   
 }
 
 head(occurpredresults[[1]])
-
 
 
 #END----
