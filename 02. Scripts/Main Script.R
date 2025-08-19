@@ -450,8 +450,93 @@ div_names <- colnames(ModelDiv2)[2:12]
 length(div_names)
 divlist1 <- list()
 
-#LOOP GOES HERE - WHAT MODEL AM I USING?
-#TO DO----
+for (i in div_names) {
+  allsum <- list()
+  
+  cat("=== Processing group:", i, "===\n") #track where loop is up to
+  
+  #run models and collect summaries
+  null <- glmer(as.formula(paste(i, "~ 1 + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum [[1]] <- summary(null)
+  P <- glmer(as.formula(paste(i, "~ Position + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum [[2]] <- summary(P)
+  A <- glmer(as.formula(paste(i, "~ Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum [[3]] <- summary(A)
+  D <- glmer(as.formula(paste(i, "~ Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[4]] <- summary(D)
+  PA <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[5]] <- summary(PA)
+  PD <- glmer(as.formula(paste(i, "~ Position + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[6]] <- summary(PD)
+  DA <- glmer(as.formula(paste(i, "~ Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[7]] <- summary(DA)
+  PxA <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[8]] <- summary(PxA)
+  PxD <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[9]] <- summary(PxD)
+  DxA <- glmer(as.formula(paste(i, "~ Day_Scaled * Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[10]] <- summary(DxA)
+  PAD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[11]] <- summary(PAD)
+  PxAD <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[12]] <- summary(PxAD)
+  PxDA <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  allsum[[13]] <- summary(PxDA)
+  PAxD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled * Day_Scaled + (1 | Field)")), data = ModelDiv2,family = Gamma,)
+  allsum[[14]] <- summary(PAxD)
+  
+  #collect models
+  tempmodlist <- list("null" = null, "P" = P, "A" = A, "D" = D,
+                      "PA" = PA, "PD" = PD, "DA" = DA, 
+                      "PxA" = PxA, "PxD" = PxD, "DxA" = DxA, 
+                      "PAD" = PAD, "PxAD" = PxAD, "PxDA" = PxDA, 
+                      "PAxD" = PAxD)
+  
+  #check which had issues and remove from the mod list
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model@optinfo$conv$opt != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
+  
+  divlist1 [[i]] <- aictab(cleaned_models,modnames = NULL)
+  
+}
+
+length(divlist1)
+
+divlist1
+
+##Step 2 - Environmental Variables----
+
+div_names
+div_design <- list(
+  All = "Day_Scaled * Age_Scaled",
+  Predator = "Day_Scaled * Age_Scaled",
+  Herbivore = NULL,   
+  Fungivore = "Position",     
+  Web = "Position * Age_Scaled",          
+  Active_Hunting = "Position + Age_Scaled * Day_Scaled",
+  Size_1 = "Position * Day_Scaled",
+  Size_2 = NULL,      
+  Size_3 = "Day_Scaled",
+  Develops_Wings = "Position",
+  Wingless = "Age_Scaled")
+head(div_design)
+
+divlist2 <- list()
+
+#LOOP GOES HERE
+
+#link of Gamma is inverse - so make sure that I do the right thing in predictions loop to back transform it
+#if struggling with model isobel converted all 0 into very small numbers i.e. 0.000001 to make things easier 
+
+
 
 #OCCURRENCE MODELLING----
 
