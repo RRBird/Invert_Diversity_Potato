@@ -465,9 +465,40 @@ summary(Occur_fung) #Day + Age + Field Size
 occurpred_fung.1 <- occurpredresults[[3]]
 head(occurpred_fung.1);dim(occurpred_fung.1)
 
-J
-JJ
-JJJ
+J <- occurpred_fung.1$Age_Scaled == Predictions_Age[10] & occurpred_fung.1$FieldSize_Scaled == Predictions_Areascale[10]
+JJ <- occurpred_fung.1$Day_Scaled == Predictions_Day[10] & occurpred_fung.1$FieldSize_Scaled == Predictions_Areascale[10]
+JJJ <- occurpred_fung.1$Age_Scaled == Predictions_Age[10] & occurpred_fung.1$Day_Scaled == Predictions_Day[10]
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(2,2))
+
+#Day
+
+plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Fungivore,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.1,-0.42,1.1,-0.42, length =0.1)
+axis(side=1, at=seq(from=min(occurpred_fung.1$Day_Scaled),to=max(occurpred_fung.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Day_Sampled),to=max(ModelOccur2$Day_Sampled),length.out=6),-1),cex.axis=0.9)
+mtext(side=3,line=0.1,at = 2,expression(bold('Fungivore')),cex=1.2)
+
+polygon(x = c(occurpred_fung.1$Day_Scaled[J],rev(occurpred_fung.1$Day_Scaled[J])), y = c(occurpred_fung.1$lci[J],rev(occurpred_fung.1$uci[J])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_fung.1$Day_Scaled[J],y = occurpred_fung.1$fit[J],lwd = 2,col = 'grey30')
+
+#Age
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Fungivore,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(occurpred_fung.1$Age_Scaled),to=max(occurpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
+
+polygon(x = c(occurpred_fung.1$Age_Scaled[JJ],rev(occurpred_fung.1$Age_Scaled[JJ])), y = c(occurpred_fung.1$lci[JJ],rev(occurpred_fung.1$uci[JJ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_fung.1$Age_Scaled[JJ],y = occurpred_fung.1$fit[JJ],lwd = 2,col = 'grey30')
+
+#Field Size
+
+plot(x = ModelOccur2$FieldSize_Scaled,y = ModelOccur2$Fungivore,xlab = "Field Size (km2)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(occurpred_fung.1$FieldSize_Scaled),to=max(occurpred_fung.1$FieldSize_Scaled),length.out=5),labels=round(seq(from=min(ModelOccur2$Field_Area_m2),to=max(ModelOccur2$Field_Area_m2),length.out=5)/1000000,2),cex.axis = 0.9)
+
+polygon(x = c(occurpred_fung.1$FieldSize_Scaled[JJJ],rev(occurpred_fung.1$FieldSize_Scaled[JJJ])), y = c(occurpred_fung.1$lci[JJJ],rev(occurpred_fung.1$uci[JJJ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_fung.1$FieldSize_Scaled[JJJ],y = occurpred_fung.1$fit[JJJ],lwd = 2,col = 'grey30')
 
 ##Hematophagous----
 
@@ -475,9 +506,35 @@ summary(Occur_hema) #Day * Age + NDVI Field
 occurpred_hema.1 <- occurpredresults[[4]]
 head(occurpred_hema.1);dim(occurpred_hema.1)
 
-K
-KK
-K_K
+K <- occurpred_hema.1$Day_Scaled == Predictions_Day[4] & occurpred_hema.1$NDVImean_Field == Predictions_NDVIfield[10]
+KK <- occurpred_hema.1$Day_Scaled == Predictions_Day[15] & occurpred_hema.1$NDVImean_Field == Predictions_NDVIfield[10]
+K_K <- occurpred_hema.1$Day_Scaled == Predictions_Day[10] & occurpred_hema.1$Age_Scaled == Predictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
+
+#Day * Age
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Hematophagous,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(occurpred_hema.1$Age_Scaled),to=max(occurpred_hema.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0.1,at = 2,expression(bold('Hematophagous')),cex=1.2)
+
+polygon(x = c(occurpred_hema.1$Age_Scaled[K],rev(occurpred_hema.1$Age_Scaled[K])), y = c(occurpred_hema.1$lci[K],rev(occurpred_hema.1$uci[K])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_hema.1$Age_Scaled[K],y = occurpred_hema.1$fit[K],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_hema.1$Age_Scaled[KK],rev(occurpred_hema.1$Age_Scaled[KK])), y = c(occurpred_hema.1$lci[KK],rev(occurpred_hema.1$uci[KK])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_hema.1$Age_Scaled[KK],y = occurpred_hema.1$fit[KK],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#NDVI Field
+
+plot(x = ModelOccur2$NDVImean_Field,y = ModelOccur2$Hematophagous,xlab = "Mean Field NDVI",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+
+polygon(x = c(occurpred_hema.1$NDVImean_Field[K_K],rev(occurpred_hema.1$NDVImean_Field[K_K])), y = c(occurpred_hema.1$lci[K_K],rev(occurpred_hema.1$uci[K_K])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_hema.1$NDVImean_Field[K_K],y = occurpred_hema.1$fit[K_K],lwd = 2,col = 'grey30',lty = 1)
+
+
 
 ##Web----
 
@@ -485,8 +542,26 @@ summary(Occur_web) #Day * Age
 occurpred_web.1 <- occurpredresults[[5]]
 head(occurpred_web.1);dim(occurpred_web.1)
 
-L
-LL
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
+
+L <- occurpred_web.1$Day_Scaled == Predictions_Day[4]
+LL <- occurpred_web.1$Day_Scaled == Predictions_Day[15]
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Web,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Web Building")
+axis(side=1, at=seq(from=min(occurpred_web.1$Age_Scaled),to=max(occurpred_web.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(occurpred_web.1$Age_Scaled[L],rev(occurpred_web.1$Age_Scaled[L])), y = c(occurpred_web.1$lci[L],rev(occurpred_web.1$uci[L])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_web.1$Age_Scaled[L],y = occurpred_web.1$fit[L],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_web.1$Age_Scaled[LL],rev(occurpred_web.1$Age_Scaled[LL])), y = c(occurpred_web.1$lci[LL],rev(occurpred_web.1$uci[LL])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_web.1$Age_Scaled[LL],y = occurpred_web.1$fit[LL],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
 
 ##Active Hunting----
 
@@ -512,9 +587,31 @@ summary(Occur_hawk) #Position + Age * Day Scaled
 occurpred_hawk.1 <- occurpredresults[[7]]
 head(occurpred_hawk.1);dim(occurpred_hawk.1)
 
-M
-MM
-MMM
+Predictions_Day[4] #Winter
+Predictions_Day[15] #Spring
+
+M <- occurpred_hawk.1$Age_Scaled == Predictions_Age[10] & occurpred_hawk.1$Day_Scaled == Predictions_Day [10]
+MM <- occurpred_hawk.1$Position == "Outer" & occurpred_hawk.1$Day_Scaled == Predictions_Day[4]
+MMM <- occurpred_hawk.1$Position == "Outer" & occurpred_hawk.1$Day_Scaled == Predictions_Day[4]
+
+raw_x4 <- ifelse(ModelOccur2$Position == "Inner", 1, 
+                ifelse(ModelOccur2$Position == "Outer", 2, NA))
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
+
+#Not fully updated yet
+#the y= in plot isn't bringing up only two why?
+
+plot(x = 1:2,y = occurpred_hawk.1$fit[M],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2.5),xaxt = "n",xlim = c(0,3))
+mtext(side=3,line=0,at = -0.7,'a)',cex=1)
+axis(side=1,at=1:2,labels=c('Outer','Inner'))
+
+arrows(x0=1:2, y0=occurpred_hawk.1$lci [M],x1=1:2, y1=richpred_herb.1$uci[M],angle=90,length=0.2, code=3, lwd=2,col = "black")
+
+points(x = jitter(raw_x4, factor = 1),y = ModelOccur2$Hawking, pch = 16, cex = 0.4, col = "grey")
+
+
 
 ##Size 2 (2.5-5cm)----
 
@@ -536,9 +633,25 @@ summary(Occur_size3) #Day * Age
 occurpred_size3.1 <- occurpredresults[[9]]
 head(occurpred_size3.1);dim(occurpred_size3.1)
 
-N
-NN
-NNN
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
+
+N <- occurpred_size3.1$Day_Scaled == Predictions_Day[4]
+NN <- occurpred_size3.1$Day_Scaled == Predictions_Day[15]
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_3,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Size 3 (5-10cm)")
+axis(side=1, at=seq(from=min(occurpred_size3.1$Age_Scaled),to=max(occurpred_size3.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(occurpred_size3.1$Age_Scaled[N],rev(occurpred_size3.1$Age_Scaled[N])), y = c(occurpred_size3.1$lci[N],rev(occurpred_size3.1$uci[N])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_size3.1$Age_Scaled[N],y = occurpred_size3.1$fit[N],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_size3.1$Age_Scaled[NN],rev(occurpred_size3.1$Age_Scaled[NN])), y = c(occurpred_size3.1$lci[NN],rev(occurpred_size3.1$uci[NN])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_size3.1$Age_Scaled[NN],y = occurpred_size3.1$fit[NN],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topright',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 ##Size 4 (>10cm)----
 
@@ -546,11 +659,29 @@ summary(Occur_size4) #Age
 occurpred_size4.1 <- occurpredresults[[10]]
 head(occurpred_size4.1);dim(occurpred_size4.1)
 
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Age_Scaled,y = ModelOccur2$Size_4,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Size 4 (>10cm)")
+axis(side=1, at=seq(from=min(occurpred_size4.1$Age_Scaled),to=max(occurpred_size4.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Crop_Age_Days),to=max(ModelOccur2$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(occurpred_size4.1$Age_Scaled,rev(occurpred_size4.1$Age_Scaled)), y = c(occurpred_size4.1$lci,rev(occurpred_size4.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_size4.1$Age_Scaled,y = occurpred_size4.1$fit,lwd = 2,col = 'grey30')
+
+
 ##Always Winged----
 
 summary(Occur_AlWing) #Water 
 occurpred_AlWing.1 <- occurpredresults[[11]]
 head(occurpred_AlWing.1);dim(occurpred_AlWing.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$X1km_Prop_Water,y = ModelOccur2$Always_Winged,xlab = "Water within 1km (%)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,main = "Always Winged")
+
+polygon(x = c(occurpred_AlWing.1$X1km_Prop_Water,rev(occurpred_AlWing.1$X1km_Prop_Water)), y = c(occurpred_AlWing.1$lci,rev(occurpred_AlWing.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_AlWing.1$X1km_Prop_Water,y = occurpred_AlWing.1$fit,lwd = 2,col = 'grey30')
 
 ##Wingless----
 
@@ -568,8 +699,26 @@ summary(Occur_poly) #Position * Day
 occurpred_poly.1 <- occurpredresults[[13]]
 head(occurpred_poly.1);dim(occurpred_poly.1)
 
-PP
-PPP
+PP <- occurpred_poly.1$Position == "Inner"
+PPP <- occurpred_poly.1$Position == "Outer"
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelOccur2$Day_Scaled,y = ModelOccur2$Polymorphic,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Polymorphic (Wings)")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.2,-0.3,1.25,-0.3, length =0.1)
+axis(side=1, at=seq(from=min(occurpred_poly.1$Day_Scaled),to=max(occurpred_poly.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelOccur2$Day_Sampled),to=max(ModelOccur2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(occurpred_poly.1$Day_Scaled[PP],rev(occurpred_poly.1$Day_Scaled[PP])), y = c(occurpred_poly.1$lci[PP],rev(occurpred_poly.1$uci[PP])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_poly.1$Day_Scaled[PP],y = occurpred_poly.1$fit[PP],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(occurpred_poly.1$Day_Scaled[PPP],rev(occurpred_poly.1$Day_Scaled[PPP])), y = c(occurpred_poly.1$lci[PPP],rev(occurpred_poly.1$uci[PPP])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=occurpred_poly.1$Day_Scaled[PPP],y = occurpred_poly.1$fit[PPP],lwd = 2,col = 'grey30',lty = 2)
+
+
+legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 
 #END----
