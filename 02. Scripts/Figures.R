@@ -425,6 +425,117 @@ polygon(x = c(richpred_Wless.1$Day_Scaled[III],rev(richpred_Wless.1$Day_Scaled[I
 lines(x=richpred_Wless.1$Day_Scaled[III],y = richpred_Wless.1$fit[III],lwd = 2,lty = 1, col = 'grey30')
 
 
+#DIVERSITY----
+
+##All----
+
+summary(div_all) #Day
+divpred_all.1 <- divpredresults[[1]]
+head(divpred_all.1);dim(divpred_all.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelDiv2$Day_Scaled,y = ModelDiv2$All,xlab = "Day Sampled",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "All")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.2,-2.8,1.25,-2.8, length =0.1)
+  axis(side=1, at=seq(from=min(divpred_all.1$Day_Scaled),to=max(divpred_all.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Day_Sampled),to=max(ModelDiv2$Day_Sampled),length.out=6),-1))
+
+polygon(x = c(divpred_all.1$Day_Scaled,rev(divpred_all.1$Day_Scaled)), y = c(divpred_all.1$lci,rev(divpred_all.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_all.1$Day_Scaled,y = divpred_all.1$fit,lwd = 2,col = 'grey30')
+
+##Predator----
+
+summary(div_pred) #Day + Age + Water
+divpred_pred.1 <- divpredresults[[2]]
+head(divpred_pred.1);dim(divpred_pred.1)
+
+Q
+QQ
+QQQ
+
+##Herbivore----
+
+summary(div_herb) #Position * Day + Water
+divpred_herb.1 <- divpredresults[[3]]
+head(divpred_herb.1);dim(divpred_herb.1)
+
+R
+RR
+RRR
+
+##Fungivore----
+
+summary(div_fung) #Position + Age * Day + NDVI 1km (scaled)
+divpred_fung.1 <- divpredresults[[4]]
+head(divpred_fung.1);dim(divpred_fung.1)
+
+S
+SS
+SSS
+S_S
+
+##Web Building----
+
+summary(div_web) #Day * Age
+divpred_web.1 <- divpredresults[[5]]
+head(divpred_web.1);dim(divpred_web.1)
+
+TT
+T_T
+
+##Active Hunting----
+
+summary(div_active) #Day * Age + Height
+divpred_active.1 <- divpredresults[[6]]
+head(divpred_active.1);dim(divpred_active.1)
+
+U
+UU
+UUU
+
+##Size 3 (5-10cm)----
+
+summary(div_size3) #Day * Age + Water 
+divpred_size3.1 <- divpredresults[[7]]
+head(divpred_size3.1);dim(divpred_size3.1)
+
+V
+VV
+VVV
+
+##Develops Wings----
+
+summary(div_DevW) #Field Size (scaled)
+divpred_DevW.1 <- divpredresults[[8]]
+head(divpred_DevW.1);dim(divpred_DevW.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelDiv2$Fieldsize_Scaled,y = ModelDiv2$Develops_Wings,xlab = "Feild Size (ha)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Develops Wings")
+axis(side=1, at=seq(from=min(divpred_DevW.1$Fieldsize_Scaled),to=max(divpred_DevW.1$Fieldsize_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Field_Area_m2),to=max(ModelDiv2$Field_Area_m2),length.out=6)/10000,1))
+
+polygon(x = c(divpred_DevW.1$Fieldsize_Scaled,rev(divpred_DevW.1$Fieldsize_Scaled)), y = c(divpred_DevW.1$lci,rev(divpred_DevW.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_DevW.1$Fieldsize_Scaled,y = divpred_DevW.1$fit,lwd = 2,col = 'grey30')
+
+
+##Wingless----
+
+summary(div_Wless) #Age
+divpred_Wless.1 <- divpredresults[[9]]
+head(divpred_Wless.1);dim(divpred_Wless.1)
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Wingless,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Wingless")
+axis(side=1, at=seq(from=min(divpred_Wless.1$Age_Scaled),to=max(divpred_Wless.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(divpred_Wless.1$Age_Scaled,rev(divpred_Wless.1$Age_Scaled)), y = c(divpred_Wless.1$lci,rev(divpred_Wless.1$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_Wless.1$Age_Scaled,y = divpred_Wless.1$fit,lwd = 2,col = 'grey30')
+
 #OCCURRENCE----
 
 ##Herbivore----

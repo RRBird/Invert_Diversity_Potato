@@ -442,6 +442,10 @@ ModelDiv2$Day_Scaled <- scale(ModelDiv2$Day_Sampled)
 
 ModelDiv2 <- ModelDiv2 %>% dplyr::select(-Omnivore,-Hematophagous,-Ambush_Hunter,-Hawking,-Size_4,-Always_Winged,-Polymorphic)
 
+#update all NA's to be 0.000001 for model fitting
+ModelDiv2[2:12][is.na(ModelDiv2[2:12])] <- 0.01
+ModelDiv2[2:12][ModelDiv2[2:12]==0.000001] <- 0.01
+
 head(ModelDiv2);dim(ModelDiv2)
 
 colnames(ModelDiv2)
@@ -456,33 +460,33 @@ for (i in div_names) {
   cat("=== Processing group:", i, "===\n") #track where loop is up to
   
   #run models and collect summaries
-  null <- glmer(as.formula(paste(i, "~ 1 + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  null <- glmer(as.formula(paste(i, "~ 1 + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum [[1]] <- summary(null)
-  P <- glmer(as.formula(paste(i, "~ Position + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  P <- glmer(as.formula(paste(i, "~ Position + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum [[2]] <- summary(P)
-  A <- glmer(as.formula(paste(i, "~ Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  A <- glmer(as.formula(paste(i, "~ Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum [[3]] <- summary(A)
-  D <- glmer(as.formula(paste(i, "~ Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  D <- glmer(as.formula(paste(i, "~ Day_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[4]] <- summary(D)
-  PA <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PA <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[5]] <- summary(PA)
-  PD <- glmer(as.formula(paste(i, "~ Position + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PD <- glmer(as.formula(paste(i, "~ Position + Day_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[6]] <- summary(PD)
-  DA <- glmer(as.formula(paste(i, "~ Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  DA <- glmer(as.formula(paste(i, "~ Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[7]] <- summary(DA)
-  PxA <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PxA <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[8]] <- summary(PxA)
-  PxD <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PxD <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[9]] <- summary(PxD)
-  DxA <- glmer(as.formula(paste(i, "~ Day_Scaled * Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  DxA <- glmer(as.formula(paste(i, "~ Day_Scaled * Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[10]] <- summary(DxA)
-  PAD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PAD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[11]] <- summary(PAD)
-  PxAD <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PxAD <- glmer(as.formula(paste(i, "~ Position * Age_Scaled + Day_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[12]] <- summary(PxAD)
-  PxDA <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma, data = ModelDiv2)
+  PxDA <- glmer(as.formula(paste(i, "~ Position * Day_Scaled + Age_Scaled + (1 | Field)")), family = Gamma(link = "log"), data = ModelDiv2)
   allsum[[13]] <- summary(PxDA)
-  PAxD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled * Day_Scaled + (1 | Field)")), data = ModelDiv2,family = Gamma,)
+  PAxD <- glmer(as.formula(paste(i, "~ Position + Age_Scaled * Day_Scaled + (1 | Field)")), data = ModelDiv2,family = Gamma(link = "log"),)
   allsum[[14]] <- summary(PAxD)
   
   #collect models
@@ -516,25 +520,289 @@ divlist1
 
 div_names
 div_design <- list(
-  All = "Day_Scaled * Age_Scaled",
-  Predator = "Day_Scaled * Age_Scaled",
-  Herbivore = NULL,   
-  Fungivore = "Position",     
-  Web = "Position * Age_Scaled",          
-  Active_Hunting = "Position + Age_Scaled * Day_Scaled",
-  Size_1 = "Position * Day_Scaled",
+  All = "Day_Scaled",
+  Predator = "Day_Scaled + Age_Scaled",
+  Herbivore = "Position * Day_Scaled",   
+  Fungivore = "Position + Age_Scaled * Day_Scaled",     
+  Web = "Day_Scaled * Age_Scaled",          
+  Active_Hunting = "Day_Scaled * Age_Scaled",
+  Size_1 = NULL,
   Size_2 = NULL,      
-  Size_3 = "Day_Scaled",
-  Develops_Wings = "Position",
+  Size_3 = "Day_Scaled * Age_Scaled",
+  Develops_Wings = NULL,
   Wingless = "Age_Scaled")
 head(div_design)
 
 divlist2 <- list()
 
-#LOOP GOES HERE
+for (i in div_names) {
+  allsum <- list()
+  
+  design_formula_part <- div_design[[i]]
+  
+  cat("=== Processing group:", i, "===\n") #track where loop is up to
+  cat("Design formula part:", design_formula_part, "\n") #making sure it's taken the right formula
+  
+  #Handle groups without null model as top in step 1
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    # No design variables - intercept only model
+    base_formula <- paste(i, "~ 1 + (1 | Field)")} else {
+      # Has design variables
+      base_formula <- paste(i, "~", design_formula_part, "+ (1 | Field)")}
+  base_model <- glmer(as.formula(base_formula),family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[1]] <- summary(base_model)
+  
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    height_formula <- paste(i, "~ Height + (1 | Field)")} else {
+      height_formula <- paste(i, "~", design_formula_part, "+ Height + (1 | Field)")}
+  height_model <- glmer(as.formula(height_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[2]] <- summary(height_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    gc_formula <- paste(i, "~ GC  + (1 | Field)")} else {
+      gc_formula <- paste(i, "~", design_formula_part, "+ GC + (1 | Field)")}
+  gc_model <- glmer(as.formula(gc_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[3]] <- summary(gc_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    Fsize_formula <- paste(i, "~ Field_Area_m2  + (1 | Field)")} else {
+      Fsize_formula <- paste(i, "~", design_formula_part, "+ Field_Area_m2 + (1 | Field)")}
+  Fsize_model <- glmer(as.formula(Fsize_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[4]] <- summary(Fsize_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    water_formula <- paste(i, "~ X1km_Prop_Water  + (1 | Field)")} else {water_formula <- paste(i, "~", design_formula_part, "+ X1km_Prop_Water + (1 | Field)")}
+  water_model <- glmer(as.formula(water_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[5]] <- summary(water_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    NDVIf_formula <- paste(i, "~ NDVImean_Field  + (1 | Field)")} else {NDVIf_formula <- paste(i, "~", design_formula_part, "+ NDVImean_Field + (1 | Field)")}
+  NDVIf_model <- glmer(as.formula(NDVIf_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[6]] <- summary(NDVIf_model)
+  
+  if (is.null(design_formula_part) || design_formula_part == "") {
+    NDVI1km_formula <- paste(i, "~ NDVIsum_1km  + (1 | Field)")} else {
+      NDVI1km_formula <- paste(i, "~", design_formula_part, "+ NDVIsum_1km + (1 | Field)")}
+  NDVI1km_model <- glmer(as.formula(NDVI1km_formula), family = Gamma(link = "log"), data = ModelDiv2)
+  allsum[[7]] <- summary(NDVI1km_model)
+  
+  
+  #collect models
+  tempmodlist <- list("base" = base_model, "height" = height_model, 
+                      "GC" = gc_model, "Feild Size" = Fsize_model,
+                      "water" = water_model,"Field NDVI" =NDVIf_model,
+                      "NDVI 1km" = NDVI1km_model)
+  
+  has_issues <- sapply(tempmodlist, function(model) {
+    if (is.null(model)) return(TRUE) #model failed
+    if (model@optinfo$conv$opt != 0) return(TRUE) #convergence issues
+    if (is.na(AIC(model))) return(TRUE) #does it have an AIC (not having one will cause all AIC in table to be NA)
+    return(FALSE)
+  }) 
+  
+  cleaned_models <- tempmodlist[!has_issues]
+  cat("Models with issues:", sum(has_issues), "\n")
+  cat("Problem models:", names(tempmodlist)[has_issues], "\n")
+  
+  divlist2 [[i]] <- aictab(cleaned_models,modnames = NULL)
+  
+}
 
-#link of Gamma is inverse - so make sure that I do the right thing in predictions loop to back transform it
-#if struggling with model isobel converted all 0 into very small numbers i.e. 0.000001 to make things easier 
+length(divlist2)
+
+divlist2
+
+###Diversity models after first two steps----
+
+div_all <- glmer(All ~ Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_all)
+
+div_pred <- glmer(Predator ~ Day_Scaled + Age_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_pred)
+
+div_herb <- glmer(Herbivore ~ Position * Day_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_herb)
+
+ModelDiv2$NDVI1km_Scaled <- scale(ModelDiv2$NDVIsum_1km)
+#Needed to scale NDVI 1km for the model to be more identifiable
+div_fung <- glmer(Fungivore ~ Position + Age_Scaled * Day_Scaled + NDVI1km_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_fung)
+
+div_web <- glmer(Web ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_web)
+
+div_active <- glmer(Active_Hunting ~ Day_Scaled * Age_Scaled + Height + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_active)
+
+div_size3 <- glmer(Size_3 ~ Day_Scaled * Age_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_size3)
+
+ModelDiv2$Fieldsize_Scaled <- scale(ModelDiv2$Field_Area_m2)
+#Needed to field size for the model to be more identifiable
+div_DevW <- glmer(Develops_Wings ~ Fieldsize_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_DevW)
+
+div_Wless <- glmer(Wingless ~ Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_Wless)
+
+
+##Step 3 - Check for spatial autocorrelation----
+
+field_numbers2 <- unique(ModelDiv2$ID)
+
+divmods <- list(div_all = div_all, div_pred = div_pred, 
+                div_herb = div_herb, div_fung = div_fung,
+                div_web = div_web, div_active = div_active, 
+                div_size3 = div_size3, div_DevW = div_DevW,
+                div_Wless = div_Wless)
+divmods[[5]]
+
+div_spatial_results <- list()
+
+for (i in names(divmods)) {
+  
+  cat("=== Processing Model:", i, "===\n") #track which model loop is up to
+  
+  model_residuals <- simulateResiduals(divmods[[i]])
+  spatial_result <- data.frame(
+    field = rep(NA, length(field_numbers2)),
+    statistic = rep(NA, length(field_numbers2)),
+    p_value = rep(NA, length(field_numbers2)),
+    method = rep(NA_character_, length(field_numbers2)),
+    stringsAsFactors = FALSE)
+  
+  s <- 1
+  
+  for (f in field_numbers2) {
+    
+    cat("Field", f, "\n") #What field is it doing?
+    
+    #Extracting specific residuals for individual fields
+    field_indices <- which(ModelDiv2$ID == f)
+    field_residuals <- model_residuals
+    field_residuals$scaledResiduals <- 
+      model_residuals$scaledResiduals[field_indices]
+    field_residuals$fittedPredictedResponse <- 
+      model_residuals$fittedPredictedResponse[field_indices]
+    
+    # Test spatial autocorrelation using your grid coordinates
+    spatial_test <- testSpatialAutocorrelation(field_residuals, 
+                        x = ModelDiv2$X_Cor[ModelDiv2$ID == f], 
+                        y = ModelDiv2$Y_Cor[ModelDiv2$ID == f])
+    
+    
+    spatial_result$field [s] <- f
+    spatial_result$statistic [s] <- spatial_test$statistic[1] 
+    spatial_result$p_value [s] <- spatial_test$p.value
+    spatial_result$method [s] <- spatial_test$method
+    
+    s <- s + 1
+    
+  }
+  
+  div_spatial_results[[i]] <- spatial_result
+  
+}
+
+
+names(div_spatial_results)
+div_spatial_results$div_Wless
+
+#Moran's I
+min(div_spatial_results$div_Wless[2])
+max(div_spatial_results$div_Wless[2])
+
+#p-value
+min(div_spatial_results$div_Wless[3])
+max(div_spatial_results$div_Wless[3])
+
+##Step 4 - Predictions ----
+
+#variables included in the top models (not already done earlier in process)
+
+Predictions_Height <- seq(min(ModelDiv2$Height),max(ModelDiv2$Height),length.out = 20)
+Predictions_Areascale <- seq(min(ModelDiv2$Fieldsize_Scaled),max(ModelDiv2$Fieldsize_Scaled),length.out = 20)
+Predictions_NDVI1km_Scaled <- seq(min(ModelDiv2$NDVI1km_Scaled),max(ModelDiv2$NDVI1km_Scaled),length.out = 20)
+
+###Creating new data for predictions----
+
+divpred_all <- data.frame(Day_Scaled = Predictions_Day)
+head(divpred_all);dim(divpred_all)
+
+divpred_pred <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, X1km_Prop_Water  = Predictions_Water)
+head(divpred_pred);dim(divpred_pred)
+
+divpred_herb <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day, X1km_Prop_Water  = Predictions_Water)
+head(divpred_herb);dim(divpred_herb)
+
+divpred_fung <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, NDVI1km_Scaled   = Predictions_NDVI1km_Scaled)
+head(divpred_fung);dim(divpred_fung)
+
+divpred_web <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
+head(divpred_web);dim(divpred_web)
+
+divpred_active <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, Height = Predictions_Height)
+head(divpred_active);dim(divpred_active)
+
+divpred_size3 <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, X1km_Prop_Water = Predictions_Water)
+head(divpred_size3);dim(divpred_size3)
+
+divpred_DevW <- data.frame(Fieldsize_Scaled = Predictions_Areascale)
+head(divpred_DevW);dim(divpred_DevW)
+
+divpred_Wless <- data.frame(Age_Scaled = Predictions_Age)
+head(divpred_Wless);dim(divpred_Wless)
+
+
+
+divpredlist <- list(divpred_all = divpred_all, 
+                    divpred_pred = divpred_pred, 
+                    divpred_herb = divpred_herb,
+                    divpred_fung = divpred_fung, 
+                    divpred_web = divpred_web, 
+                    divpred_active = divpred_active,
+                    divpred_size3 = divpred_size3,
+                    divpred_DevW = divpred_DevW, 
+                    divpred_Wless = divpred_Wless)
+
+divpredlist[["divpred_web"]]
+
+names(divmods)[1]
+
+###Loop predictions----
+
+predict(divmods[[1]],newdata=divpredlist[[1]],se.fit = T, type = "link",re.form = NA)
+
+divpredresults <- list()
+length(divmods)
+
+for (i in 1:9) {
+  
+  d <- names(divpredlist)[i]
+  
+  cat("=== Processing Predictions:", d, "===\n") #track which prediction the loop is up to
+  
+  prediction1 <- predict(object = divmods[[i]],newdata= divpredlist[[i]],se.fit = T, type = "link",re.form = NA)
+  
+  prediction2<-data.frame(divpredlist[[i]],fit.link=prediction1$fit,se.link=prediction1$se.fit)
+  
+  prediction2$lci.link<-prediction2$fit.link-(1.96*prediction2$se.link)
+  prediction2$uci.link<-prediction2$fit.link+(1.96*prediction2$se.link)
+  
+  prediction2$fit<-exp(prediction2$fit.link)
+  prediction2$se<-exp(prediction2$se.link)
+  prediction2$lci<-exp(prediction2$lci.link)
+  prediction2$uci<-exp(prediction2$uci.link)
+  
+  divpredresults[[d]] <- prediction2
+  
+}
+
+head(divpredresults[[1]])
+
+#link of Gamma is log - so make sure that I do the right thing in predictions loop to back transform it
+#it's the same as the richness one
 
 
 
@@ -850,8 +1118,6 @@ max(occur_spatial_results$Occur_poly[3])
 
 #variables included in the top models (not already done earlier in process)
 
-Predictions_Height <- seq(min(ModelOccur2$Height),max(ModelOccur2$Height),length.out = 20)
-Predictions_Areascale <- seq(min(ModelOccur2$FieldSize_Scaled),max(ModelOccur2$FieldSize_Scaled),length.out = 20)
 Predictions_NDVIfield <- seq(min(ModelOccur2$NDVImean_Field ),max(ModelOccur2$NDVImean_Field ),length.out = 20)
 
 
