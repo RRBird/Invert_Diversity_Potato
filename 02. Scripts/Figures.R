@@ -79,7 +79,7 @@ lines(x=richpred_preds.1$Age_Scaled[AAA],y = richpred_preds.1$fit[AAA],lwd = 2,c
 
 #Water
 
-plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Predator,xlab = expression("Proportion Water within 1km"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+plot(x = ModelRich2$X1km_Prop_Water,y = ModelRich2$Predator,xlab = "Water within 1km (%)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
 mtext(side=3,line=0,at = 0.8,'c)',cex=1)
 
 polygon(x = c(richpred_preds.1$X1km_Prop_Water[AAAA],rev(richpred_preds.1$X1km_Prop_Water[AAAA])), y = c(richpred_preds.1$lci[AAAA],rev(richpred_preds.1$uci[AAAA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -326,7 +326,7 @@ mtext(side=3,line=0,at = -0.3,'a)',cex=1)
 axis(side=1,at=2:1,labels=c('Outer','Inner'))
 mtext(side=3,line=0.1,at = 3.5,expression(bold('5-10cm')),cex=1.2)
 
-arrows(x0=2:1, y0=richpred_size3.1$lci[G],x1=2:1, y1=richpred_size3.1$uci[G],angle=90,length=0.2, code=3, lwd=2,col = "black")
+arrows(x0=2:1, y0=richpred_size3.1$lci[G],x1=2:1, y1=richpred_size3.1$uci[G],angle=90,length=0.1, code=3, lwd=2,col = "black")
 points(x = jitter(raw_x2, factor = 1),y = ModelRich2$Size_3, pch = 16, cex = 0.4, col = "grey")
 
 #Age * Day
@@ -451,9 +451,42 @@ summary(div_pred) #Day + Age + Water
 divpred_pred.1 <- divpredresults[[2]]
 head(divpred_pred.1);dim(divpred_pred.1)
 
-Q
-QQ
-QQQ
+Q <- divpred_pred.1$Age_Scaled == Predictions_Age[10] & divpred_pred.1$X1km_Prop_Water == Predictions_Water[10]
+QQ <- divpred_pred.1$Day_Scaled == Predictions_Day[10] & divpred_pred.1$X1km_Prop_Water == Predictions_Water[10]
+QQQ <- divpred_pred.1$Day_Scaled == Predictions_Day[10] & divpred_pred.1$Age_Scaled == Predictions_Age[10]
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow=c(2,2))
+
+#Day 
+
+plot(x = ModelDiv2$Day_Scaled,y = ModelDiv2$Predator,xlab = "Day Sampled",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.1,-3,1.1,-3, length =0.1)
+axis(side=1, at=seq(from=min(divpred_pred.1$Day_Scaled),to=max(divpred_pred.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Day_Sampled),to=max(ModelDiv2$Day_Sampled),length.out=6),-1),cex.axis = 0.9)
+mtext(side=3,line=0,at = -1.7,'a)',cex=1)
+mtext(side=3,line=0.1,at = 2,expression(bold('Predator')),cex=1.2)
+
+polygon(x = c(divpred_pred.1$Day_Scaled[Q],rev(divpred_pred.1$Day_Scaled[Q])), y = c(divpred_pred.1$lci[Q],rev(divpred_pred.1$uci[Q])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_pred.1$Day_Scaled[Q],y = divpred_pred.1$fit[Q],lwd = 2,col = 'grey30')
+
+#Age
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Predator,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+axis(side=1, at=seq(from=min(divpred_pred.1$Age_Scaled),to=max(divpred_pred.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
+mtext(side=3,line=0,at = -2.3,'b)',cex=1)
+
+polygon(x = c(divpred_pred.1$Age_Scaled[QQ],rev(divpred_pred.1$Age_Scaled[QQ])), y = c(divpred_pred.1$lci[QQ],rev(divpred_pred.1$uci[QQ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_pred.1$Age_Scaled[QQ],y = divpred_pred.1$fit[QQ],lwd = 2,col = 'grey30',lty = 1)
+
+#Water
+
+plot(x = ModelDiv2$X1km_Prop_Water,y = ModelDiv2$Predator,xlab = "Water within 1km (%)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 0.75,'c)',cex=1)
+
+polygon(x = c(divpred_pred.1$X1km_Prop_Water[QQQ],rev(divpred_pred.1$X1km_Prop_Water[QQQ])), y = c(divpred_pred.1$lci[QQQ],rev(divpred_pred.1$uci[QQQ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_pred.1$X1km_Prop_Water[QQQ],y = divpred_pred.1$fit[QQQ],lwd = 2,col = 'grey30',lty = 1)
 
 ##Herbivore----
 
@@ -461,20 +494,90 @@ summary(div_herb) #Position * Day + Water
 divpred_herb.1 <- divpredresults[[3]]
 head(divpred_herb.1);dim(divpred_herb.1)
 
-R
-RR
-RRR
+R <- divpred_herb.1$Position == "Inner" & divpred_herb.1$X1km_Prop_Water == Predictions_Water[10]
+RR <- divpred_herb.1$Position == "Outer" & divpred_herb.1$X1km_Prop_Water == Predictions_Water[10]
+RRR <- divpred_herb.1$Position == "Outer" & divpred_herb.1$Day_Scaled == Predictions_Day[10]
 
-##Fungivore----
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
+
+plot(x = ModelDiv2$Day_Scaled,y = ModelDiv2$Herbivore,xlab = "Day Sampled",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
+mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
+arrows(-1.25,-1.2,1.25,-1.2, length =0.1)
+axis(side=1, at=seq(from=min(divpred_herb.1$Day_Scaled),to=max(divpred_herb.1$Day_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Day_Sampled),to=max(ModelDiv2$Day_Sampled),length.out=6),-1))
+mtext(side=3,line=0,at = -1.6,'a)',cex=1)
+mtext(side=3,line=0.1,at = 2,expression(bold('Herbivore')),cex=1.2)
+
+polygon(x = c(divpred_herb.1$Day_Scaled[R],rev(divpred_herb.1$Day_Scaled[R])), y = c(divpred_herb.1$lci[R],rev(divpred_herb.1$uci[R])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_herb.1$Day_Scaled[R],y = divpred_herb.1$fit[R],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(divpred_herb.1$Day_Scaled[RR],rev(divpred_herb.1$Day_Scaled[RR])), y = c(divpred_herb.1$lci[RR],rev(divpred_herb.1$uci[RR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_herb.1$Day_Scaled[RR],y = divpred_herb.1$fit[RR],lwd = 2,col = 'grey30',lty = 2)
+
+
+legend('topleft',legend = c('Inner', "Outer"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#Water
+
+plot(x = ModelDiv2$X1km_Prop_Water,y = ModelDiv2$Herbivore,xlab = "Water within 1km (%)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 1,'c)',cex=1)
+
+polygon(x = c(divpred_herb.1$X1km_Prop_Water[RRR],rev(divpred_herb.1$X1km_Prop_Water[RRR])), y = c(divpred_herb.1$lci[RRR],rev(divpred_herb.1$uci[RRR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_herb.1$X1km_Prop_Water[RRR],y = divpred_herb.1$fit[RRR],lwd = 2,col = 'grey30',lty = 1)
+
+##Fungivore (SI)----
+#For the supporting information - despite being top model - this doesn't show much and the CI are massive on some of them as well
 
 summary(div_fung) #Position + Age * Day + NDVI 1km (scaled)
 divpred_fung.1 <- divpredresults[[4]]
 head(divpred_fung.1);dim(divpred_fung.1)
 
-S
-SS
-SSS
-S_S
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
+
+S <- divpred_fung.1$Age_Scaled == Predictions_Age[10] & divpred_fung.1$Day_Scaled == Predictions_Day[10] & divpred_fung.1$NDVI1km_Scaled == Predictions_NDVI1km_Scaled[10]
+SS <- divpred_fung.1$Position == "Outer" & divpred_fung.1$Day_Scaled == Predictions_Day[4] & divpred_fung.1$NDVI1km_Scaled == Predictions_NDVI1km_Scaled[10]
+SSS <- divpred_fung.1$Position == "Outer" & divpred_fung.1$Day_Scaled == Predictions_Day[15] & divpred_fung.1$NDVI1km_Scaled == Predictions_NDVI1km_Scaled[10]
+S_S <- divpred_fung.1$Position == "Outer" & divpred_fung.1$Age_Scaled == Predictions_Age[10] & divpred_fung.1$Day_Scaled == Predictions_Day[10] 
+
+raw_x5 <- ifelse(ModelDiv2$Position == "Inner", 1, ifelse(ModelDiv2$Position == "Outer", 2, NA))
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(2,2))
+
+plot(x = 2:1,y = divpred_fung.1$fit[S],xlab = " ",ylab = 'Diversity', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2),xaxt = "n",xlim = c(0,3))
+mtext(side=3,line=0,at = -0.3,'a)',cex=1)
+axis(side=1,at=2:1,labels=c('Outer','Inner'))
+mtext(side=3,line=0.1,at = 3.5,expression(bold('Fungivore')),cex=1.2)
+
+arrows(x0=2:1, y0=divpred_fung.1$lci[S],x1=2:1, y1=divpred_fung.1$uci[S],angle=90,length=0.1, code=3, lwd=2,col = "black")
+
+points(x = jitter(raw_x5, factor = 1),y = ModelDiv2$Fungivore, pch = 16, cex = 0.4, col = "grey")
+
+#Age * Day
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Fungivore,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",ylim = c(0,10))
+axis(side=1, at=seq(from=min(divpred_fung.1$Age_Scaled),to=max(divpred_fung.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1),cex.axis = 0.9)
+mtext(side=3,line=0,at = -2.3,'b)',cex=1)
+
+polygon(x = c(divpred_fung.1$Age_Scaled[SS],rev(divpred_fung.1$Age_Scaled[SS])), y = c(divpred_fung.1$lci[SS],rev(divpred_fung.1$uci[SS])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_fung.1$Age_Scaled[SS],y = divpred_fung.1$fit[SS],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(divpred_fung.1$Age_Scaled[SSS],rev(divpred_fung.1$Age_Scaled[SSS])), y = c(divpred_fung.1$lci[SSS],rev(divpred_fung.1$uci[SSS])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_fung.1$Age_Scaled[SSS],y = divpred_fung.1$fit[SSS],lwd = 2,col = 'grey30',lty = 2)
+
+legend('top',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#NDVI 1km
+
+plot(x = ModelDiv2$NDVI1km_Scaled,y = ModelDiv2$Fungivore,xlab = "Total NDVI within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Develops Wings",ylim=c(0,4))
+axis(side=1, at=seq(from=min(divpred_fung.1$NDVI1km_Scaled),to=max(divpred_fung.1$NDVI1km_Scaled),length.out=5),labels=round(seq(from=min(ModelDiv2$NDVIsum_1km),to=max(ModelDiv2$NDVIsum_1km),length.out=5),-1),cex.axis = 0.95)
+mtext(side=3,line=0,at = -2.8,'c)',cex=1)
+
+polygon(x = c(divpred_fung.1$NDVI1km_Scaled[S_S],rev(divpred_fung.1$NDVI1km_Scaled[S_S])), y = c(divpred_fung.1$lci[S_S],rev(divpred_fung.1$uci[S_S])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_fung.1$NDVI1km_Scaled[S_S],y = divpred_fung.1$fit[S_S],lwd = 2,col = 'grey30')
 
 ##Web Building----
 
@@ -482,28 +585,109 @@ summary(div_web) #Day * Age
 divpred_web.1 <- divpredresults[[5]]
 head(divpred_web.1);dim(divpred_web.1)
 
-TT
-T_T
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
 
-##Active Hunting----
+TT <- divpred_web.1$Day_Scaled == Predictions_Day[4]
+T_T <- divpred_web.1$Day_Scaled == Predictions_Day[15]
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Web,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Web Building")
+axis(side=1, at=seq(from=min(divpred_web.1$Age_Scaled),to=max(divpred_web.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(divpred_web.1$Age_Scaled[TT],rev(divpred_web.1$Age_Scaled[TT])), y = c(divpred_web.1$lci[TT],rev(divpred_web.1$uci[TT])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_web.1$Age_Scaled[TT],y = divpred_web.1$fit[TT],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(divpred_web.1$Age_Scaled[T_T],rev(divpred_web.1$Age_Scaled[T_T])), y = c(divpred_web.1$lci[T_T],rev(divpred_web.1$uci[T_T])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_web.1$Age_Scaled[T_T],y = divpred_web.1$fit[T_T],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+
+##Active Hunting ?SI----
+#Possible for supporting info - is this showing enough to be included in paper? I'm not sure
 
 summary(div_active) #Day * Age + Height
 divpred_active.1 <- divpredresults[[6]]
 head(divpred_active.1);dim(divpred_active.1)
 
-U
-UU
-UUU
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
 
-##Size 3 (5-10cm)----
+U <- divpred_active.1$Day_Scaled == Predictions_Day[4] & divpred_active.1$Height == Predictions_Height[10]
+UU <- divpred_active.1$Day_Scaled == Predictions_Day[15] & divpred_active.1$Height == Predictions_Height[10]
+UUU <- divpred_active.1$Day_Scaled == Predictions_Day[10] & divpred_active.1$Age_Scaled == Predictions_Age[10]
+
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow=c(1,2))
+
+#Day * Age
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Active_Hunting,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",ylim = c(0,7))
+axis(side=1, at=seq(from=min(divpred_active.1$Age_Scaled),to=max(divpred_active.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
+mtext(side=3,line=0.1,at = 1.6,expression(bold('Active Hunting')),cex=1.2)
+
+polygon(x = c(divpred_active.1$Age_Scaled[U],rev(divpred_active.1$Age_Scaled[U])), y = c(divpred_active.1$lci[U],rev(divpred_active.1$uci[U])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_active.1$Age_Scaled[U],y = divpred_active.1$fit[U],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(divpred_active.1$Age_Scaled[UU],rev(divpred_active.1$Age_Scaled[UU])), y = c(divpred_active.1$lci[UU],rev(divpred_active.1$uci[UU])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_active.1$Age_Scaled[UU],y = divpred_active.1$fit[UU],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topright',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#Height
+
+plot(x = ModelDiv2$Height,y = ModelDiv2$Active_Hunting,xlab = "Crop Height (cm)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 15,'b)',cex=1)
+
+polygon(x = c(divpred_active.1$Height[UUU],rev(divpred_active.1$Height[UUU])), y = c(divpred_active.1$lci[UUU],rev(divpred_active.1$uci[UUU])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_active.1$Height[UUU],y = divpred_active.1$fit[UUU],lwd = 2,col = 'grey30',lty = 1)
+
+##Size 3 (5-10cm) ?SI----
+#Possible for supporting info - is this showing enough to be included in paper? I'm leaning towards no
 
 summary(div_size3) #Day * Age + Water 
 divpred_size3.1 <- divpredresults[[7]]
 head(divpred_size3.1);dim(divpred_size3.1)
 
-V
-VV
-VVV
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
+
+V <- divpred_size3.1$Day_Scaled == Predictions_Day[4] & divpred_size3.1$X1km_Prop_Water == Predictions_Water[10]
+VV <- divpred_size3.1$Day_Scaled == Predictions_Day[15] & divpred_size3.1$X1km_Prop_Water == Predictions_Water[10]
+VVV <- divpred_size3.1$Day_Scaled == Predictions_Day[10] & divpred_size3.1$Age_Scaled == Predictions_Age[10]
+
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow=c(1,2))
+
+#Day * Age
+
+plot(x = ModelDiv2$Age_Scaled,y = ModelDiv2$Size_3,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",ylim=c(0,15))
+axis(side=1, at=seq(from=min(divpred_size3.1$Age_Scaled),to=max(divpred_size3.1$Age_Scaled),length.out=6),labels=round(seq(from=min(ModelDiv2$Crop_Age_Days),to=max(ModelDiv2$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.2,'a)',cex=1)
+mtext(side=3,line=0.1,at = 2,expression(bold('5-10cm')),cex=1.2)
+
+polygon(x = c(divpred_size3.1$Age_Scaled[V],rev(divpred_size3.1$Age_Scaled[V])), y = c(divpred_size3.1$lci[V],rev(divpred_size3.1$uci[V])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_size3.1$Age_Scaled[V],y = divpred_size3.1$fit[V],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(divpred_size3.1$Age_Scaled[VV],rev(divpred_size3.1$Age_Scaled[VV])), y = c(divpred_size3.1$lci[VV],rev(divpred_size3.1$uci[VV])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_size3.1$Age_Scaled[VV],y = divpred_size3.1$fit[VV],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+#Water
+
+plot(x = ModelDiv2$X1km_Prop_Water,y = ModelDiv2$Size_3,xlab = "Water within 1km (%)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,ylim=c(0,8))
+mtext(side=3,line=0,at = 1,'c)',cex=1)
+
+polygon(x = c(divpred_size3.1$X1km_Prop_Water[VVV],rev(divpred_size3.1$X1km_Prop_Water[VVV])), y = c(divpred_size3.1$lci[VVV],rev(divpred_size3.1$uci[VVV])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=divpred_size3.1$X1km_Prop_Water[VVV],y = divpred_size3.1$fit[VVV],lwd = 2,col = 'grey30',lty = 1)
+
 
 ##Develops Wings----
 
@@ -654,7 +838,7 @@ lines(x=occurpred_hema.1$NDVImean_Field[K_K],y = occurpred_hema.1$fit[K_K],lwd =
 
 
 
-##Web----
+##Web Building----
 
 summary(Occur_web) #Day * Age
 occurpred_web.1 <- occurpredresults[[5]]
@@ -700,7 +884,7 @@ polygon(x = c(occurpred_active.1$Day_Scaled,rev(occurpred_active.1$Day_Scaled)),
 lines(x=occurpred_active.1$Day_Scaled,y = occurpred_active.1$fit,lwd = 2,col = 'grey30')
 
 ##Hawking (SI)----
-#For the supporting information (or cut completely) - despite being top model - this doesn't fit well at all, we can see that visually for both panels
+#For the supporting information - despite being top model - this doesn't fit well at all, we can see that visually for both panels
 
 summary(Occur_hawk) #Position + Age * Day 
 occurpred_hawk.1 <- occurpredresults[[7]]
