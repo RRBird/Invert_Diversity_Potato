@@ -393,6 +393,7 @@ II <- richpred_Wless.1$Position == "Outer" & richpred_Wless.1$Day_Scaled == Pred
 
 III <- richpred_Wless.1$Position == "Outer" & richpred_Wless.1$Age_Scaled == Predictions_Age[10]
 
+
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
@@ -502,6 +503,8 @@ RRR <- divpred_herb.1$Position == "Outer" & divpred_herb.1$Day_Scaled == Predict
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
 
+#Position * Day
+
 plot(x = ModelDiv2$Day_Scaled,y = ModelDiv2$Herbivore,xlab = "Day Sampled",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
 mtext(side=1,line=3,at = -1.5,'Winter',cex=0.8)
 mtext(side=1,line=3,at = 1.5,'Spring',cex=0.8)
@@ -547,6 +550,8 @@ raw_x5 <- ifelse(ModelDiv2$Position == "Inner", 1, ifelse(ModelDiv2$Position == 
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(2,2))
 
+#Position
+
 plot(x = 2:1,y = divpred_fung.1$fit[S],xlab = " ",ylab = 'Diversity', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,2),xaxt = "n",xlim = c(0,3))
 mtext(side=3,line=0,at = -0.3,'a)',cex=1)
 axis(side=1,at=2:1,labels=c('Outer','Inner'))
@@ -572,7 +577,7 @@ legend('top',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex
 
 #NDVI 1km
 
-plot(x = ModelDiv2$NDVI1km_Scaled,y = ModelDiv2$Fungivore,xlab = "Total NDVI within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",main = "Develops Wings",ylim=c(0,4))
+plot(x = ModelDiv2$NDVI1km_Scaled,y = ModelDiv2$Fungivore,xlab = "Total NDVI within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n",ylim=c(0,4))
 axis(side=1, at=seq(from=min(divpred_fung.1$NDVI1km_Scaled),to=max(divpred_fung.1$NDVI1km_Scaled),length.out=5),labels=round(seq(from=min(ModelDiv2$NDVIsum_1km),to=max(ModelDiv2$NDVIsum_1km),length.out=5),-1),cex.axis = 0.95)
 mtext(side=3,line=0,at = -2.8,'c)',cex=1)
 
@@ -903,6 +908,8 @@ raw_x4 <- ifelse(ModelOccur2$Position == "Inner", 1,
 
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T,mfrow = c(1,2))
+
+#Position
 
 plot(x = 2:1,y = occurpred_hawk.1$fit[M],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
 mtext(side=3,line=0,at = -0.3,'a)',cex=1)
