@@ -273,12 +273,12 @@ length(unique(
 length(invert$Morphospecies[which(invert$Size == ">10")])
 
 length(unique(
-  invert$Morphospecies[which(invert$Wings == "Always_Winged")]))
-length(invert$Morphospecies[which(invert$Wings == "Always_Winged")])
+  invert$Morphospecies[which(invert$Wings == "Wings_Develop_Externally")]))
+length(invert$Morphospecies[which(invert$Wings == "Wings_Develop_Externally")])
 
 length(unique(
-  invert$Morphospecies[which(invert$Wings == "Develops_Wings")]))
-length(invert$Morphospecies[which(invert$Wings == "Develops_Wings")])
+  invert$Morphospecies[which(invert$Wings == "Wings_Develop_Internally")]))
+length(invert$Morphospecies[which(invert$Wings == "Wings_Develop_Internally")])
 
 length(unique(
   invert$Morphospecies[which(invert$Wings == "Wingless")]))
@@ -402,17 +402,17 @@ richness <- merge(richness,temprich,by = "Site",all.x = T)
 head(richness);dim(richness)
 colnames(richness)[17] <- "Introduced"
 
-#Wings - Always Winged 
-temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Always_Winged",], FUN = function(x) length(unique(x)))
+#Wings Develop Externally
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Wings_Develop_Externally",], FUN = function(x) length(unique(x)))
 richness <- merge(richness,temprich,by = "Site",all.x = T)
 head(richness);dim(richness)
-colnames(richness)[18] <- "Always_Winged"
+colnames(richness)[18] <- "Wings_Develop_Externally"
 
-#Wings - Develops Wings 
-temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Develops_Wings",], FUN = function(x) length(unique(x)))
+#Wings Develop Internally
+temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Wings_Develop_Internally",], FUN = function(x) length(unique(x)))
 richness <- merge(richness,temprich,by = "Site",all.x = T)
 head(richness);dim(richness)
-colnames(richness)[19] <- "Develops_Wings"
+colnames(richness)[19] <- "Wings_Develop_Internally"
 
 #Wings - Wingless 
 temprich <- aggregate(Morphospecies ~ Site, data = invert[invert$Wings == "Wingless",], FUN = function(x) length(unique(x)))
