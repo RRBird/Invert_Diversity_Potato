@@ -128,7 +128,7 @@ corrplot::corrplot(cor,method="color",
                    type="upper",addCoef.col = 'black',number.cex = 0.6)
 head(cor)
 
-#Crops and water 500m are correlated with a design variable
+#Crops and riparian 500m are correlated with a design variable
 #crops 1000m has a high correlation with a design variable also
 
 #Uncorrelated variables listed below based on correlation plot
@@ -136,10 +136,10 @@ head(cor)
 #Design variables: Crop age, day sampled and spatial position
 #Point Variables: Ground cover, plant height
 #Field variables: Field size, field NDVI (mean)
-#Landscape variable: water 1km, NDVI (sum) (500m or 1km as these are correlated with each other)
+#Landscape variable: NDVI (sum) (500m or 1km as these are correlated with each other) 
 
 
-##Merging data bases----
+#Merging data bases----
 
 variables <- data.frame(Site = point$Site,Height = point$Plant_Height,GC = point$Ground_Cover,Position = point$Spatial_Position,ID = point$Survey_Field)
 
@@ -147,7 +147,7 @@ variables <- merge(variables,field, by = "ID")
 
 head(variables);dim(variables)
 
-variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X1km_Prop_Water,NDVImean_Field,NDVIsum_1km)
+variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,NDVImean_Field,NDVIsum_1km)
 head(variables);dim(variables)
 
 invert <- data.frame(ID = obs$Site,Morphospecies = obs$Morphospecies)
