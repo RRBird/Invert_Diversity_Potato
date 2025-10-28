@@ -454,7 +454,7 @@ ModelRich <- ModelRich %>% dplyr::select(-Native,-Introduced)
 ##Diversity (Inverse Simpson's diversity index)----
 
 #diversity(table(x), index = "invsimpson")
-#table (x) makes a table of species counts which is used to calulate diversity
+#table (x) makes a table of species counts which is used to calculate diversity
 
 head(invert);dim(invert)
 
@@ -531,6 +531,8 @@ head(diversity);dim(diversity)
 
 
 #Wings
+
+wing.list <- list("Wings_Develop_Externally", "Wings_Develop_Internally", "Wingless","Polymorphic")
 
 for (i in wing.list) {
   
