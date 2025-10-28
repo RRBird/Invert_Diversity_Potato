@@ -206,7 +206,7 @@ Richlist2
 Rich_All <- glmmTMB(All ~ Age_Scaled + Field_Area_m2 + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_All)
 
-Rich_Pred <- glmmTMB(Predator ~ Day_Scaled + Age_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
+Rich_Pred <- glmmTMB(Predator ~ Day_Scaled + Age_Scaled + Field_Area_m2 + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Pred)
 
 Rich_Herb <- glmmTMB(Herbivore ~ Position + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
@@ -224,14 +224,15 @@ summary(Rich_Active)
 Rich_Size1 <- glmmTMB(Size_1 ~ Position + Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Size1)
 
-Rich_Size2 <- glmmTMB(Size_2 ~ Age_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_Size2)
+#Size 2 top model was Null
 
-Rich_Size3 <- glmmTMB(Size_3 ~ Position + Age_Scaled * Day_Scaled + X1km_Prop_Water + (1|Field), family = nbinom2, data = ModelRich2)
+Rich_Size3 <- glmmTMB(Size_3 ~ Position + Age_Scaled * Day_Scaled + NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Size3)
 
-Rich_DevW <- glmmTMB(Develops_Wings ~ Age_Scaled + NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
-summary(Rich_DevW)
+#Top Wings Develop Externally is null
+
+Rich_InWing <- glmmTMB(Wings_Develop_Internally ~ Position + Age_Scaled + Day_Scaled + NDVIsum_1km + (1|Field), family = nbinom2, data = ModelRich2)
+summary(Rich_InWing)
 
 Rich_Wless <- glmmTMB(Wingless ~ Position * Age_Scaled + Day_Scaled + (1|Field), family = nbinom2, data = ModelRich2)
 summary(Rich_Wless)
@@ -243,10 +244,9 @@ field_numbers <- unique(ModelRich2$ID)
 richmods <- list(Rich_All = Rich_All, Rich_Pred = Rich_Pred, 
                  Rich_Herb = Rich_Herb, Rich_Fung = Rich_Fung,
                  Rich_Web = Rich_Web, Rich_Active = Rich_Active, 
-                 Rich_Size1 = Rich_Size1, Rich_Size2 = Rich_Size2,
-                 Rich_Size3 = Rich_Size3, Rich_DevW = Rich_DevW, 
-                 Rich_Wless = Rich_Wless)
-richmods[[3]]
+                 Rich_Size1 = Rich_Size1, Rich_Size3 = Rich_Size3,
+                 Rich_InWing = Rich_InWing, Rich_Wless = Rich_Wless)
+richmods[[2]]
 
 rich_spatial_results <- list()
 
@@ -319,7 +319,6 @@ Predictions_Day <- seq(min(ModelRich2$Day_Scaled),max(ModelRich2$Day_Scaled),len
 Predictions_Age <- seq(min(ModelRich2$Age_Scaled),max(ModelRich2$Age_Scaled),length.out=20)
 Predictions_Position <- as.factor(c("Outer","Inner"))
 Predictions_Area <- seq(min(ModelRich2$Field_Area_m2),max(ModelRich2$Field_Area_m2),length.out=20)
-Predictions_Water <- seq(min(ModelRich2$X1km_Prop_Water),max(ModelRich2$X1km_Prop_Water),length.out=20)
 Predictions_GC <- seq(min(ModelRich2$GC),max(ModelRich2$GC),length.out=20)
 Predictions_1kmNDVI <- seq(min(ModelRich2$NDVIsum_1km),max(ModelRich2$NDVIsum_1km),length.out=20)
 
@@ -330,7 +329,7 @@ colnames(ModelRich2)
 richpred_all <- expand.grid(Age_Scaled = Predictions_Age, Field_Area_m2 = Predictions_Area)
 head(richpred_all);dim(richpred_all)
 
-richpred_preds <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, X1km_Prop_Water = Predictions_Water)
+richpred_preds <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, Field_Area_m2 = Predictions_Area)
 head(richpred_preds);dim(richpred_preds)
 
 richpred_herb <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day)
@@ -348,13 +347,10 @@ head(richpred_active);dim(richpred_active)
 richpred_size1 <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day)
 head(richpred_size1);dim(richpred_size1)
 
-richpred_size2 <- data.frame(Age_Scaled = Predictions_Age)
-head(richpred_size2);dim(richpred_size2)
-
-richpred_size3 <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, X1km_Prop_Water = Predictions_Water)
+richpred_size3 <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, NDVIsum_1km = Predictions_1kmNDVI)
 head(richpred_size3);dim(richpred_size3)
 
-richpred_DevW <- expand.grid(Age_Scaled = Predictions_Age, NDVIsum_1km = Predictions_1kmNDVI)
+richpred_DevW <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, NDVIsum_1km = Predictions_1kmNDVI)
 head(richpred_DevW);dim(richpred_DevW)
 
 richpred_Wless <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day)
@@ -367,7 +363,6 @@ richpredlist <- list(richpred_all = richpred_all,
                     richpred_web = richpred_web, 
                     richpred_active = richpred_active,
                     richpred_size1 = richpred_size1, 
-                    richpred_size2 = richpred_size2, 
                     richpred_size3 = richpred_size3,
                     richpred_DevW = richpred_DevW, 
                     richpred_Wless = richpred_Wless)
@@ -383,7 +378,7 @@ predict(richmods[[1]],newdata=richpredlist[[1]],se.fit = T, type = "link",re.for
 richpredresults <- list()
 richpredlist[[1]]
 
-for (i in 1:11) {
+for (i in 1:10) {
   
   d <- names(richpredlist)[i]
   
