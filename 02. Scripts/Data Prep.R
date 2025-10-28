@@ -46,6 +46,8 @@ field <- field[,-c(7:16)]
 field <- field[,-which(names(field) =="NDVIsum_Field")] 
 field <- field[,-which(names(field) =="Potato_Varient_1")] 
 field <- field[,-which(names(field) =="Potato_Varient_2")] 
+field <- field[,-which(names(field) =="X1km_Prop_Water")] 
+field <- field[,-which(names(field) =="X500m_Prop_Water")] 
 
 table(field$X500m_Prop_Build) #high proportion of zeros makes it unsuitable for modelling 
 field <- field[,-which(names(field) =="X500m_Prop_Build")]
@@ -53,7 +55,7 @@ field <- field[,-which(names(field) =="X500m_Prop_Build")]
 table(field$X500m_Prop_Nat_Graze) #high proportion of zeros makes it unsuitable for modelling
 field <- field[,-which(names(field) =="X500m_Prop_Nat_Graze")]
 
-table(field$X500m_Prop_Water)
+table(field$X500m_Rip_Prop)
 table(field$X500m_Prop_Crops)
 
 table(field$X1km_Prop_Build)#Not enough variation in data - unsuitable for modelling
@@ -62,7 +64,7 @@ field <- field[,-which(names(field) =="X1km_Prop_Build")]
 table(field$X1km_Prop_Nat)#high proportion of zeros makes it unsuitable for modelling 
 field <- field[,-which(names(field) =="X1km_Prop_Nat")]
 
-table(field$X1km_Prop_Water)
+table(field$X1km_Rip_Prop)
 table(field$X1km_Prop_Crops)
 table(field$X1km_Prop_Nat_Graze) #high proportion of zeros makes it unsuitable for modelling 
 field <- field[,-which(names(field) =="X1km_Prop_Nat_Graze")]
@@ -110,7 +112,7 @@ cordata <- merge(cordata,field, by = "ID")
 
 head(cordata);dim(cordata)
 
-cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X500m_Prop_Water,X1km_Prop_Crops,X1km_Prop_Water,NDVImean_Field,NDVIsum_500m,NDVImean_500m,NDVIsum_1km,NDVImean_1km)
+cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X500m_Rip_Prop,X1km_Prop_Crops,X1km_Rip_Prop ,NDVImean_Field,NDVIsum_500m,NDVImean_500m,NDVIsum_1km,NDVImean_1km)
 
 cordata$Position[cordata$Position == 'Outer'] <- 1
 cordata$Position[cordata$Position == 'Inner'] <- 2
@@ -118,8 +120,8 @@ cordata$Position <- as.numeric(cordata$Position)
 
 str(cordata)#checking for any other character variables
 cor <- cor(cordata,method = "spearman")
-colnames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
-rownames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
+colnames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Riparian 500m","Cropping 1000m","Riparian 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
+rownames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Riparian 500m","Cropping 1000m","Riparian 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 500m (M)","NDVI 1000m (S)","NDVI 1000m (M)")
 
 dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor,method="color",  
