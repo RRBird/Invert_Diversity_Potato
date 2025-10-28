@@ -6,9 +6,9 @@
 5,No_Sample,Small_Hemi_Red,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,Unknown,NA,Unknown,Unknown,NA,
 6,No_Sample,Hemi_Light,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,Unknown,NA,Unknown,Unknown,NA,
 7,No_Sample,Pale_Psyllid,Insecta,Hemiptera,NA,NA,NA,NA,Psyllid,Order,Herbivore,Unknown,NA,Unknown,Develops_Wings,NA,
-8,No_Sample,Grasshopper_Medium,Insecta,Orthoptera,NA,NA,NA,NA,Grasshopper,Order,Herbivore,Unknown,NA,Unknown,Always_Winged,NA,
+8,No_Sample,Grasshopper_Medium,Insecta,Orthoptera,NA,NA,NA,NA,Grasshopper,Order,Herbivore,Unknown,NA,Unknown,Wing_Buds,NA,
 9,No_Sample,Brown_Mottled_Moth,Insecta,Lepidoptera,NA,NA,NA,NA,Moth,Order,Herbivore,Unknown,NA,Unknown,Develops_Wings,NA,
-10,No_Sample,Medium_Black_Beetle,Insecta,Coleoptera,NA,NA,NA,NA,Beetle,Order,Unknown,Unknown,NA,Unknown,Always_Winged,NA,
+10,No_Sample,Medium_Black_Beetle,Insecta,Coleoptera,NA,NA,NA,NA,Beetle,Order,Unknown,Unknown,NA,Unknown,Develops_Wings,NA,
 11,No_Sample,Pale_Fly,Insecta,Diptera,NA,NA,NA,NA,Fly,Order,Unknown,Unknown,NA,Unknown,Develops_Wings,NA,
 12,No_Sample,Red_Fly,Insecta,Diptera,NA,NA,NA,NA,Fly,Order,Unknown,Unknown,NA,Unknown,Develops_Wings,NA,
 13,No_Sample,Black_Jumping_Spider,Arachnida,Araneae,Salticidae,NA,NA,NA,Jumping_Spider,Family,Predator,NA,Active_Hunting,Unknown,Wingless,NA,
@@ -37,14 +37,14 @@
 36,No_Sample,White_Butterfly,Insecta,Lepidoptera,Pieridae,Pieris,rapae,Pieris_rapae,Cabbage_White_Butterfly,Species,Herbivore,Unknown,NA,Introduced,Develops_Wings,NA,
 37,No_Sample,Black_Green_Caterpillar,Insecta,Lepidoptera,NA,NA,NA,NA,Caterpillar,Order,Herbivore,Unknown,NA,Unknown,Develops_Wings,NA,
 38,No_Sample,Small_Black_Beetle,Insecta,Coleoptera,NA,NA,NA,NA,Beetle,Order,Unknown,Unknown,NA,Unknown,Develops_Wings,NA,
-39,No_Sample,Spur-throated_Locust,Insecta,Orthoptera,Acrididae,Austracris,guttulosa,Austracris_guttulosa,Spur-throated_Locust,Species,Herbivore,Unknown,NA,Native,Always_Winged,NA,
+39,No_Sample,Spur-throated_Locust,Insecta,Orthoptera,Acrididae,Austracris,guttulosa,Austracris_guttulosa,Spur-throated_Locust,Species,Herbivore,Unknown,NA,Native,Wing_Buds,NA,
 40,No_Sample,Serpintine_Leaf_Miner,Insecta,Diptera,Agromyzidae,Liriomyza,brassicae,Liriomyza_brassicae,Serpintine_Leaf_Miner,Species,Herbivore,Unknown,NA,Introduced,Develops_Wings,NA,
 41,No_Sample,Brown_Weevil,Insecta,Coleoptera,Curculionoidea,NA,NA,NA,Weevil,Family,Herbivore,Unknown,NA,Unknown,Develops_Wings,NA,
 42,No_Sample,Small_Ant,Insecta,Hymenoptera,Formicidae,NA,NA,NA,Ant,Family,Unknown,Unknown,NA,Unknown,Polymorphic,NA,
 43,No_Sample,Spider_Unknown,Arachnida,Araneae,NA,NA,NA,NA,Spider_Various,Order,Predator,NA,Unknown,Unknown,Wingless,NA,From first survey before I actually started to do Morphosepceis i.e. can be used for spatial and pred vs non-pred analysis but that first survey can't be included for more detailed analysis like biodiversity
-44,No_Sample,Honey_Bee,Insecta,Hymenoptera,Apidae,Apis,mellifera,Apis_mellifera,Honey_Bee,Species,Pollinator,Unknown,NA,Introduced,Always_Winged,NA,
+44,No_Sample,Honey_Bee,Insecta,Hymenoptera,Apidae,Apis,mellifera,Apis_mellifera,Honey_Bee,Species,Pollinator,Unknown,NA,Introduced,Develops_Wings,NA,
 45,No_Sample,Spider_Small_Orange,Arachnida,Araneae,NA,NA,NA,NA,Spider,Order,Predator,NA,Unknown,Unknown,Wingless,NA,
-46,No_Sample,Northern_Grass_Pyrgomorph,Insecta,Orthoptera,Pyrgomorphidae,Atractomorpha,similis,Atractomorpha_similis,Northern_Grass_Pyrgomorph,Species,Herbivore,Unknown,NA,Native,Always_Winged,NA,
+46,No_Sample,Northern_Grass_Pyrgomorph,Insecta,Orthoptera,Pyrgomorphidae,Atractomorpha,similis,Atractomorpha_similis,Northern_Grass_Pyrgomorph,Species,Herbivore,Unknown,NA,Native,Wing_Buds,NA,
 47,No_Sample,Orb_Weaving_Medium,Arachnida,Araneae,Araneidae,NA,NA,NA,Orb_Weaving_Spiders,Family,Predator,NA,Web,Native,Wingless,NA,
 48,No_Sample,Australian_Bluetail,Insecta,Odonata,Coenagrionidae,Ischnura,heterosticta,Ischnura_heterosticta,Australian_Bluetail,Species,Predator,Unknown,Hawking,Native,Develops_Wings,NA,
 49,No_Sample,Butterfly_Orange_Black,Insecta,Lepidoptera,Nymphalidae,NA,NA,NA,Brush-Footed_Butterflies,Family,Herbivore,Unknown,NA,Unknown,Develops_Wings,NA,
@@ -56,7 +56,7 @@
 55,29,Variable_Ladybug,Insecta,Coleoptera,Coccinellidae,Coelophora,inaequalis,Coelophora_inaequalis,Variable_Ladybug,Species,Predator,2.5-5,Active_Hunting,Native,Develops_Wings,NA,
 56,26b,Red_Blue_Beetle,Insecta,Coleoptera,Melyridae,Dicranolaius,bellulus,Dicranolaius_bellulus,Red_and_Blue_Beetle,Species,Predator,5-Oct,Active_Hunting,Native,Develops_Wings,NA,
 57,66,Hoverfly,Insecta,Diptera,Syrphidae,NA,NA,NA,Hoverfly,Family,Predator,5-Oct,Active_Hunting,Unknown,Develops_Wings,166,
-58,9,Sword_Tailed_Cricket_Sp.,Insecta,Orthoptera,Trigonidiidae,Trigonidium,NA,NA,Sword_Tailed_Cricket,Genus,Ominvore,5-Oct,NA,Unknown,Always_Winged,NA,
+58,9,Sword_Tailed_Cricket_Sp.,Insecta,Orthoptera,Trigonidiidae,Trigonidium,NA,NA,Sword_Tailed_Cricket,Genus,Ominvore,5-Oct,NA,Unknown,Wing_Buds,NA,
 59,16,Lean_Lynx_Spider,Arachnida,Araneae,Oxyopidae,Oxyopes,macilentus,Oxyopes_macilentus,Lean_Lynx_Spider,Species,Predator,NA,Ambush_Hunter,Native,Wingless,NA,
 60,20,Orb_Weaving_Small,Arachnida,Araneae,Araneidae,NA,NA,NA,Orb_Weaving_Spiders,Family,Predator,NA,Web,Native,Wingless,79 & 168,
 61,39,Green_Lacewing,Insecta,Neuroptera,Chrysopidae,NA,NA,NA,Green_Lacewing,Family,Predator,2.5-5,NA,Native,Develops_Wings,195 & 154,size based on nymph (no adults caught)
@@ -102,7 +102,7 @@
 101,223,Ladybug,Insecta,Coleoptera,Coccinellidae,NA,NA,NA,Ladybug,Family,Predator,2.5-5,NA,Unknown,Develops_Wings,NA,
 102,227,Striped_Orb_Weaver,Arachnida,Araneae,Araneidae,NA,NA,NA,Orb_Weaver,Family,Predator,NA,Web,Unknown,Wingless,65 & 228,Missing Sample 
 103,135,Tiny_White_Caterpillar,Insecta,Lepidoptera,NA,NA,NA,NA,Butterfly/Moth,Order,Herbivore,0-2.5,NA,Unknown,Develops_Wings,NA,
-104,211,Australian_Plague_Locust,Insecta,Orthoptera,Acrididae,Chortoicetes,terminifera,Chortoicetes_terminifera,Australian_Plague_Locust,Species,Herbivore,>30,NA,Native,Always_Winged,NA,"Sample damaged, one leg is dettached"
+104,211,Australian_Plague_Locust,Insecta,Orthoptera,Acrididae,Chortoicetes,terminifera,Chortoicetes_terminifera,Australian_Plague_Locust,Species,Herbivore,>30,NA,Native,Wing_Buds,NA,"Sample damaged, one leg is dettached"
 105,125,Long-jawed_Orbweaver_sp.,Arachnida,Araneae,Tetragnathidae,NA,NA,NA,Long-jawed_Orbweaver,Family,Predator,NA,Web,Unknown,Wingless,NA,Missing Sample 
 106,180,Common_House_Fly,Insecta,Diptera,Muscidae,Musca,domestica,Musca_domestica,Common_House_Fly,Species,Ominvore,2.5-5,NA,Introduced,Develops_Wings,44 & 81,
 107,3,Minute_Brown_Scavenger_Beetle_sp._1,Insecta,Coleoptera,Latridiidae,NA,NA,NA,Minute_Brown_Scavenger_Beetle,Family,Fungivore,0-2.5,NA,Unknown,Develops_Wings,NA,
@@ -115,7 +115,7 @@
 114,2,Fly_Orange,Insecta,Diptera,NA,NA,NA,NA,Fly,Order,Unknown,0-2.5,NA,Unknown,Develops_Wings,35 & 46,
 115,4,Black_Psylloid,Insecta,Hemiptera,Psylloidea,NA,NA,NA,Psylloid,Superfamily,Herbivore,0-2.5,NA,Unknown,Develops_Wings,NA,Sample a little damaged
 116,170,Rove_Bettle_sp.,Insecta,Coleoptera,Paederinae,NA,NA,NA,Rove_Beetle,Subfamily,Predator,2.5-5,Active_Hunting,Unknown,Develops_Wings,NA,
-117,172,Sword_Tailed_Cricket_Sp.2,Insecta,Orthoptera,Trigonidiidae,Trigonidium,NA,NA,Sword_Tailed_Cricket,Genus,Ominvore,5-Oct,NA,Unknown,Always_Winged,NA,
+117,172,Sword_Tailed_Cricket_Sp.2,Insecta,Orthoptera,Trigonidiidae,Trigonidium,NA,NA,Sword_Tailed_Cricket,Genus,Ominvore,5-Oct,NA,Unknown,Wing_Buds,NA,
 118,182,Common_Gea,Arachnida,Araneae,Araneidae,Gea,theridioides,Gea_theridioides,Common_Gea,Species,Predator,NA,Web,Native,Wingless,NA,
 119,204,Angulate_and_Roundshouldered_Orbweavers_Sp.,Arachnida,Araneae,Araneidae,Araneus,NA,NA,Angulate_and_Roundshouldered_Orbweavers,Genus,Predator,NA,Web,Unknown,Wingless,NA,
 120,30,Non-biting_Midge_Sp._1,Insecta,Diptera,Chironomidae,NA,NA,NA,Non-biting_Midge,Family,Ominvore,5-Oct,NA,Unknown,Develops_Wings,NA,Sample a little damaged - lost two legs
@@ -132,8 +132,8 @@
 131,120,Caterpillar_4,Insecta,Lepidoptera,NA,NA,NA,NA,Caterpillar,Order,Herbivore,5-Oct,NA,Unknown,Develops_Wings,NA,
 132,86,Parasitic_Wasp_Grub,Insecta,Hymenoptera,NA,NA,NA,NA,Parasitic_Wasp_Grub,Order,Parasite,5-Oct,Unknown,Unknown,Develops_Wings,NA,
 133,NA,Medium_White_Spider,Arachnida,Araneae,NA,NA,NA,NA,Spider,Order,Predator,NA,Unknown,Unknown,Wingless,NA,This was the spider with the above parasitic grub on it and was consumed by the time I made it back to the lab and only the grub was left
-134,111,Brown_Hemi,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Unknown,NA,
-135,138,Thread_Bug,Insecta,Hemiptera,Reduviidae,Empicoris,rubromaculatus,Empicoris_rubromaculatus,Thread_Bug,Species,Predator,2.5-5,Active_Hunting,Native,Unknown,NA,
+134,111,Brown_Hemi,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Develops_Wings,NA,
+135,138,Thread_Bug,Insecta,Hemiptera,Reduviidae,Empicoris,rubromaculatus,Empicoris_rubromaculatus,Thread_Bug,Species,Predator,2.5-5,Active_Hunting,Native,Wingless,NA,
 136,124,Black_Spider_2,Arachnida,Araneae,NA,NA,NA,NA,Spider,Order,Predator,NA,Unknown,Unknown,Wingless,NA,Sample damaged
 137,133,Coleoptera_Larvae,Insecta,Coleoptera,NA,NA,NA,NA,Coleoptera_Larvae,Order,Unknown,2.5-5,NA,Unknown,Develops_Wings,NA,
 138,6,Dark_Mottled_Spider,Arachnida,Araneae, Araneidae,NA,NA,NA,Orb_Weaver,Family,Predator,NA,Web,Unknown,Wingless,18,
@@ -182,7 +182,7 @@
 181,167,Striped_Lynx_Spider,Arachnida,Araneae,Oxyopidae,Oxyopes,salticus,Oxyopes_salticus,Striped_Lynx_Spider,Species,Predator,NA,Ambush_Hunter,Native,Wingless,148 & 116,
 182,155,Sheet_Dwarf_Elongated,Arachnida,Araneae,Linyphiidae,NA,NA,NA,Sheetweb_and_Dwarf_Weavers,Family,Predator,NA,Web,Unknown,Wingless,113b,113b sampled damaged - head
 183,73,Mite_sp._2,Arachnida,NA,NA,NA,NA,NA,Mite,Class,Unknown,0-2.5,NA,Unknown,Wingless,NA,
-184,83,Dark_Brown_Hemi,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Unknown,NA,
+184,83,Dark_Brown_Hemi,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Develops_Wings,NA,
 185,84,Aphid_Clear,Insecta,Hemiptera,Aphididae,NA,NA,NA,Aphid,Family,Herbivore,0-2.5,NA,Unknown,Polymorphic,NA,
 186,85,Sheet_Dwarf_Sp. 4,Arachnida,Araneae,Linyphiidae,NA,NA,NA,Sheetweb_and_Dwarf_Weavers,Family,Predator,NA,Web,Unknown,Wingless,NA,
 187,89,Orbweaver_Thick_Line,Arachnida,Araneae,Araneidae,NA,NA,NA,Orbweaver,Family,Predator,NA,Web,Unknown,Wingless,NA,
@@ -213,7 +213,7 @@
 212,147,Grass_Lynx_Spider_sp.,Arachnida,Araneae,Oxyopidae,Oxyopes,NA,NA,Grass_Lynx_Spider,Genus,Predator,NA,Ambush_Hunter,Unknown,Wingless,NA,Sample damaged (one leg detacted)
 213,104,Spider_Brown_Small,Arachnida,Araneae,NA,NA,NA,NA,Spider,Order,Predator,NA,Unknown,Unknown,Wingless,NA,
 214,106,Sheet_Dwarf_Sp. 5,Arachnida,Araneae,Linyphiidae,NA,NA,NA,Sheetweb_and_Dwarf_Weavers,Family,Predator,NA,Web,Unknown,Wingless,NA,
-215,213,Red_Hemiptera_2,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Unknown,NA,
+215,213,Red_Hemiptera_2,Insecta,Hemiptera,NA,NA,NA,NA,True_Bug,Order,Unknown,0-2.5,NA,Unknown,Develops_Wings,NA,
 216,218,Black_Wasp_2,Insecta,Hymenoptera,Scolebythidae,NA,NA,NA,Wasp,Family,Parasite,2.5-5,Active_Hunting,Unknown,Develops_Wings,NA,
 217,221,Aphid_Black,Insecta,Hemiptera,Aphididae,Aphis,NA,NA,Aphid (Winged),Genus,Herbivore,0-2.5,NA,Unknown,Polymorphic,NA,
 218,177,Angulate_and_Roundshouldered_Orbweavers_Sp._4,Arachnida,Araneae,Araneidae,Araneus,NA,NA,Angulate_and_Roundshouldered_Orbweavers,Genus,Predator,NA,Web,Unknown,Wingless,140,
