@@ -33,13 +33,13 @@ ModelRich2$Day_Scaled <- scale(ModelRich$Day_Sampled)
 
 #remove groups not being modelled for richness
 
-ModelRich2 <- ModelRich2 %>% dplyr::select(-Omnivore, -Hematophagous, -Ambush_Hunting , -Hawking, -Size_4, -Always_Winged, -Polymorphic)
+ModelRich2 <- ModelRich2 %>% dplyr::select(-Omnivore, -Hematophagous, -Ambush_Hunting , -Hawking, -Size_4, -Polymorphic)
 
 head(ModelRich2);dim(ModelRich2)
 
 colnames(ModelRich2)
 
-rich_names <- colnames(ModelRich2)[2:12]
+rich_names <- colnames(ModelRich2)[2:13]
 length(rich_names)
 Richlist1 <- list()
 
@@ -105,16 +105,6 @@ length(Richlist1)
 
 Richlist1
 
-#Develops wings null didn't converge properly so investigating that
-
-Richlist1$Develops_Wings
-
-#use optimizer to get a convergence for AIC table
-null_develop <- glmmTMB(Develops_Wings ~ 1 + (1 | Field), family = nbinom2, data = ModelRich2,control = glmmTMBControl(optimizer = optim))
-summary(null_develop)
-
-
-
 
 
 ##Step 2 - Environmental Variables----
@@ -130,7 +120,8 @@ Rich_design <- list(
   Size_1 = "Position + Age_Scaled + Day_Scaled",
   Size_2 = NULL,      
   Size_3 = "Position + Age_Scaled * Day_Scaled",
-  Develops_Wings = "Age_Scaled",
+  Wings_Develop_Externally = NULL,
+  Wings_Develop_Internally = "Position + Age_Scaled + Day_Scaled",
   Wingless = "Position * Age_Scaled + Day_Scaled")
 head(Rich_design)
 
@@ -174,11 +165,6 @@ for (i in rich_names) {
   allsum[[4]] <- summary(Fsize_model)
   
   if (is.null(design_formula_part) || design_formula_part == "") {
-    water_formula <- paste(i, "~ X1km_Prop_Water  + (1 | Field)")} else {water_formula <- paste(i, "~", design_formula_part, "+ X1km_Prop_Water + (1 | Field)")}
-  water_model <- glmmTMB(as.formula(water_formula), family = nbinom2, data = ModelRich2)
-  allsum[[5]] <- summary(water_model)
-  
-  if (is.null(design_formula_part) || design_formula_part == "") {
     NDVIf_formula <- paste(i, "~ NDVImean_Field  + (1 | Field)")} else {NDVIf_formula <- paste(i, "~", design_formula_part, "+ NDVImean_Field + (1 | Field)")}
   NDVIf_model <- glmmTMB(as.formula(NDVIf_formula), family = nbinom2, data = ModelRich2)
   allsum[[6]] <- summary(NDVIf_model)
@@ -193,7 +179,7 @@ for (i in rich_names) {
   #collect models
   tempmodlist <- list("base" = base_model, "height" = height_model, 
                       "GC" = gc_model, "Feild Size" = Fsize_model,
-                      "water" = water_model,"Field NDVI" = NDVIf_model,
+                      "Field NDVI" = NDVIf_model, 
                       "NDVI 1km" = NDVI1km_model)
   
   has_issues <- sapply(tempmodlist, function(model) {

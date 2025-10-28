@@ -1,3 +1,16 @@
+#with updated data the null did converge
+
+
+#Develops wings null didn't converge properly so investigating that
+
+Richlist1$Develops_Wings
+
+#use optimizer to get a convergence for AIC table
+null_develop <- glmmTMB(Develops_Wings ~ 1 + (1 | Field), family = nbinom2, data = ModelRich2,control = glmmTMBControl(optimizer = optim))
+summary(null_develop)
+
+
+
 
 plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Predator,xlab = expression("Day Sampled"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
 mtext(side=3,line=0,at = -2.1,'a)',cex=1)
