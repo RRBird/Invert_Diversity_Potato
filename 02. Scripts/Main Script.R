@@ -421,17 +421,17 @@ ModelDiv2$Day_Scaled <- scale(ModelDiv2$Day_Sampled)
 
 #remove groups not modelling diversity for
 
-ModelDiv2 <- ModelDiv2 %>% dplyr::select(-Omnivore,-Hematophagous,-Ambush_Hunter,-Hawking,-Size_4,-Always_Winged,-Polymorphic)
+ModelDiv2 <- ModelDiv2 %>% dplyr::select(-Omnivore,-Hematophagous,-Ambush_Hunter,-Hawking,-Size_4,-Polymorphic)
 
 #update all NA's to be 0.000001 for model fitting
-ModelDiv2[2:12][is.na(ModelDiv2[2:12])] <- 0.01
-ModelDiv2[2:12][ModelDiv2[2:12]==0.000001] <- 0.01
+ModelDiv2[2:13][is.na(ModelDiv2[2:13])] <- 0.01
+ModelDiv2[2:13][ModelDiv2[2:13]==0.000001] <- 0.01
 
 head(ModelDiv2);dim(ModelDiv2)
 
 colnames(ModelDiv2)
 
-div_names <- colnames(ModelDiv2)[2:12]
+div_names <- colnames(ModelDiv2)[2:13]
 length(div_names)
 divlist1 <- list()
 
@@ -510,7 +510,8 @@ div_design <- list(
   Size_1 = NULL,
   Size_2 = NULL,      
   Size_3 = "Day_Scaled * Age_Scaled",
-  Develops_Wings = NULL,
+  Wings_Develop_Externally = "Position * Day_Scaled",
+  Wings_Develop_Internally = "Day_Scaled * Age_Scaled",
   Wingless = "Age_Scaled")
 head(div_design)
 
@@ -553,26 +554,21 @@ for (i in div_names) {
   allsum[[4]] <- summary(Fsize_model)
   
   if (is.null(design_formula_part) || design_formula_part == "") {
-    water_formula <- paste(i, "~ X1km_Prop_Water  + (1 | Field)")} else {water_formula <- paste(i, "~", design_formula_part, "+ X1km_Prop_Water + (1 | Field)")}
-  water_model <- glmer(as.formula(water_formula), family = Gamma(link = "log"), data = ModelDiv2)
-  allsum[[5]] <- summary(water_model)
-  
-  if (is.null(design_formula_part) || design_formula_part == "") {
     NDVIf_formula <- paste(i, "~ NDVImean_Field  + (1 | Field)")} else {NDVIf_formula <- paste(i, "~", design_formula_part, "+ NDVImean_Field + (1 | Field)")}
   NDVIf_model <- glmer(as.formula(NDVIf_formula), family = Gamma(link = "log"), data = ModelDiv2)
-  allsum[[6]] <- summary(NDVIf_model)
+  allsum[[5]] <- summary(NDVIf_model)
   
   if (is.null(design_formula_part) || design_formula_part == "") {
     NDVI1km_formula <- paste(i, "~ NDVIsum_1km  + (1 | Field)")} else {
       NDVI1km_formula <- paste(i, "~", design_formula_part, "+ NDVIsum_1km + (1 | Field)")}
   NDVI1km_model <- glmer(as.formula(NDVI1km_formula), family = Gamma(link = "log"), data = ModelDiv2)
-  allsum[[7]] <- summary(NDVI1km_model)
+  allsum[[6]] <- summary(NDVI1km_model)
   
   
   #collect models
   tempmodlist <- list("base" = base_model, "height" = height_model, 
                       "GC" = gc_model, "Feild Size" = Fsize_model,
-                      "water" = water_model,"Field NDVI" =NDVIf_model,
+                      "Field NDVI" =NDVIf_model,
                       "NDVI 1km" = NDVI1km_model)
   
   has_issues <- sapply(tempmodlist, function(model) {
@@ -599,10 +595,10 @@ divlist2
 div_all <- glmer(All ~ Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_all)
 
-div_pred <- glmer(Predator ~ Day_Scaled + Age_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+div_pred <- glmer(Predator ~ Day_Scaled + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_pred)
 
-div_herb <- glmer(Herbivore ~ Position * Day_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+div_herb <- glmer(Herbivore ~ Position * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_herb)
 
 ModelDiv2$NDVI1km_Scaled <- scale(ModelDiv2$NDVIsum_1km)
@@ -613,16 +609,19 @@ summary(div_fung)
 div_web <- glmer(Web ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_web)
 
-div_active <- glmer(Active_Hunting ~ Day_Scaled * Age_Scaled + Height + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+div_active <- glmer(Active_Hunting ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_active)
 
-div_size3 <- glmer(Size_3 ~ Day_Scaled * Age_Scaled + X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+div_size3 <- glmer(Size_3 ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_size3)
+
+div_ExWing <- glmer(Wings_Develop_Externally ~ Position * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_ExWing)
 
 ModelDiv2$Fieldsize_Scaled <- scale(ModelDiv2$Field_Area_m2)
 #Needed to field size for the model to be more identifiable
-div_DevW <- glmer(Develops_Wings ~ Fieldsize_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
-summary(div_DevW)
+div_InWing <- glmer(Wings_Develop_Internally ~ Age_Scaled * Day_Scaled + Fieldsize_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
+summary(div_InWing)
 
 div_Wless <- glmer(Wingless ~ Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = ModelDiv2)
 summary(div_Wless)
@@ -635,8 +634,8 @@ field_numbers2 <- unique(ModelDiv2$ID)
 divmods <- list(div_all = div_all, div_pred = div_pred, 
                 div_herb = div_herb, div_fung = div_fung,
                 div_web = div_web, div_active = div_active, 
-                div_size3 = div_size3, div_DevW = div_DevW,
-                div_Wless = div_Wless)
+                div_size3 = div_size3, div_ExWing = div_ExWing,
+                div_InWing = div_InWing, div_Wless = div_Wless)
 divmods[[5]]
 
 div_spatial_results <- list()
@@ -688,15 +687,15 @@ for (i in names(divmods)) {
 
 
 names(div_spatial_results)
-div_spatial_results$div_Wless
+div_spatial_results$div_active
 
 #Moran's I
-min(div_spatial_results$div_Wless[2])
-max(div_spatial_results$div_Wless[2])
+min(div_spatial_results$div_active[2])
+max(div_spatial_results$div_active[2])
 
 #p-value
-min(div_spatial_results$div_Wless[3])
-max(div_spatial_results$div_Wless[3])
+min(div_spatial_results$div_active[3])
+max(div_spatial_results$div_active[3])
 
 ##Step 4 - Predictions ----
 
@@ -711,10 +710,10 @@ Predictions_NDVI1km_Scaled <- seq(min(ModelDiv2$NDVI1km_Scaled),max(ModelDiv2$ND
 divpred_all <- data.frame(Day_Scaled = Predictions_Day)
 head(divpred_all);dim(divpred_all)
 
-divpred_pred <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, X1km_Prop_Water  = Predictions_Water)
+divpred_pred <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
 head(divpred_pred);dim(divpred_pred)
 
-divpred_herb <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day, X1km_Prop_Water  = Predictions_Water)
+divpred_herb <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day)
 head(divpred_herb);dim(divpred_herb)
 
 divpred_fung <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day, NDVI1km_Scaled   = Predictions_NDVI1km_Scaled)
@@ -723,14 +722,17 @@ head(divpred_fung);dim(divpred_fung)
 divpred_web <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
 head(divpred_web);dim(divpred_web)
 
-divpred_active <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, Height = Predictions_Height)
+divpred_active <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
 head(divpred_active);dim(divpred_active)
 
-divpred_size3 <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age, X1km_Prop_Water = Predictions_Water)
+divpred_size3 <- expand.grid(Day_Scaled = Predictions_Day, Age_Scaled = Predictions_Age)
 head(divpred_size3);dim(divpred_size3)
 
-divpred_DevW <- data.frame(Fieldsize_Scaled = Predictions_Areascale)
-head(divpred_DevW);dim(divpred_DevW)
+divpred_ExWing <- data.frame(Position = Predictions_Position, Day_Scaled = Predictions_Day)
+head(divpred_ExWing);dim(divpred_ExWing)
+
+divpred_InWing <- data.frame(Age_Scaled = Predictions_Age,Day_Scaled = Predictions_Day, Fieldsize_Scaled = Predictions_Areascale)
+head(divpred_InWing);dim(divpred_InWing)
 
 divpred_Wless <- data.frame(Age_Scaled = Predictions_Age)
 head(divpred_Wless);dim(divpred_Wless)
@@ -744,7 +746,8 @@ divpredlist <- list(divpred_all = divpred_all,
                     divpred_web = divpred_web, 
                     divpred_active = divpred_active,
                     divpred_size3 = divpred_size3,
-                    divpred_DevW = divpred_DevW, 
+                    divpred_ExWing = divpred_ExWing,
+                    divpred_InWing = divpred_InWing, 
                     divpred_Wless = divpred_Wless)
 
 divpredlist[["divpred_web"]]
@@ -758,7 +761,7 @@ predict(divmods[[1]],newdata=divpredlist[[1]],se.fit = T, type = "link",re.form 
 divpredresults <- list()
 length(divmods)
 
-for (i in 1:9) {
+for (i in 1:10) {
   
   d <- names(divpredlist)[i]
   
