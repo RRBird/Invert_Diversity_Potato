@@ -807,7 +807,7 @@ ModelOccur2$Day_Scaled <- scale(ModelOccur2$Day_Sampled)
 
 #remove develops wings
 
-ModelOccur2 <- ModelOccur2 %>% dplyr::select(-Develops_Wings)
+ModelOccur2 <- ModelOccur2 %>% dplyr::select(-Wings_Develop_Internally)
 
 head(ModelOccur2);dim(ModelOccur2)
 
@@ -887,16 +887,16 @@ Occur_design <- list(
   Omnivore = NULL,
   Fungivore = "Day_Scaled + Age_Scaled",   
   Hematophagous = 'Day_Scaled * Age_Scaled',
-  Web = "Day_Scaled + Age_Scaled",          
+  Web = "Day_Scaled * Age_Scaled",          
   Active_Hunting = "Day_Scaled",
   Ambush_Hunter = NULL,          
   Hawking = "Position + Age_Scaled * Day_Scaled",
   Size_2 = NULL,      
   Size_3 = "Day_Scaled * Age_Scaled",
   Size_4 = "Age_Scaled",
-  Always_Winged = NULL,
+  Wings_Develop_Externally = "Day_Scaled",
   Wingless = "Position * Age_Scaled + Day_Scaled",
-  Polymorphic = "Position * Day_Scaled")
+  Polymorphic = "Position * Day_Scaled + Age_Scaled")
 head(Occur_design)
 
 occurlist2 <- list()
@@ -939,26 +939,21 @@ for (i in occur_names) {
   allsum[[4]] <- summary(Fsize_model)
   
   if (is.null(design_formula_part) || design_formula_part == "") {
-    water_formula <- paste(i, "~ X1km_Prop_Water  + (1 | Field)")} else {water_formula <- paste(i, "~", design_formula_part, "+ X1km_Prop_Water + (1 | Field)")}
-  water_model <- glmer(as.formula(water_formula), family = binomial, data = ModelOccur2)
-  allsum[[5]] <- summary(water_model)
-  
-  if (is.null(design_formula_part) || design_formula_part == "") {
     NDVIf_formula <- paste(i, "~ NDVImean_Field  + (1 | Field)")} else {NDVIf_formula <- paste(i, "~", design_formula_part, "+ NDVImean_Field + (1 | Field)")}
   NDVIf_model <- glmer(as.formula(NDVIf_formula), family = binomial, data = ModelOccur2)
-  allsum[[6]] <- summary(NDVIf_model)
+  allsum[[5]] <- summary(NDVIf_model)
   
   if (is.null(design_formula_part) || design_formula_part == "") {
     NDVI1km_formula <- paste(i, "~ NDVIsum_1km  + (1 | Field)")} else {
       NDVI1km_formula <- paste(i, "~", design_formula_part, "+ NDVIsum_1km + (1 | Field)")}
   NDVI1km_model <- glmer(as.formula(NDVI1km_formula), family = binomial, data = ModelOccur2)
-  allsum[[7]] <- summary(NDVI1km_model)
+  allsum[[6]] <- summary(NDVI1km_model)
   
   
   #collect models
   tempmodlist <- list("base" = base_model, "height" = height_model, 
                       "GC" = gc_model, "Feild Size" = Fsize_model,
-                      "water" = water_model,"Field NDVI" = NDVIf_model,
+                      "Field NDVI" = NDVIf_model,
                       "NDVI 1km" = NDVI1km_model)
   
   has_issues <- sapply(tempmodlist, function(model) {
@@ -1016,13 +1011,13 @@ summary(Occur_size3)
 Occur_size4 <- glmer(Size_4 ~ Age_Scaled + (1|Field), family = binomial, data = ModelOccur2)
 summary(Occur_size4)
 
-Occur_AlWing <- glmer(Always_Winged ~ X1km_Prop_Water + (1|Field), family = binomial, data = ModelOccur2)
+Occur_ExWing <- glmer(Wings_Develop_Externally ~ Day_Scaled + FieldSize_Scaled + (1|Field), family = binomial, data = ModelOccur2)
 summary(Occur_AlWing)
 
 Occur_Wless <- glmer(Wingless ~ Position * Age_Scaled + Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
 summary(Occur_Wless)
 
-Occur_poly <- glmer(Polymorphic ~ Position * Day_Scaled + (1|Field), family = binomial, data = ModelOccur2)
+Occur_poly <- glmer(Polymorphic ~ Position * Day_Scaled + Age_Scaled + (1|Field), family = binomial, data = ModelOccur2)
 summary(Occur_poly)
 
 ##Step 3 - Check for spatial autocorrelation----
@@ -1033,8 +1028,8 @@ occurmods <- list(Occur_herb = Occur_herb, Occur_omni = Occur_omni,
                  Occur_fung = Occur_fung, Occur_hema = Occur_hema,
                  Occur_web = Occur_web, Occur_active = Occur_active, 
                  Occur_hawk = Occur_hawk, Occur_size2 = Occur_size2,
-                 Occur_size3 = Occur_size3, Occur_size4 = Occur_size4, 
-                Occur_AlWing = Occur_AlWing, Occur_Wless = Occur_Wless,
+                 Occur_size3 = Occur_size3, Occur_size4 = Occur_size4,
+               Occur_ExWing = Occur_ExWing, Occur_Wless = Occur_Wless,
                 Occur_poly = Occur_poly)
 occurmods[[3]]
 
@@ -1138,13 +1133,13 @@ head(occurpred_size3);dim(occurpred_size3)
 occurpred_size4 <- data.frame(Age_Scaled = Predictions_Age)
 head(occurpred_size4);dim(occurpred_size4)
 
-occurpred_AlWing <- data.frame(X1km_Prop_Water = Predictions_Water)
+occurpred_ExWing <- data.frame(Day_Scaled = Predictions_Day, FieldSize_Scaled  = Predictions_Areascale)
 head(occurpred_AlWing);dim(occurpred_AlWing)
 
 occurpred_Wless <- expand.grid(Position = Predictions_Position, Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day)
 head(occurpred_Wless);dim(occurpred_Wless)
 
-occurpred_poly <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day)
+occurpred_poly <- expand.grid(Position = Predictions_Position, Day_Scaled = Predictions_Day,Age_Scaled = Predictions_Age)
 head(occurpred_poly);dim(occurpred_poly)
 
 occurpredlist <- list(occurpred_herb = occurpred_herb, 
@@ -1157,11 +1152,11 @@ occurpredlist <- list(occurpred_herb = occurpred_herb,
                      occurpred_size2 = occurpred_size2, 
                      occurpred_size3 = occurpred_size3,
                      occurpred_size4 = occurpred_size4,
-                     occurpred_AlWing = occurpred_AlWing,
+                     occurpred_ExWing = occurpred_ExWing,
                      occurpred_Wless= occurpred_Wless,
                      occurpred_poly = occurpred_poly)
 
-occurpredlist[["occurpred_AlWing"]]
+occurpredlist[["occurpred_ExWing"]]
 
 names(occurmods)[1]
 
