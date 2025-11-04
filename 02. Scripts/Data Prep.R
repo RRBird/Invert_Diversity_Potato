@@ -31,6 +31,8 @@ head(obs);dim(obs)
 summary(obs)
 obs <- obs[,-which(names(obs) =="Notes")]
 obs <- obs[,-which(names(obs) =="Wings")]
+head(obs)
+head(morpho)
 
 summary(morpho)
 morpho <- morpho[,-which(names(morpho)=='NOTES')]
@@ -138,6 +140,18 @@ head(cor)
 #Field variables: Field size, field NDVI (mean)
 #Landscape variable: NDVI (sum) (500m or 1km as these are correlated with each other) 
 
+#Checking the groups----
+
+table(invert$Order)
+table(invert$Order,invert$Site)
+
+table(invert$Order,invert$Trophic)
+table(invert$Order,invert$Size)
+table(invert$Order,invert$Hunting.Style)
+table(invert$Order,invert$Wings)
+
+
+
 
 #Merging data bases----
 
@@ -151,6 +165,7 @@ variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_
 head(variables);dim(variables)
 
 invert <- data.frame(ID = obs$Site,Morphospecies = obs$Morphospecies)
+head(invert)
 
 invert <- merge(invert,morpho,by = "Morphospecies")
 head(invert);dim(invert)
