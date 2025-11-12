@@ -1,6 +1,13 @@
 #Libraries----
 
 library("ade4")
+library("dplyr")
+library("tidyverse")
+
+#DOING A BASIC TEST TO SEE IF IT WILL WORK SO NEED TO GO THROUGH THROULY AND MAKE SURE IT'S CORRECT
+
+
+
 
 #Data---
 #Prepping RLQ Data----
@@ -20,12 +27,21 @@ head(environment2);dim(environment2)
 ##L Matrix (Species abundance) ----
 
 table(invert$Morphospecies, invert$Site)
+table(invert$Order)
 
-species <- invert %>%
+
+prespecies <- invert
+head(invert);dim(invert)
+prespecies <- invert %>% filter(Order %in% c("Araneae", "Coleoptera","Diptera","Hemiptera"))
+head(prespecies);dim(prespecies)
+table(prespecies$Order)
+
+
+species <- prespecies %>%
   count(Morphospecies, Site) %>%
   pivot_wider(names_from = Site, values_from = n, values_fill = 0)
 
-species <- table(invert$Morphospecies, invert$Site)
+species <- table(prespecies$Morphospecies, prespecies$Site)
 head(species)
 str(species)
 species <- data.frame(species)
@@ -33,23 +49,26 @@ colnames(species)[1] <- "Morphospecies"
 colnames(species)[2] <- "Site"
 colnames(species)[3] <- "Abundance"
 
+head(species);dim(species)
 
 
 ## Q Matrix (traits)----
 
 head(morpho);dim(morpho)
 
-traits <- morpho %>% dplyr::select(Morphospecies,Trophic, Size, Wings)
+pretrait <- morpho %>% filter(Order %in% c("Araneae", "Coleoptera","Diptera","Hemiptera"))
+head(pretrait);dim(pretrait)
+
+pretrait$Size <- addNA(pretrait$Size) 
+levels(pretrait$Size)[is.na(levels(pretrait$Size))] <- "No_Size"
+
+pretrait$Trophic[is.na(pretrait$Trophic)] <- "Unknown"
+pretrait$Hunting.Style[is.na(pretrait$Hunting.Style)] <- "No_Hunt"
+
+traits <- pretrait %>% dplyr::select(Order,Trophic,Hunting.Style, Size)
 head(traits);dim(traits)
 
 str(traits) 
-#might need to turn traits into factors I'm not sure
-
-traits_clean <- na.omit(traits)
-head(traits_clean);dim(traits_clean)
-
-
-#Turns out this analysis doesn't allow for any NA's so need to figure that out. Would adding another category instead of NA which is Unknown fix that problem?
 
 
 
