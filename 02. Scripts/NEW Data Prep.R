@@ -230,7 +230,7 @@ names(invert)[names(invert) == "ID"] <- "Site"
 TaxModel <- data.frame(Site = variables$Site)
 head(TaxModel);dim(TaxModel)
 
-##Speceis Richness----
+##Species Richness----
 
 richness <- aggregate(Morphospecies ~ Site, data = invert, FUN = function(x) length(unique(x)))
 TaxModel <- merge(TaxModel,richness,by = "Site",all.x = T)
@@ -322,7 +322,7 @@ Q_matrix <- Q_table %>%
 head(Q_matrix);dim(Q_matrix)
 
 
-#R Data (Site x Environmental)----
+##R Data (Site x Environmental)----
 
 head(variables);dim(variables)
 
