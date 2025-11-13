@@ -3,78 +3,41 @@
 library("ade4")
 library("dplyr")
 library("tidyverse")
+install.packages("vegan")
 
-#DOING A BASIC TEST TO SEE IF IT WILL WORK SO NEED TO GO THROUGH THROULY AND MAKE SURE IT'S CORRECT
+#Species responses to environmental gradients----
 
+coa1 <- dudi.coa(L_matrix, scannf = F)
+cca1 <- pcaiv(coa1, R_matrix, scannf = F)
 
+#percentage of variation in species composition explained by enviro
+100 * sum(cca1$eig) / sum(coa1$eig) 
 
-
-#Data---
-#Prepping RLQ Data----
-
-##R Matrix (environment)----
-
-head(variables);dim(variables)
-
-environment <- variables %>% dplyr::select(-ID,-Field,-Position,-Day_Sampled,-Crop_Age_Days)
-head(environment);dim(environment)
-
-#not sure if my design variables should be included in my matrix so I've done two
-
-environment2 <- variables %>% dplyr::select(-ID,-Field)
-head(environment2);dim(environment2)
-
-##L Matrix (Species abundance) ----
-
-table(invert$Morphospecies, invert$Site)
-table(invert$Order)
-
-
-prespecies <- invert
-head(invert);dim(invert)
-prespecies <- invert %>% filter(Order %in% c("Araneae", "Coleoptera","Diptera","Hemiptera"))
-head(prespecies);dim(prespecies)
-table(prespecies$Order)
-
-
-species <- prespecies %>%
-  count(Morphospecies, Site) %>%
-  pivot_wider(names_from = Site, values_from = n, values_fill = 0)
-
-species <- table(prespecies$Morphospecies, prespecies$Site)
-head(species)
-str(species)
-species <- data.frame(species)
-colnames(species)[1] <- "Morphospecies"
-colnames(species)[2] <- "Site"
-colnames(species)[3] <- "Abundance"
-
-head(species);dim(species)
-
-
-## Q Matrix (traits)----
-
-head(morpho);dim(morpho)
-
-pretrait <- morpho %>% filter(Order %in% c("Araneae", "Coleoptera","Diptera","Hemiptera"))
-head(pretrait);dim(pretrait)
-
-pretrait$Size <- addNA(pretrait$Size) 
-levels(pretrait$Size)[is.na(levels(pretrait$Size))] <- "No_Size"
-
-pretrait$Trophic[is.na(pretrait$Trophic)] <- "Unknown"
-pretrait$Hunting.Style[is.na(pretrait$Hunting.Style)] <- "No_Hunt"
-
-traits <- pretrait %>% dplyr::select(Order,Trophic,Hunting.Style, Size)
-head(traits);dim(traits)
-
-str(traits) 
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+s.label(cca1$c1, clabel = 0)
+par(mar = c(0.1, 0.1, 0.1, 0.1))
+pointLabel(cca1$c1,row.names(cca1$c1), cex=0.7)
+s.arrow(cca1$cor[-1,], add.plot=TRUE)
 
 
 
 #correspondence analysis on matrix L
 coa1 <- dudi.coa(species, scannf = F)
 head(coa1)
+
+
+
+#Step 1: Correspondence Analysis on L table
+dudi_L <- dudi.coa(L_matrix, scannf = FALSE, nf = 2)
+
+#Step 2: Hill-Smith analysis on Q table (handles mixed trait types)
+dudi_Q <- dudi.hillsmith(Q_matrix, scannf = FALSE, nf = 2, row.w = dudi_L$cw)
+
+#Step 3: PCA on R table
+dudi_R <- dudi.pca(R_matrix, scannf = FALSE, nf = 2, row.w = dudi_L$lw)
+
+#Step 4: RLQ analysis
+rlq_result <- rlq(dudi_R, dudi_L, dudi_Q, scannf = FALSE, nf = 2)
 
 pca.traits <- dudi.pca(traits,row.w = coa1$cw,scannf=F)
 

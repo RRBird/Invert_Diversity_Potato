@@ -162,7 +162,7 @@ richpred2$uci<-exp(richpred2$uci.link)
 head(richpred2);dim(richpred2)
 
 
-##Step 5 - Richness Model Visalisation
+##Step 5 - Richness Model Visalisation----
 
 summary(Rich_Water)
 head(richpred2);dim(richpred2)

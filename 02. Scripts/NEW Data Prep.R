@@ -10,6 +10,8 @@ library("dplyr")
 library('vegan')
 library("corrplot")
 library("tidyr")
+library("tibble")
+
 
 #Data----
 point <- read.csv("01. Data/Point_Data.csv")
@@ -80,7 +82,6 @@ field <- field[,-which(names(field) =="X1km_Prop_Nat_Graze")]
 ##Some data fixes for functional groups----
 
 table(morpho$Size)
-morpho$Size[morpho$Size == "Unknown"] <- NA
 morpho$Size[morpho$Size == "5-Oct"] <- "5-10"
 morpho$Size[morpho$Size == "Oct-15"] <- "10-15"
 
@@ -90,18 +91,15 @@ morpho$Size[morpho$Size == "20-30"] <- ">10"
 morpho$Size[morpho$Size == "15-20"] <- ">10"
 morpho$Size[morpho$Size == "10-15"] <- ">10"
 
-morpho$Size <- as.factor(morpho$Size)
-levels(morpho$Size)
-morpho$Size <- factor(morpho$Size, levels = c("0-2.5","2.5-5","5-10",">10"))
+table(morpho$Size)
+morpho$Size[is.na(morpho$Size)] <- "No_Size"
 
 table(morpho$Trophic)
-morpho$Trophic[morpho$Trophic == "Unknown"] <- NA
 morpho$Trophic[morpho$Trophic == "Ominvore"] <- "Omnivore"
 
 
 table(morpho$Hunting.Style)
-morpho$Hunting.Style[morpho$Hunting.Style == "Unknown"] <- NA
-
+morpho$Hunting.Style[is.na(morpho$Hunting.Style)] <- "Non-Predator"
 
 #Correlation for environmental variables----
 
@@ -281,4 +279,142 @@ head(TaxModel);dim(TaxModel)
 
 
 #Setting up for RLQ Analysis----
-#TO DO----
+
+##L Data (Site x Species)----
+
+head(invert);dim(invert)
+
+#filter for orders included in functional analysis
+
+invert_filtered <- invert[invert$Order %in% c("Araneae", "Coleoptera", "Hemiptera"), ]
+
+head(invert_filtered);dim(invert_filtered)
+
+#Count occurrences of each morphospecies at each site
+L_table <- invert_filtered %>%
+  group_by(Site, Morphospecies) %>%
+  summarise(abundance = n(), .groups = 'drop') %>%
+  pivot_wider(names_from = Morphospecies, 
+              values_from = abundance, 
+              values_fill = 0)
+head(L_table);dim(L_table)
+L_table[1,1]
+
+#Convert to data frame with sites as row names
+L_matrix <- L_table %>%
+  column_to_rownames("Site") %>%
+  as.data.frame()
+head(L_matrix);dim(L_matrix)
+
+##Q Data (Species x Trait)----
+
+head(invert_filtered)
+
+#Get unique morphospecies with traits
+Q_table <- invert_filtered %>%
+  select(Morphospecies, Order, Size, Hunting.Style, Trophic) %>%
+  distinct()
+head(Q_table);dim(Q_table)
+
+Q_matrix <- Q_table %>%
+  column_to_rownames("Morphospecies") %>%
+  as.data.frame()
+head(Q_matrix);dim(Q_matrix)
+
+
+#R Data (Site x Environmental)----
+
+head(variables);dim(variables)
+
+R_table <- variables %>%
+  select(-ID, -Field)
+head(R_table);dim(R_table)
+
+#to make the next part transform correctly
+R_table <- as.data.frame(R_table)
+rownames(R_table) <- NULL
+
+R_matrix <- R_table %>%
+  column_to_rownames("Site") %>%
+  as.data.frame()
+
+##Checking that it worked----
+
+#first up is sites
+
+sites_L <- rownames(L_matrix)
+sites_R <- rownames(R_matrix)
+
+if (!all(sites_L %in% sites_R)) {
+  warning("Some sites in L table are not in R table")
+  print(setdiff(sites_L, sites_R))
+} #looks good
+
+if (!all(sites_R %in% sites_L)) {
+  warning("Some sites in R table are not in L table")
+  print(setdiff(sites_R, sites_L))
+} #not all sites in L table
+
+#fix missing sites and make sure sites are in the same order for both
+common_sites <- intersect(sites_L, sites_R)
+L_matrix <- L_matrix[common_sites, ]
+R_matrix <- R_matrix[common_sites, ]
+
+sites_L.2 <- rownames(L_matrix)
+sites_R.2 <- rownames(R_matrix)
+
+if (!all(sites_R.2 %in% sites_L.2)) {
+  warning("Some sites in R table are not in L table")
+  print(setdiff(sites_R.2, sites_L.2))
+} #fixed they match
+
+#Now checking morphospecies 
+
+species_L <- colnames(L_matrix)
+species_Q <- rownames(Q_matrix)
+
+if (!all(species_L %in% species_Q)) {
+  warning("Some morphospecies in L table are not in Q table")
+  print(setdiff(species_L, species_Q))
+} #looks good
+
+if (!all(species_Q %in% species_L)) {
+  warning("Some morphospecies in Q table are not in L table")
+  print(setdiff(species_Q, species_L))
+} #looks good
+
+#match Q order to L
+Q_matrix <- Q_matrix[species_L, ]
+
+##Fixing missing values----
+
+any(is.na(L_matrix)) #No NA's
+any(is.na(R_matrix)) #No NA's
+any(is.na(Q_matrix)) #No NA's
+
+#Traits need to be factors
+
+Q_matrix[] <- lapply(Q_matrix, as.factor)
+str(Q_matrix)
+
+levels(Q_matrix$Size)
+Q_matrix$Size <- factor(Q_matrix$Size, 
+                        levels = c("0-2.5", "2.5-5", "5-10", 
+                                   ">10", "No_Size", "Unknown"),
+                        ordered = TRUE)
+levels(Q_matrix$Size)
+
+#then also for position
+R_matrix$Position <- as.factor(R_matrix$Position)
+
+
+##IF I WANT TO TRANSFORM ABUNDANCE TO PRES ABS----
+
+
+# Hellinger transformation (recommended for abundance data)
+# This gives less weight to very abundant species
+#L_hellinger <- decostand(L_matrix, method = "hellinger")
+
+# Alternative: presence/absence
+# L_pa <- decostand(L_matrix, method = "pa")
+
