@@ -418,6 +418,52 @@ length(unique(FDModel$ID))
 FRspatial_result
 #No Spatial Autocorrelation found in any of the fields/surveys
 
+#Also checking for the water model
+
+FRmodel_residuals2 <- simulateResiduals(FUNRich_Water)
+FRspatial_result2 <- data.frame(
+  field = rep(NA, length(FRfield_numbers)),
+  statistic = rep(NA, length(FRfield_numbers)),
+  p_value = rep(NA, length(FRfield_numbers)),
+  method = rep(NA_character_, length(FRfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in FRfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  FRfield_indices2 <- which(FDModel$ID == f)
+  FRfield_residuals2 <- FRmodel_residuals2
+  FRfield_residuals2$scaledResiduals <- 
+    FRmodel_residuals2$scaledResiduals[FRfield_indices2]
+  FRfield_residuals2$fittedPredictedResponse <- 
+    FRmodel_residuals2$fittedPredictedResponse[FRfield_indices2]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  FRspatial_test2 <- testSpatialAutocorrelation(FRfield_residuals2, 
+                                               x = FDModel$X_Cor[FDModel$ID == f], 
+                                               y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  FRspatial_result2$field [s] <- f
+  FRspatial_result2$statistic [s] <- FRspatial_test2$statistic[1] 
+  FRspatial_result2$p_value [s] <- FRspatial_test2$p.value
+  FRspatial_result2$method [s] <- FRspatial_test2$method
+  
+  s <- s + 1
+  
+}
+
+head(FRspatial_result2);dim(FRspatial_result2)
+length(unique(FDModel$ID))
+
+
+FRspatial_result2
+#No Spatial Autocorrelation found in any of the fields/surveys
+
 
 ##Step 4: Predictions----
 
