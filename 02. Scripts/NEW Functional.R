@@ -218,12 +218,42 @@ for(trait in names(Q_matrix)) {
   heatmap_data <- rbind(heatmap_data, temp_df)
 }
 
+str(heatmap_data)
+
+heatmap_data$Trait_Value <- gsub("Active_Hunting", "Active", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("Ambush_Hunter", "Ambush", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("0-2.5", "0-2.5mm", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("2.5-5", "2.5-5mm", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("5-10", "5-10mm", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub(">10", ">10mm", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("No_Size", "No Size", heatmap_data$Trait_Value)
+
+heatmap_data$Trait <- gsub("Hunting.Style", "Hunting", heatmap_data$Trait)
+
+colnames(heatmap_data)[2] <- "Traits"
+colnames(heatmap_data)
+str(heatmap_data)
+colnames(heatmap_data)[4] <- "Functional_Group"
+
+#trying to get a better order for each functional group traits
+
+heatmap_data <- heatmap_data %>%
+  group_by(Functional_Group) %>%
+  mutate(Traits = if(unique(Functional_Group) == "Size") {
+    factor(Traits, levels = c(
+      "Unknown","No Size","0-2.5mm","2.5-5mm","5-10mm", ">10mm"))
+  } else {
+    factor(Traits, levels = sort(unique(Traits)))
+  }) %>%
+  ungroup()
+#worked for size and trophic but not the other two
+
 dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
-ggplot(heatmap_data, aes(x = Group, y = Trait_Value, fill = Proportion)) +
+ggplot(heatmap_data, aes(x = Group, y = Traits, fill = Proportion)) +
   geom_tile() +
-  facet_wrap(~Trait, scales = "free_y") +
-  scale_fill_gradient(low = "white", high = "darkblue") +
-  theme_minimal()
+  facet_wrap(~Functional_Group, scales = "free_y") +
+  scale_fill_gradient(low = "white", high = "darkblue") + 
+  theme_minimal(base_size = 16)
 
 
 #Extract the trait groups----
