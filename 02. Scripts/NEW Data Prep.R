@@ -407,9 +407,9 @@ levels(Q_matrix$Size)
 #then also for position
 R_matrix$Position <- as.factor(R_matrix$Position)
 
+#END
 
-##IF I WANT TO TRANSFORM ABUNDANCE TO PRES ABS----
-
+##IF I WANT TO TRANSFORM ABUNDANCE TO PRES ABS
 
 # Hellinger transformation (recommended for abundance data)
 # This gives less weight to very abundant species
