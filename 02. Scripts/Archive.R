@@ -10,6 +10,42 @@ null_develop <- glmmTMB(Develops_Wings ~ 1 + (1 | Field), family = nbinom2, data
 summary(null_develop)
 
 
+#Old fig
+
+##Step 5 - Richness Model Visalisation----
+
+summary(Rich_Water)
+head(richpred2);dim(richpred2)
+
+Predictions_Day[4] #winter
+Predictions_Day[15] #Spring
+
+RR <- richpred2$Day_Scaled == Predictions_Day[4] & richpred2$X1km_Prop_Water == Predictions_Water[10]
+R_R <- richpred2$Day_Scaled == Predictions_Day[15] & richpred2$X1km_Prop_Water == Predictions_Water[10]
+RRR <- richpred2$Day_Scaled == Predictions_Day[10] & richpred2$Age_Scaled == Predictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.3,'a)',cex=1.1)
+
+polygon(x = c(richpred2$Age_Scaled[RR],rev(richpred2$Age_Scaled[RR])), y = c(richpred2$lci[RR],rev(richpred2$uci[RR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred2$Age_Scaled[RR],y = richpred2$fit[RR],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(richpred2$Age_Scaled[R_R],rev(richpred2$Age_Scaled[R_R])), y = c(richpred2$lci[R_R],rev(richpred2$uci[R_R])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred2$Age_Scaled[R_R],y = richpred2$fit[R_R],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+
+plot(x = TaxModel$X1km_Prop_Water,y = TaxModel$Species_Rich,xlab = expression("Proportion Water within 1km"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 0.9,'b)',cex=1.1)
+
+polygon(x = c(richpred2$X1km_Prop_Water[RRR],rev(richpred2$X1km_Prop_Water[RRR])), y = c(richpred2$lci[RRR],rev(richpred2$uci[RRR])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=richpred2$X1km_Prop_Water[RRR],y = richpred2$fit[RRR],lwd = 2,col = 'grey30')
+
 
 
 plot(x = ModelRich2$Day_Scaled,y = ModelRich2$Predator,xlab = expression("Day Sampled"),ylab = 'Predator Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
