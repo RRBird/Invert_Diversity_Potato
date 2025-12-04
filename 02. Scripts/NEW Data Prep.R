@@ -126,18 +126,20 @@ corrplot::corrplot(cor,method="color",
 head(cor)
 
 
-#Day sampled is needed to account for different sampling days so the ones correlated with this variable need to be removed which are: Cropping 500m, Water 500m, cropping 1km, riparian 500m and riparian 1km
+#No variables correlated with 
+#Variables with the most amount of associated correlated variables were removed until we have no correlated variables: Cropping 500m, riparian 500m, water 500m
 
 #Checking how many correlated variables are left when remove the ones above
 head(cordata)
-cordata2 <- cordata %>% dplyr::select(-X500m_Prop_Crops,-X500m_Prop_Water,-X1km_Prop_Crops,-X500m_Rip_Prop,-X1km_Rip_Prop)
+cordata2 <- cordata %>% dplyr::select(-X500m_Prop_Crops,-X500m_Prop_Water,-X500m_Rip_Prop)
 cor2 <- cor(cordata2,method = "spearman")
 
 dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor2,method="color",  
                    type="upper",addCoef.col = 'black',number.cex = 0.6)
 
-#only correlated variable left is NDVI sum 500m and 1km (expected) - will proceed with 1km so it's on the same scale as other landscape variable (water 1km)
+#only correlated variable left is NDVI sum 500m and 1km (expected) and 1km water and 1km riparian 
+#we proceeded with NDVI 1km so it's on the same scale as other landscape variables and we chose riparian veg over water as we know for literature extra habitat impacts the invertebrate field communities
 
 head(cor)
 
@@ -149,7 +151,7 @@ variables <- merge(variables,field, by = "ID")
 
 head(variables);dim(variables)
 
-variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X1km_Prop_Water, NDVImean_Field,NDVIsum_1km)
+variables <- variables %>% dplyr::select(ID,Site,Field,Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X1km_Prop_Crops, NDVImean_Field,NDVIsum_1km,X1km_Rip_Prop)
 head(variables);dim(variables)
 
 invert <- data.frame(ID = obs$Site,Morphospecies = obs$Morphospecies)
@@ -185,17 +187,6 @@ morpho <- subset(morpho, Order != 'Lepidoptera' | is.na(Order))
 length(morpho$Morphospecies[morpho$Morphospecies == 'Serpintine_Leaf_Miner'])
 morpho <- morpho[morpho$Morphospecies != 'Serpintine_Leaf_Miner',]
 
-##Removing first survey observations
-#diversity measures taken weren't reliable so excluded from analysis
-
-head(variables);dim(variables)
-
-length(variables$ID[variables$ID == 'S1_F3'])
-variables <- variables[variables$ID != 'S1_F3',]
-
-head(invert);dim(invert)
-
-invert <- invert[!grepl("^S1", invert$ID), ]
 
 #total observations = 2329
 
@@ -203,7 +194,6 @@ setdiff(unique(morpho$Morphospecies), unique(invert$Morphospecies))
 
 #need to remove two from morpho to make sure that its got the same species are were observed
 #double checking they aren't there
-invert[invert$Morphospecies == 'Whitefly',]
 invert[invert$Morphospecies == 'Brown_Weevil',] 
 invert[invert$Morphospecies == 'Small_Ant',]
 
@@ -213,7 +203,7 @@ head(morpho);dim(morpho)
 
 #Checking the groups----
 head(invert)
-length(point$Site) #total of 270 points
+length(point$Site) #total of 220 points
 
 table(invert$Order) #must have more then number of points in order to be included in functional diversity analysis 
 
@@ -348,12 +338,12 @@ sites_R <- rownames(R_matrix)
 if (!all(sites_L %in% sites_R)) {
   warning("Some sites in L table are not in R table")
   print(setdiff(sites_L, sites_R))
-} #looks good
+} #Needs fixing
 
 if (!all(sites_R %in% sites_L)) {
   warning("Some sites in R table are not in L table")
   print(setdiff(sites_R, sites_L))
-} #not all sites in L table
+} #Needs fixing
 
 #fix missing sites and make sure sites are in the same order for both
 common_sites <- intersect(sites_L, sites_R)
@@ -408,13 +398,4 @@ levels(Q_matrix$Size)
 R_matrix$Position <- as.factor(R_matrix$Position)
 
 #END
-
-##IF I WANT TO TRANSFORM ABUNDANCE TO PRES ABS
-
-# Hellinger transformation (recommended for abundance data)
-# This gives less weight to very abundant species
-#L_hellinger <- decostand(L_matrix, method = "hellinger")
-
-# Alternative: presence/absence
-# L_pa <- decostand(L_matrix, method = "pa")
 
