@@ -112,7 +112,7 @@ ade4::s.class(rlq1$lQ, spe.group2, col= 1:nlevels(spe.group2))
 s.arrow(rlq1$l1, add.plot = T, clab = 0.6,boxes = FALSE)
 
 l1_short <- rlq1$l1
-rownames(l1_short) <- c("H", "GC", "In   ", "Out","Day", "A      ", "FA", "W", "NF", "NL")
+rownames(l1_short) <- c("     H", "GC", "In", "Out","Day", "A           ", "FA", "C", "NF", "N1km","R")
 l1_labels <- l1_short * 1.30
 
 dev.new(height=10, width=10, dpi=80, pointsize=14, noRStudioGD = T)
