@@ -7,6 +7,7 @@ library("glmmTMB")
 library("dplyr")
 library("DHARMa")
 library("arm")
+library("openxlsx")
 
 #SPECIES RICHNESSS----
 
@@ -366,7 +367,7 @@ aictab(divlist2)
 
 ##Step 3 - Check for spatial autocorrelation----
 
-model_residuals <- simulateResiduals(Div_GC)
+model_residuals <- simulateResiduals(Div_FieldArea)
 spatial_result <- data.frame(
   field = rep(NA, length(field_numbers)),
   statistic = rep(NA, length(field_numbers)),
@@ -419,6 +420,6 @@ Spatial_auto_TaxDivRip <- spatial_result
 Spatial_auto_TaxDivHeight <- spatial_result 
 
 #Spaital autocorrelation found in all models
-
+write.xlsx(Spatial_auto_TaxDivHeight, 'SpatialResult.xlsx')
 
 #END----
