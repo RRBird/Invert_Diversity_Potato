@@ -487,7 +487,6 @@ aictab(FUNdivlist2)
 #Crops and field area is within 2 AICc's
 
 
-
 ##Step 3: Check Spatial Autocorrelation----
 
 FDfield_numbers <- unique(FDModel$ID)
