@@ -669,7 +669,7 @@ polygon(x = c(FUNdivpred5$X1km_Prop_Crops[C_C],rev(FUNdivpred5$X1km_Prop_Crops[C
 lines(x=FUNdivpred5$X1km_Prop_Crops[C_C],y = FUNdivpred5$fit[C_C],lwd = 2,col = 'grey30')
 
 
-#Field area
+#Field Area
 summary(FUNDiv_FieldArea)
 head(FUNdivpred8);dim(FUNdivpred8)
 
@@ -686,7 +686,7 @@ mtext(side=3,line=0,at = 10,'a)',cex=1.1)
 polygon(x = c(FUNdivpred8$Day_Sampled[FF],rev(FUNdivpred8$Day_Sampled[FF])), y = c(FUNdivpred8$lci[FF],rev(FUNdivpred8$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=FUNdivpred8$Day_Sampled[FF],y = FUNdivpred8$fit[FF],lwd = 2,col = 'grey30',lty = 1)
 
-plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Area (ha)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Size (ha)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
 axis(side=1, at=seq(from=min(FUNdivpred8$Field_Area_Scaled),to=max(FUNdivpred8$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
 mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
 
