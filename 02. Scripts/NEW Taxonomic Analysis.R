@@ -418,10 +418,7 @@ Spatial_auto_TaxDivFieldArea <- spatial_result
 Spatial_auto_TaxDivRip <- spatial_result 
 Spatial_auto_TaxDivHeight <- spatial_result 
 
-
-
-#TO DO - work out what to do next----
-#Do I just not continue or try to account for it??
+#Spaital autocorrelation found in all models
 
 
 #END----

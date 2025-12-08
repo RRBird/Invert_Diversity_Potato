@@ -479,11 +479,220 @@ FUNDiv_NDVI1km <- glmer(Fun_Div ~ Day_Sampled + NDVIsum_1km + (1 | Field), famil
 
 FUNdivlist2 <- list("null" = FUNDiv_null, "height" = FUNDiv_Height, 
                  "GC" = FUNDiv_GC, "Field Area" = FUNDiv_FieldArea, 
-                 "Field NDVI" = FUNDiv_FieldNDVI, 
-                 "Water" = FUNDiv_Water, "NDVI 1km" = FUNDiv_NDVI1km)
+                 "Field NDVI" = FUNDiv_FieldNDVI, "Rip" = FUNDiv_Rip,
+                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km)
 aictab(FUNdivlist2)
 
-#top model is Null all other models are within 2 AICcs
+#top model is GC
+#Crops and field area is within 2 AICc's
+
+
+
+##Step 3: Check Spatial Autocorrelation----
+
+FDfield_numbers <- unique(FDModel$ID)
+
+
+FDmodel_residuals <- simulateResiduals(FUNDiv_FieldArea)
+FDspatial_result <- data.frame(
+  field = rep(NA, length(FDfield_numbers)),
+  statistic = rep(NA, length(FDfield_numbers)),
+  p_value = rep(NA, length(FDfield_numbers)),
+  method = rep(NA_character_, length(FDfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in FDfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  FDfield_indices <- which(FDModel$ID == f)
+  FDfield_residuals <- FDmodel_residuals
+  FDfield_residuals$scaledResiduals <- 
+    FDmodel_residuals$scaledResiduals[FDfield_indices]
+  FDfield_residuals$fittedPredictedResponse <- 
+    FDmodel_residuals$fittedPredictedResponse[FDfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  FDspatial_test <- testSpatialAutocorrelation(FDfield_residuals, 
+                                               x = FDModel$X_Cor[FDModel$ID == f], 
+                                               y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  FDspatial_result$field [s] <- f
+  FDspatial_result$statistic [s] <- FDspatial_test$statistic[1] 
+  FDspatial_result$p_value [s] <- FDspatial_test$p.value
+  FDspatial_result$method [s] <- FDspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(FDspatial_result);dim(FDspatial_result)
+length(unique(FDModel$ID))
+
+FDspatial_result
+
+
+Spatial_auto_FD_GC <- FDspatial_result
+Spatial_auto_FD_Crops <- FDspatial_result
+Spatial_auto_FD_Field <- FDspatial_result
+
+
+#No Spatial Autocorrelation found in any fields/surveys
+
+##Step 4: Predictions----
+
+#GC
+summary(FUNDiv_GC)
+
+FUNPredictions_Day <- seq(min(FDModel$Day_Sampled),max(FDModel$Day_Sampled),length.out=20)
+FUNPredictions_GC <- seq(min(FDModel$GC),max(FDModel$GC),length.out=20)
+
+
+FUNdivpred <- expand.grid(Day_Sampled = FUNPredictions_Day, GC = FUNPredictions_GC)
+head(FUNdivpred);dim(FUNdivpred)
+
+FUNdivpred1 <- predict(object = FUNDiv_GC,newdata= FUNdivpred,se.fit = T, type = "link",re.form = NA)
+
+FUNdivpred2<-data.frame(FUNdivpred,fit.link=FUNdivpred1$fit,se.link=FUNdivpred1$se.fit)
+
+FUNdivpred2$lci.link<-FUNdivpred2$fit.link-(1.96*FUNdivpred2$se.link)
+FUNdivpred2$uci.link<-FUNdivpred2$fit.link+(1.96*FUNdivpred2$se.link)
+
+FUNdivpred2$fit<-exp(FUNdivpred2$fit.link)
+FUNdivpred2$se<-exp(FUNdivpred2$se.link)
+FUNdivpred2$lci<-exp(FUNdivpred2$lci.link)
+FUNdivpred2$uci<-exp(FUNdivpred2$uci.link)
+
+head(FUNdivpred2);dim(FUNdivpred2)
+
+#Crops
+
+summary(FUNDiv_Crops)
+
+FUNPredictions_Crop <- seq(min(FDModel$X1km_Prop_Crops),max(FDModel$X1km_Prop_Crops),length.out=20)
+
+
+FUNdivpred3 <- expand.grid(Day_Sampled = FUNPredictions_Day, X1km_Prop_Crops = FUNPredictions_Crop)
+head(FUNdivpred3);dim(FUNdivpred3)
+
+FUNdivpred4 <- predict(object = FUNDiv_Crops,newdata= FUNdivpred3,se.fit = T, type = "link",re.form = NA)
+
+FUNdivpred5<-data.frame(FUNdivpred3,fit.link=FUNdivpred4$fit,se.link=FUNdivpred4$se.fit)
+
+FUNdivpred5$lci.link<-FUNdivpred5$fit.link-(1.96*FUNdivpred5$se.link)
+FUNdivpred5$uci.link<-FUNdivpred5$fit.link+(1.96*FUNdivpred5$se.link)
+
+FUNdivpred5$fit<-exp(FUNdivpred5$fit.link)
+FUNdivpred5$se<-exp(FUNdivpred5$se.link)
+FUNdivpred5$lci<-exp(FUNdivpred5$lci.link)
+FUNdivpred5$uci<-exp(FUNdivpred5$uci.link)
+
+head(FUNdivpred5);dim(FUNdivpred5)
+
+
+#Field
+
+summary(FUNDiv_FieldArea)
+
+FUNPredictions_FieldScaled <- seq(min(FDModel$Field_Area_Scaled),max(FDModel$Field_Area_Scaled),length.out=20)
+
+
+FUNdivpred6 <- expand.grid(Day_Sampled = FUNPredictions_Day, Field_Area_Scaled = FUNPredictions_FieldScaled)
+head(FUNdivpred6);dim(FUNdivpred6)
+
+FUNdivpred7 <- predict(object = FUNDiv_FieldArea,newdata= FUNdivpred6,se.fit = T, type = "link",re.form = NA)
+
+FUNdivpred8<-data.frame(FUNdivpred6,fit.link=FUNdivpred7$fit,se.link=FUNdivpred7$se.fit)
+
+FUNdivpred8$lci.link<-FUNdivpred8$fit.link-(1.96*FUNdivpred8$se.link)
+FUNdivpred8$uci.link<-FUNdivpred8$fit.link+(1.96*FUNdivpred8$se.link)
+
+FUNdivpred8$fit<-exp(FUNdivpred8$fit.link)
+FUNdivpred8$se<-exp(FUNdivpred8$se.link)
+FUNdivpred8$lci<-exp(FUNdivpred8$lci.link)
+FUNdivpred8$uci<-exp(FUNdivpred8$uci.link)
+
+head(FUNdivpred8);dim(FUNdivpred8)
+
+
+##Step 5: Visualisation----
+
+#GC
+
+summary(FUNDiv_GC)
+head(FUNdivpred2);dim(FUNdivpred2)
+
+
+GG <- FUNdivpred2$GC == FUNPredictions_GC[10]
+G_G <- FUNdivpred2$Day_Sampled == FUNPredictions_Day[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+
+polygon(x = c(FUNdivpred2$Day_Sampled[GG],rev(FUNdivpred2$Day_Sampled[GG])), y = c(FUNdivpred2$lci[GG],rev(FUNdivpred2$uci[GG])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNdivpred2$Day_Sampled[GG],y = FUNdivpred2$fit[GG],lwd = 2,col = 'grey30',lty = 1)
+
+plot(x = FDModel$GC,y = FDModel$Fun_Div,xlab = "Ground Cover (%)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 4,'b)',cex=1.1)
+
+polygon(x = c(FUNdivpred2$GC[G_G],rev(FUNdivpred2$GC[G_G])), y = c(FUNdivpred2$lci[G_G],rev(FUNdivpred2$uci[G_G])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNdivpred2$GC[G_G],y = FUNdivpred2$fit[G_G],lwd = 2,col = 'grey30')
+
+#Crops
+
+summary(FUNDiv_Crops)
+head(FUNdivpred5);dim(FUNdivpred5)
+
+
+CC <- FUNdivpred5$X1km_Prop_Crops  == FUNPredictions_Crop[10]
+C_C <- FUNdivpred5$Day_Sampled == FUNPredictions_Day[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+
+polygon(x = c(FUNdivpred5$Day_Sampled[CC],rev(FUNdivpred5$Day_Sampled[CC])), y = c(FUNdivpred5$lci[CC],rev(FUNdivpred5$uci[CC])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNdivpred5$Day_Sampled[CC],y = FUNdivpred5$fit[CC],lwd = 2,col = 'grey30',lty = 1)
+
+plot(x = FDModel$X1km_Prop_Crops,y = FDModel$Fun_Div,xlab = "Crops within 1km (%)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 79,'b)',cex=1.1)
+
+polygon(x = c(FUNdivpred5$X1km_Prop_Crops[C_C],rev(FUNdivpred5$X1km_Prop_Crops[C_C])), y = c(FUNdivpred5$lci[C_C],rev(FUNdivpred5$uci[C_C])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNdivpred5$X1km_Prop_Crops[C_C],y = FUNdivpred5$fit[C_C],lwd = 2,col = 'grey30')
+
+
+#Field area
+summary(FUNDiv_FieldArea)
+head(FUNdivpred8);dim(FUNdivpred8)
+
+
+FF <- FUNdivpred8$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
+F_F <- FUNdivpred8$Day_Sampled == FUNPredictions_Day[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+
+polygon(x = c(FUNdivpred8$Day_Sampled[FF],rev(FUNdivpred8$Day_Sampled[FF])), y = c(FUNdivpred8$lci[FF],rev(FUNdivpred8$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNdivpred8$Day_Sampled[FF],y = FUNdivpred8$fit[FF],lwd = 2,col = 'grey30',lty = 1)
+
+plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Area (ha)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(FUNdivpred8$Field_Area_Scaled),to=max(FUNdivpred8$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
+mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
+
+polygon(x = c(FUNdivpred8$Field_Area_Scaled[F_F],rev(FUNdivpred8$Field_Area_Scaled[F_F])), y = c(FUNdivpred8$lci[F_F],rev(FUNdivpred8$uci[F_F])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNdivpred8$Field_Area_Scaled[F_F],y = FUNdivpred8$fit[F_F],lwd = 2,col = 'grey30')
 
 
 #END----
