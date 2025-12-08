@@ -1,3 +1,106 @@
+#FUN RICH STEPS----
+#in case I need them two option exclude models with spatial auto correlation or do something to account for it so these will just stay here for now
+##Step 4: Predictions----
+
+summary(FUNRich_FieldArea)
+
+FUNPredictions_Age <- seq(min(FDModel$Crop_Age_Days),max(FDModel$Crop_Age_Days),length.out=20)
+FUNPredictions_FieldArea <- seq(min(FDModel$Field_Area_Scaled),max(FDModel$Field_Area_Scaled),length.out=20)
+
+
+FUNrichpred <- expand.grid(Crop_Age_Days = FUNPredictions_Age, Field_Area_Scaled = FUNPredictions_FieldArea)
+head(FUNrichpred);dim(FUNrichpred)
+
+FUNrichpred1 <- predict(object = FUNRich_FieldArea,newdata= FUNrichpred,se.fit = T, type = "link",re.form = NA)
+
+FUNrichpred2<-data.frame(FUNrichpred,fit.link=FUNrichpred1$fit,se.link=FUNrichpred1$se.fit)
+
+FUNrichpred2$lci.link<-FUNrichpred2$fit.link-(1.96*FUNrichpred2$se.link)
+FUNrichpred2$uci.link<-FUNrichpred2$fit.link+(1.96*FUNrichpred2$se.link)
+
+FUNrichpred2$fit<-exp(FUNrichpred2$fit.link)
+FUNrichpred2$se<-exp(FUNrichpred2$se.link)
+FUNrichpred2$lci<-exp(FUNrichpred2$lci.link)
+FUNrichpred2$uci<-exp(FUNrichpred2$uci.link)
+
+head(FUNrichpred2);dim(FUNrichpred2)
+
+#Water
+summary(FUNRich_Water)
+
+FUNPredictions_Water <- seq(min(FDModel$X1km_Prop_Water),max(FDModel$X1km_Prop_Water),length.out=20)
+
+FUNrichpred3 <- expand.grid(Crop_Age_Days = FUNPredictions_Age, X1km_Prop_Water = FUNPredictions_Water)
+head(FUNrichpred);dim(FUNrichpred)
+
+FUNrichpred4 <- predict(object = FUNRich_Water,newdata= FUNrichpred3,se.fit = T, type = "link",re.form = NA)
+
+FUNrichpred5<-data.frame(FUNrichpred3,fit.link=FUNrichpred4$fit,se.link=FUNrichpred4$se.fit)
+
+FUNrichpred5$lci.link<-FUNrichpred5$fit.link-(1.96*FUNrichpred5$se.link)
+FUNrichpred5$uci.link<-FUNrichpred5$fit.link+(1.96*FUNrichpred5$se.link)
+
+FUNrichpred5$fit<-exp(FUNrichpred5$fit.link)
+FUNrichpred5$se<-exp(FUNrichpred5$se.link)
+FUNrichpred5$lci<-exp(FUNrichpred5$lci.link)
+FUNrichpred5$uci<-exp(FUNrichpred5$uci.link)
+
+head(FUNrichpred5);dim(FUNrichpred5)
+
+
+##Step 5: Visualisation----
+
+#Field area
+summary(FUNRich_FieldArea)
+head(FUNrichpred2);dim(FUNrichpred2)
+
+
+FF <- FUNrichpred2$Field_Area_Scaled == FUNPredictions_FieldArea[10]
+F_F <- FUNrichpred2$Crop_Age_Days == FUNPredictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Rich,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 45,'a)',cex=1.1)
+
+polygon(x = c(FUNrichpred2$Crop_Age_Days[FF],rev(FUNrichpred2$Crop_Age_Days[FF])), y = c(FUNrichpred2$lci[FF],rev(FUNrichpred2$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNrichpred2$Crop_Age_Days[FF],y = FUNrichpred2$fit[FF],lwd = 2,col = 'grey30',lty = 1)
+
+plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Rich,xlab = "Field Area (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(FUNrichpred2$Field_Area_Scaled),to=max(FUNrichpred2$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
+mtext(side=3,line=0,at = -2.4,'b)',cex=1.1)
+
+polygon(x = c(FUNrichpred2$Field_Area_Scaled[F_F],rev(FUNrichpred2$Field_Area_Scaled[F_F])), y = c(FUNrichpred2$lci[F_F],rev(FUNrichpred2$uci[F_F])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNrichpred2$Field_Area_Scaled[F_F],y = FUNrichpred2$fit[F_F],lwd = 2,col = 'grey30')
+
+#Water
+
+summary(FUNRich_Water)
+head(FUNrichpred5);dim(FUNrichpred5)
+
+
+WW <- FUNrichpred5$X1km_Prop_Water == FUNPredictions_Water[10]
+W_W <- FUNrichpred5$Crop_Age_Days == FUNPredictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Rich,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 45,'a)',cex=1.1)
+
+polygon(x = c(FUNrichpred5$Crop_Age_Days[WW],rev(FUNrichpred5$Crop_Age_Days[WW])), y = c(FUNrichpred5$lci[WW],rev(FUNrichpred5$uci[WW])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNrichpred5$Crop_Age_Days[WW],y = FUNrichpred5$fit[WW],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = FDModel$X1km_Prop_Water,y = FDModel$Fun_Rich,xlab = "Proportion of Water in 1km",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
+mtext(side=3,line=0,at = 1,'b)',cex=1.1)
+
+polygon(x = c(FUNrichpred5$X1km_Prop_Water[W_W],rev(FUNrichpred5$X1km_Prop_Water[W_W])), y = c(FUNrichpred5$lci[W_W],rev(FUNrichpred5$uci[W_W])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNrichpred5$X1km_Prop_Water[W_W],y = FUNrichpred5$fit[W_W],lwd = 2,col = 'grey30',lty = 1)
+
+
+
 #with updated data the null did converge
 
 

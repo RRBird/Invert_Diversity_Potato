@@ -317,7 +317,7 @@ FUNRich_D <- glmmTMB(Fun_Rich ~ Day_Scaled + (1 | Field), family = poisson, data
 
 FUNRich_PA <- glmmTMB(Fun_Rich ~ Position + Crop_Age_Days + (1 | Field), family = poisson, data = FDModel)
 FUNRich_PD <- glmmTMB(Fun_Rich ~ Position + Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_DA <- glmmTMB(Fun_Rich ~ Day_Scaled + Age_Scaled + (1 | Field), family = poisson, data = FDModel) 
+FUNRich_DA <- glmmTMB(Fun_Rich ~ Day_Scaled + Crop_Age_Days + (1 | Field), family = poisson, data = FDModel) 
 
 FUNRich_PxA <- glmmTMB(Fun_Rich ~ Position * Age_Scaled + (1 | Field), family = poisson, data = FDModel) 
 FUNRich_PxD <- glmmTMB(Fun_Rich ~ Position * Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
@@ -353,7 +353,8 @@ FUNRich_GC <- glmmTMB(Fun_Rich ~ Crop_Age_Days + GC + (1 | Field), family = pois
 FUNRich_FieldArea <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Field_Area_Scaled + (1 | Field), family = poisson, data = FDModel)
 FUNRich_NDVIfield <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVImean_Field  + (1 | Field), family = poisson, data = FDModel)  
 
-FUNRich_Water <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Prop_Water + (1 | Field), family = poisson, data = FDModel) 
+FUNRich_Rip <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Rip_Prop + (1 | Field), family = poisson, data = FDModel) 
+FUNRich_Crops <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Prop_Crops + (1 | Field), family = poisson, data = FDModel) 
 FUNRich_NDVI1km <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVI1km_Scaled + (1 | Field), family = poisson, data = FDModel) 
 
 
@@ -362,19 +363,19 @@ FUNrichmodlist2 <- list("null" = FUNRich_null,
                         "GC" = FUNRich_GC,
                         "Field Area" = FUNRich_FieldArea, 
                         "Field NDVI" = FUNRich_NDVIfield,
-                        "Water" = FUNRich_Water, 
+                        "Rip" = FUNRich_Rip,
+                        "Crop" = FUNRich_Crops, 
                         "NDVI 1km" = FUNRich_NDVI1km)
 aictab(FUNrichmodlist2)
-#top model is Field area
-#none within 2 AICc
-#Water is within 4 AICc (Supporting Info)
+#Rip is within 2 AICc
+
 
 ##Step 3: Check Spatial Autocorrelation----
 
 FRfield_numbers <- unique(FDModel$ID)
 
 
-FRmodel_residuals <- simulateResiduals(FUNRich_FieldArea)
+FRmodel_residuals <- simulateResiduals(FUNRich_Rip)
 FRspatial_result <- data.frame(
   field = rep(NA, length(FRfield_numbers)),
   statistic = rep(NA, length(FRfield_numbers)),
@@ -414,155 +415,13 @@ for (f in FRfield_numbers) {
 head(FRspatial_result);dim(FRspatial_result)
 length(unique(FDModel$ID))
 
-
 FRspatial_result
-#No Spatial Autocorrelation found in any of the fields/surveys
-
-#Also checking for the water model
-
-FRmodel_residuals2 <- simulateResiduals(FUNRich_Water)
-FRspatial_result2 <- data.frame(
-  field = rep(NA, length(FRfield_numbers)),
-  statistic = rep(NA, length(FRfield_numbers)),
-  p_value = rep(NA, length(FRfield_numbers)),
-  method = rep(NA_character_, length(FRfield_numbers)),
-  stringsAsFactors = FALSE)
-
-s <- 1
-
-for (f in FRfield_numbers) {
-  
-  cat("Field", f, "\n") #What field is it doing?
-  
-  #Extracting specific residuals for individual fields
-  FRfield_indices2 <- which(FDModel$ID == f)
-  FRfield_residuals2 <- FRmodel_residuals2
-  FRfield_residuals2$scaledResiduals <- 
-    FRmodel_residuals2$scaledResiduals[FRfield_indices2]
-  FRfield_residuals2$fittedPredictedResponse <- 
-    FRmodel_residuals2$fittedPredictedResponse[FRfield_indices2]
-  
-  # Test spatial autocorrelation using your grid coordinates
-  FRspatial_test2 <- testSpatialAutocorrelation(FRfield_residuals2, 
-                                               x = FDModel$X_Cor[FDModel$ID == f], 
-                                               y = FDModel$Y_Cor[FDModel$ID == f])
-  
-  
-  FRspatial_result2$field [s] <- f
-  FRspatial_result2$statistic [s] <- FRspatial_test2$statistic[1] 
-  FRspatial_result2$p_value [s] <- FRspatial_test2$p.value
-  FRspatial_result2$method [s] <- FRspatial_test2$method
-  
-  s <- s + 1
-  
-}
-
-head(FRspatial_result2);dim(FRspatial_result2)
-length(unique(FDModel$ID))
 
 
-FRspatial_result2
-#No Spatial Autocorrelation found in any of the fields/surveys
+Spatial_auto_FR_Field <- FRspatial_result
+Spatial_auto_FR_Rip <- FRspatial_result
 
-
-##Step 4: Predictions----
-
-summary(FUNRich_FieldArea)
-
-FUNPredictions_Age <- seq(min(FDModel$Crop_Age_Days),max(FDModel$Crop_Age_Days),length.out=20)
-FUNPredictions_FieldArea <- seq(min(FDModel$Field_Area_Scaled),max(FDModel$Field_Area_Scaled),length.out=20)
-
-
-FUNrichpred <- expand.grid(Crop_Age_Days = FUNPredictions_Age, Field_Area_Scaled = FUNPredictions_FieldArea)
-head(FUNrichpred);dim(FUNrichpred)
-
-FUNrichpred1 <- predict(object = FUNRich_FieldArea,newdata= FUNrichpred,se.fit = T, type = "link",re.form = NA)
-
-FUNrichpred2<-data.frame(FUNrichpred,fit.link=FUNrichpred1$fit,se.link=FUNrichpred1$se.fit)
-
-FUNrichpred2$lci.link<-FUNrichpred2$fit.link-(1.96*FUNrichpred2$se.link)
-FUNrichpred2$uci.link<-FUNrichpred2$fit.link+(1.96*FUNrichpred2$se.link)
-
-FUNrichpred2$fit<-exp(FUNrichpred2$fit.link)
-FUNrichpred2$se<-exp(FUNrichpred2$se.link)
-FUNrichpred2$lci<-exp(FUNrichpred2$lci.link)
-FUNrichpred2$uci<-exp(FUNrichpred2$uci.link)
-
-head(FUNrichpred2);dim(FUNrichpred2)
-
-#Water
-summary(FUNRich_Water)
-
-FUNPredictions_Water <- seq(min(FDModel$X1km_Prop_Water),max(FDModel$X1km_Prop_Water),length.out=20)
-
-FUNrichpred3 <- expand.grid(Crop_Age_Days = FUNPredictions_Age, X1km_Prop_Water = FUNPredictions_Water)
-head(FUNrichpred);dim(FUNrichpred)
-
-FUNrichpred4 <- predict(object = FUNRich_Water,newdata= FUNrichpred3,se.fit = T, type = "link",re.form = NA)
-
-FUNrichpred5<-data.frame(FUNrichpred3,fit.link=FUNrichpred4$fit,se.link=FUNrichpred4$se.fit)
-
-FUNrichpred5$lci.link<-FUNrichpred5$fit.link-(1.96*FUNrichpred5$se.link)
-FUNrichpred5$uci.link<-FUNrichpred5$fit.link+(1.96*FUNrichpred5$se.link)
-
-FUNrichpred5$fit<-exp(FUNrichpred5$fit.link)
-FUNrichpred5$se<-exp(FUNrichpred5$se.link)
-FUNrichpred5$lci<-exp(FUNrichpred5$lci.link)
-FUNrichpred5$uci<-exp(FUNrichpred5$uci.link)
-
-head(FUNrichpred5);dim(FUNrichpred5)
-
-
-##Step 5: Visualisation----
-
-#Field area
-summary(FUNRich_FieldArea)
-head(FUNrichpred2);dim(FUNrichpred2)
-
-
-FF <- FUNrichpred2$Field_Area_Scaled == FUNPredictions_FieldArea[10]
-F_F <- FUNrichpred2$Crop_Age_Days == FUNPredictions_Age[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Rich,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = 45,'a)',cex=1.1)
-
-polygon(x = c(FUNrichpred2$Crop_Age_Days[FF],rev(FUNrichpred2$Crop_Age_Days[FF])), y = c(FUNrichpred2$lci[FF],rev(FUNrichpred2$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNrichpred2$Crop_Age_Days[FF],y = FUNrichpred2$fit[FF],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Rich,xlab = "Field Area (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(FUNrichpred2$Field_Area_Scaled),to=max(FUNrichpred2$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
-mtext(side=3,line=0,at = -2.4,'b)',cex=1.1)
-
-polygon(x = c(FUNrichpred2$Field_Area_Scaled[F_F],rev(FUNrichpred2$Field_Area_Scaled[F_F])), y = c(FUNrichpred2$lci[F_F],rev(FUNrichpred2$uci[F_F])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNrichpred2$Field_Area_Scaled[F_F],y = FUNrichpred2$fit[F_F],lwd = 2,col = 'grey30')
-
-#Water
-
-summary(FUNRich_Water)
-head(FUNrichpred5);dim(FUNrichpred5)
-
-
-WW <- FUNrichpred5$X1km_Prop_Water == FUNPredictions_Water[10]
-W_W <- FUNrichpred5$Crop_Age_Days == FUNPredictions_Age[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Rich,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = 45,'a)',cex=1.1)
-
-polygon(x = c(FUNrichpred5$Crop_Age_Days[WW],rev(FUNrichpred5$Crop_Age_Days[WW])), y = c(FUNrichpred5$lci[WW],rev(FUNrichpred5$uci[WW])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNrichpred5$Crop_Age_Days[WW],y = FUNrichpred5$fit[WW],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$X1km_Prop_Water,y = FDModel$Fun_Rich,xlab = "Proportion of Water in 1km",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = 1,'b)',cex=1.1)
-
-polygon(x = c(FUNrichpred5$X1km_Prop_Water[W_W],rev(FUNrichpred5$X1km_Prop_Water[W_W])), y = c(FUNrichpred5$lci[W_W],rev(FUNrichpred5$uci[W_W])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNrichpred5$X1km_Prop_Water[W_W],y = FUNrichpred5$fit[W_W],lwd = 2,col = 'grey30',lty = 1)
+#Spatial Autocorrelation found in one fields/surveys for both models
 
 #Functional Diversity----
 ##Step 1: Design Variables----
@@ -601,21 +460,22 @@ FUndivlist <- list("null" = FUNDiv_null, "P" = FUNDiv_P,
                    "PAxD" = FUNDiv_PAxD)
 
 aictab(FUndivlist)
-#Top Model is Day but null is within 2 AICc at (delta AICc = 0.45)
+#Top Model is Day
 
 
 ##Step 2: Environmental Variables----
 
 head(FDModel)
 
-FUNDiv_Height <- glmer(Fun_Div ~ Height + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_GC <- glmer(Fun_Div ~ GC + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_Height <- glmer(Fun_Div ~ Day_Sampled + Height + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_GC <- glmer(Fun_Div ~ Day_Sampled + GC + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
-FUNDiv_FieldArea <- glmer(Fun_Div ~ Field_Area_Scaled  + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_FieldNDVI <- glmer(Fun_Div ~ NDVImean_Field + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_FieldArea <- glmer(Fun_Div ~ Day_Sampled + Field_Area_Scaled  + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_FieldNDVI <- glmer(Fun_Div ~ Day_Sampled + NDVImean_Field + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
-FUNDiv_Water <- glmer(Fun_Div ~ X1km_Prop_Water + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_NDVI1km <- glmer(Fun_Div ~ NDVIsum_1km + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_Rip <- glmer(Fun_Div ~ Day_Sampled + X1km_Rip_Prop + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_Crops <- glmer(Fun_Div ~ Day_Sampled + X1km_Prop_Crops + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_NDVI1km <- glmer(Fun_Div ~ Day_Sampled + NDVIsum_1km + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 
 FUNdivlist2 <- list("null" = FUNDiv_null, "height" = FUNDiv_Height, 
                  "GC" = FUNDiv_GC, "Field Area" = FUNDiv_FieldArea, 
