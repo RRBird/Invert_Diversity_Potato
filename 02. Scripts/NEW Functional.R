@@ -486,7 +486,7 @@ mtext(side=3,line=0,at = 47,'a)',cex=1.1)
 polygon(x = c(FUNrichpred2$Crop_Age_Days[AA],rev(FUNrichpred2$Crop_Age_Days[AA])), y = c(FUNrichpred2$lci[AA],rev(FUNrichpred2$uci[AA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=FUNrichpred2$Crop_Age_Days[AA],y = FUNrichpred2$fit[AA],lwd = 2,col = 'grey30',lty = 1)
 
-plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Area (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt = 'n')
+plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Size (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt = 'n')
 axis(side=1, at=seq(from=min(FUNrichpred2$Field_Area_Scaled),to=max(FUNrichpred2$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1))
 mtext(side=3,line=0,at = -2.2,'b)',cex=1.1)
 

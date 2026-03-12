@@ -436,7 +436,8 @@ head(Divpred2);dim(Divpred2)
 YY <- Divpred2$Day_Scaled == Predictions_Day[4] #Winter
 Y_Y <- Divpred2$Day_Scaled == Predictions_Day[15] #Spring
 
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Taxonomic Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
 axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
