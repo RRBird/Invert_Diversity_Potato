@@ -1,5 +1,7 @@
 options(scipen = 999) #prevents r from automatically displaying large numbers with scientic notation
 
+#Author: Rhiannon Bird
+#Written under version R 4.5.1
 
 #This script contains the data prepping, exploration and manipulation before moving into actual analysis
 
@@ -85,7 +87,7 @@ table(morpho$Size)
 morpho$Size[morpho$Size == "5-Oct"] <- "5-10"
 morpho$Size[morpho$Size == "Oct-15"] <- "10-15"
 
-#Since all levels greater then 10mm only have 1 morphospecies will combine together to  >10
+#Since all levels greater then 10mm only have 1 morphospecies I'm combining together into  >10
 morpho$Size[morpho$Size == ">30"] <- ">10"
 morpho$Size[morpho$Size == "20-30"] <- ">10"
 morpho$Size[morpho$Size == "15-20"] <- ">10"
@@ -126,10 +128,9 @@ corrplot::corrplot(cor,method="color",
 head(cor)
 
 
-#No variables correlated with 
 #Variables with the most amount of associated correlated variables were removed until we have no correlated variables: Cropping 500m, riparian 500m, water 500m
 
-#Checking how many correlated variables are left when remove the ones above
+#Checking how many correlated variables are left when the ones above have been removed
 head(cordata)
 cordata2 <- cordata %>% dplyr::select(-X500m_Prop_Crops,-X500m_Prop_Water,-X500m_Rip_Prop)
 cor2 <- cor(cordata2,method = "spearman")
@@ -138,8 +139,8 @@ dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor2,method="color",  
                    type="upper",addCoef.col = 'black',number.cex = 0.6)
 
-#only correlated variable left is NDVI sum 500m and 1km (expected) and 1km water and 1km riparian 
-#we proceeded with NDVI 1km so it's on the same scale as other landscape variables and we chose riparian veg over water as we know for literature extra habitat impacts the invertebrate field communities
+#Correlated variables left are NDVI sum 500m and 1km (expected) and 1km water and 1km riparian 
+#we proceeded with NDVI 1km so it's on the same scale as other landscape variables and we chose riparian veg over water as we know from literature extra habitat impacts the invertebrate field communities
 
 head(cor)
 
@@ -193,9 +194,10 @@ morpho <- morpho[morpho$Morphospecies != 'Serpintine_Leaf_Miner',]
 setdiff(unique(morpho$Morphospecies), unique(invert$Morphospecies))
 
 #need to remove two from morpho to make sure that its got the same species are were observed
-#double checking they aren't there
+#double checking they aren't in the observations
 invert[invert$Morphospecies == 'Brown_Weevil',] 
 invert[invert$Morphospecies == 'Small_Ant',]
+#They aren't so can remove from morphospecies list
 
 morpho <- morpho[morpho$Morphospecies != 'Brown_Weevil',]
 morpho <- morpho[morpho$Morphospecies != 'Small_Ant',]

@@ -1,4 +1,8 @@
-#From Tutorial: Methods for assessing functional responses to environmental gradients -- Kleyer et al. -- June 22, 2009
+
+#Author: Rhiannon Bird
+#Written under version R 4.5.1
+
+#Used Methods for assessing functional responses to environmental gradients -- Kleyer et al. -- June 22, 2009
 
 #Libraries----
 
@@ -48,34 +52,31 @@ summary(rlq1)
 dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
 plot(rlq1)
 
-## Percentage of co-Inertia for each axis
+##Percentage of co-Inertia for each axis
 100*rlq1$eig/sum(rlq1$eig)
 
 #To interpret the results, correlations can be computed:
 ## weighted correlations axes / env.
 t(pca.env$tab)%*%(diag(pca.env$lw))%*%as.matrix(rlq1$mR)
 
-## weighted correlations axes / traits.
+##weighted correlations axes / traits.
 t(pca.traits$tab)%*%(diag(pca.traits$lw))%*%as.matrix(rlq1$mQ)
 
-## correlations traits / env.
+##correlations traits / env.
 rlq1$tab
 
 #Biplot (traits and enviro) ----
+
+#here's a prelim plot
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 s.arrow(rlq1$c1, xlim=c(-1,1), boxes = FALSE)
 s.label(rlq1$li, add.plot=T, clab=1.5)
 
-#Another plot
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-s.label(rlq1$lQ, clabel = 0)
-par(mar = c(0.1, 0.1, 0.1, 0.1))
-pointLabel(rlq1$lQ,row.names(rlq1$lQ), cex=0.7) #pointLabel didn't work so need an alternative to add names to this one
 
 #Classifying scores to obtain functional groups----
 hc2 <- hclust(dist(rlq1$lQ), method = "ward.D")
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(hc2)
+plot(hc2) #uninterpreted as I do
 
 #Calinsky-Harabasz criteria to find best partition 
 ntest <- 6
@@ -91,7 +92,10 @@ for (i in 2:ntest){
 dev.new(height=5,width=7,dpi=80,pointsize=14,noRStudioGD = T)
 par(mfrow=c(1,2))
 plot(2:ntest, res, type='b', pch=20, xlab="Number of groups", ylab = "C-H index")
+mtext(side=3,line=0,at = 1.5,'a)',cex=1.1)
 plot(3:ntest, diff(res), type='b', pch=20, xlab="Number of groups", ylab = "Diff in C-H index")
+mtext(side=3,line=0,at = 2.7,'b)',cex=1.1)
+
 
 spe.group2 <- as.factor(cutree(hc2, k = which.max(res) +1))
 levels(spe.group2) <- c('E',"C","B","D","A")
@@ -111,6 +115,7 @@ dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 ade4::s.class(rlq1$lQ, spe.group2, col= 1:nlevels(spe.group2))
 s.arrow(rlq1$l1, add.plot = T, clab = 0.6,boxes = FALSE)
 
+#Making it more readable
 l1_short <- rlq1$l1
 rownames(l1_short) <- c("     H", "GC", "In", "Out","Day", "A           ", "FA", "C", "NF", "N1km","R")
 l1_labels <- l1_short * 1.30
@@ -120,8 +125,8 @@ ade4::s.class(rlq1$lQ, spe.group2, col = 1:nlevels(spe.group2))
 s.arrow(rlq1$l1, add.plot = T, clab = 0)
 s.label(l1_labels, add.plot = T, clab = 0.7, boxes = T)
 
-# Adjust these to match your actual environmental variables in order
-# Check what they are first:
+#Adjust these to match environmental variables in order
+#Check what they are first:
 rownames(rlq1$l1)
 
 
@@ -141,24 +146,24 @@ eta2 <- ade4::cor.ratio(Q_matrix[,-1], data.frame(spe.group2), weights = rep(1, 
 
 # Calculate eta-squared for each trait
 eta2 <- sapply(Q_matrix, function(trait) {
-  # Total sum of squares
+  #Total sum of squares
   grand_mean <- mean(as.numeric(trait))
   TSS <- sum((as.numeric(trait) - grand_mean)^2)
   
-  # Between-group sum of squares
+  #Between-group sum of squares
   group_means <- tapply(as.numeric(trait), spe.group2, mean)
   group_sizes <- table(spe.group2)
   BSS <- sum(group_sizes * (group_means - grand_mean)^2)
   
-  # Eta-squared (proportion of variance explained by groups)
+  #Eta-squared (proportion of variance explained by groups)
   eta_sq <- BSS / TSS
   return(eta_sq)
 })
 
-# View the results
+#View the results
 print(eta2)
 
-# Sort to see which traits are most associated with the groups
+#Sort to see which traits are most associated with the groups
 sort(eta2, decreasing = TRUE)
 
 
@@ -174,6 +179,7 @@ for(i in 2:ncol(Q_matrix)){
   label <- paste(names(Q_matrix)[i], "(cor.ratio =", round(eta2[i], 3), ")")  # Changed from eta2[i-1] to eta2[i]
   plot(Q_matrix[,i] ~ spe.group2, main = label, border = 1:nlevels(spe.group2))
 }
+#this isn't a great way to interpreate what each group contains
 
 
 #get a better idea of traits associated with different groups---
@@ -193,7 +199,7 @@ for(trait in names(Q_matrix)) {
 }
 
 
-# Function to find modal (most common) value for each group
+#Find most common value for each group
 group_profiles <- data.frame(Group = levels(spe.group2))
 
 for(trait in names(Q_matrix)) {
@@ -203,12 +209,12 @@ for(trait in names(Q_matrix)) {
   group_profiles[, trait] <- modal_values
 }
 
-print(group_profiles)
-#Interesting but I think the proportions table (above) and the heat map below give a better idea of the groups
+group_profiles
+#Interesting but I think the proportions table (above) and the heat map below give a better idea of the groups as some are a combination of two traits together
 
-# Create a heatmap of group-trait associations----
+#Create a heatmap of group-trait associations----
 
-# Calculate proportions for each trait-group combination
+#Calculate proportions for each trait-group combination
 heatmap_data <- data.frame()
 for(trait in names(Q_matrix)) {
   prop_table <- prop.table(table(spe.group2, Q_matrix[, trait]), margin = 1)
@@ -235,7 +241,7 @@ colnames(heatmap_data)
 str(heatmap_data)
 colnames(heatmap_data)[4] <- "Functional_Group"
 
-#trying to get a better order for each functional group traits
+#Trying to get a better order for each functional group traits
 
 heatmap_data <- heatmap_data %>%
   group_by(Functional_Group) %>%
@@ -256,6 +262,22 @@ ggplot(heatmap_data, aes(x = Group, y = Traits, fill = Proportion)) +
   theme_minimal(base_size = 16)
 
 
+heatmap_labs <- c("Hunting" = "a)",
+                  "Order" = "b)",
+                  "Size" = "c)",
+                  'Trophic' = "d)")
+
+dev.new(height=20,width=15,dpi=80,pointsize=14,noRStudioGD = T)
+ggplot(heatmap_data, aes(x = Group, y = Traits, fill = Proportion)) +
+  geom_tile() +
+  facet_wrap(~Functional_Group, scales = "free_y", 
+             nrow = 4, ncol = 1, 
+             labeller = as_labeller(heatmap_labs)) +
+  scale_fill_gradient(low = "white", high = "black") + 
+  theme_minimal(base_size = 16) +
+  theme(strip.text = element_text(hjust = 0))
+
+
 #Extract the trait groups----
 
 Trait_Group <- data.frame(Morphospecies = names(spe.group2), trait_group = spe.group2)
@@ -266,7 +288,7 @@ invert_trait_group <- merge(Trait_Group,invert_filtered, by = "Morphospecies")
 head(invert_trait_group);dim(invert_trait_group)
 colnames(invert_trait_group)[colnames(invert_trait_group) == "ID"] <- "Site"
 
-#Creating Modelling data and calulating functuional Diversity 
+#Creating Modelling data and calculating functuional Diversity 
 
 FDModel <- data.frame(Site = variables$Site)
 
@@ -344,6 +366,7 @@ aictab(FUNrichmodlist)
 
 FDModel$NDVI1km_Scaled <- scale(FDModel$NDVIsum_1km)
 FDModel$Field_Area_Scaled <- scale(FDModel$Field_Area_m2)
+#scaling to allow models to converge
 
 head(FDModel)
 
@@ -365,17 +388,17 @@ FUNrichmodlist2 <- list("null" = FUNRich_null,
                         "Field NDVI" = FUNRich_NDVIfield,
                         "Rip" = FUNRich_Rip,
                         "Crop" = FUNRich_Crops, 
-                        "NDVI 1km" = FUNRich_NDVI1km)
+                        "NDVI 1km" = FUNRich_NDVI1km,
+                        "A" = FUNRich_A)
 aictab(FUNrichmodlist2)
-#Rip is within 2 AICc
-
+#field area is top model and none within 2 AICcs
 
 ##Step 3: Check Spatial Autocorrelation----
 
 FRfield_numbers <- unique(FDModel$ID)
 
 
-FRmodel_residuals <- simulateResiduals(FUNRich_Rip)
+FRmodel_residuals <- simulateResiduals(FUNRich_FieldArea)
 FRspatial_result <- data.frame(
   field = rep(NA, length(FRfield_numbers)),
   statistic = rep(NA, length(FRfield_numbers)),
@@ -419,9 +442,58 @@ FRspatial_result
 
 
 Spatial_auto_FR_Field <- FRspatial_result
-Spatial_auto_FR_Rip <- FRspatial_result
+#Spatial Autocorrelation found in one fields/surveys but autocorrelation is negligible
 
-#Spatial Autocorrelation found in one fields/surveys for both models
+write.xlsx(Spatial_auto_FR_Field, 'SpatialResult.xlsx')
+
+
+##Step 4: Predictions----
+
+summary(FUNRich_FieldArea)
+
+FUNrichpred <- expand.grid(Crop_Age_Days = FUNPredictions_Age, Field_Area_Scaled = FUNPredictions_FieldScaled)
+head(FUNrichpred);dim(FUNrichpred)
+
+FUNrichpred1 <- predict(object = FUNRich_FieldArea,newdata= FUNrichpred,se.fit = T, type = "link",re.form = NA)
+
+FUNrichpred2<-data.frame(FUNrichpred,fit.link=FUNrichpred1$fit,se.link=FUNrichpred1$se.fit)
+
+FUNrichpred2$lci.link<-FUNrichpred2$fit.link-(1.96*FUNrichpred2$se.link)
+FUNrichpred2$uci.link<-FUNrichpred2$fit.link+(1.96*FUNrichpred2$se.link)
+
+FUNrichpred2$fit<-exp(FUNrichpred2$fit.link)
+FUNrichpred2$se<-exp(FUNrichpred2$se.link)
+FUNrichpred2$lci<-exp(FUNrichpred2$lci.link)
+FUNrichpred2$uci<-exp(FUNrichpred2$uci.link)
+
+head(FUNrichpred2);dim(FUNrichpred2)
+
+##Step 5: Visualisation----
+
+summary(FUNDiv_FieldArea)
+head(FUNrichpred2);dim(FUNrichpred2)
+
+
+AA <- FUNrichpred2$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
+A_A <- FUNrichpred2$Crop_Age_Days == FUNPredictions_Age[10]
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Div,xlab = "Crop Age",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+mtext(side=3,line=0,at = 47,'a)',cex=1.1)
+
+polygon(x = c(FUNrichpred2$Crop_Age_Days[AA],rev(FUNrichpred2$Crop_Age_Days[AA])), y = c(FUNrichpred2$lci[AA],rev(FUNrichpred2$uci[AA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNrichpred2$Crop_Age_Days[AA],y = FUNrichpred2$fit[AA],lwd = 2,col = 'grey30',lty = 1)
+
+plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Area (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt = 'n')
+axis(side=1, at=seq(from=min(FUNrichpred2$Field_Area_Scaled),to=max(FUNrichpred2$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1))
+mtext(side=3,line=0,at = -2.2,'b)',cex=1.1)
+
+polygon(x = c(FUNrichpred2$Field_Area_Scaled[A_A],rev(FUNrichpred2$Field_Area_Scaled[A_A])), y = c(FUNrichpred2$lci[A_A],rev(FUNrichpred2$uci[A_A])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNrichpred2$Field_Area_Scaled[A_A],y = FUNrichpred2$fit[A_A],lwd = 2,col = 'grey30')
+
+
 
 #Functional Diversity----
 ##Step 1: Design Variables----
@@ -479,20 +551,21 @@ FUNDiv_NDVI1km <- glmer(Fun_Div ~ Day_Sampled + NDVIsum_1km + (1 | Field), famil
 
 FUNdivlist2 <- list("null" = FUNDiv_null, "height" = FUNDiv_Height, 
                  "GC" = FUNDiv_GC, "Field Area" = FUNDiv_FieldArea, 
-                 "Field NDVI" = FUNDiv_FieldNDVI, "Rip" = FUNDiv_Rip,
-                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km)
+                 "Field NDVI" = FUNDiv_FieldNDVI,"Rip" = FUNDiv_Rip,
+                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km,
+                 "D" = FUNDiv_D)
 aictab(FUNdivlist2)
 
 #top model is GC
-#Crops and field area is within 2 AICc's
-
+#Day, crop and field area is within 2 AICc's
+#log liklihood not improved by any below top model, so GC remain the top model
 
 ##Step 3: Check Spatial Autocorrelation----
 
 FDfield_numbers <- unique(FDModel$ID)
 
 
-FDmodel_residuals <- simulateResiduals(FUNDiv_FieldArea)
+FDmodel_residuals <- simulateResiduals(FUNDiv_D)
 FDspatial_result <- data.frame(
   field = rep(NA, length(FDfield_numbers)),
   statistic = rep(NA, length(FDfield_numbers)),
@@ -536,11 +609,14 @@ FDspatial_result
 
 
 Spatial_auto_FD_GC <- FDspatial_result
+Spatial_auto_FD_Day <- FDspatial_result
 Spatial_auto_FD_Crops <- FDspatial_result
 Spatial_auto_FD_Field <- FDspatial_result
 
 
 #No Spatial Autocorrelation found in any fields/surveys
+write.xlsx(Spatial_auto_FD_Field, 'SpatialResult.xlsx')
+
 
 ##Step 4: Predictions----
 
@@ -617,6 +693,25 @@ FUNdivpred8$uci<-exp(FUNdivpred8$uci.link)
 
 head(FUNdivpred8);dim(FUNdivpred8)
 
+#Day
+summary(FUNDiv_D)
+
+FUNdivpred9 <- data.frame(Day_Sampled = FUNPredictions_Day)
+
+FUNdivpred10 <- predict(object = FUNDiv_D,newdata= FUNdivpred9,se.fit = T, type = "link",re.form = NA)
+
+FUNdivpred11<-data.frame(FUNdivpred9,fit.link=FUNdivpred10$fit,se.link=FUNdivpred10$se.fit)
+
+FUNdivpred11$lci.link<-FUNdivpred11$fit.link-(1.96*FUNdivpred11$se.link)
+FUNdivpred11$uci.link<-FUNdivpred11$fit.link+(1.96*FUNdivpred11$se.link)
+
+FUNdivpred11$fit<-exp(FUNdivpred11$fit.link)
+FUNdivpred11$se<-exp(FUNdivpred11$se.link)
+FUNdivpred11$lci<-exp(FUNdivpred11$lci.link)
+FUNdivpred11$uci<-exp(FUNdivpred11$uci.link)
+
+head(FUNdivpred11);dim(FUNdivpred11)
+
 
 ##Step 5: Visualisation----
 
@@ -634,6 +729,9 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
 mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
+arrows(42,-1.3,150,-1.3, length =0.1)
 
 polygon(x = c(FUNdivpred2$Day_Sampled[GG],rev(FUNdivpred2$Day_Sampled[GG])), y = c(FUNdivpred2$lci[GG],rev(FUNdivpred2$uci[GG])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=FUNdivpred2$Day_Sampled[GG],y = FUNdivpred2$fit[GG],lwd = 2,col = 'grey30',lty = 1)
@@ -658,6 +756,9 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
 mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
+arrows(42,-1.3,150,-1.3, length =0.1)
 
 polygon(x = c(FUNdivpred5$Day_Sampled[CC],rev(FUNdivpred5$Day_Sampled[CC])), y = c(FUNdivpred5$lci[CC],rev(FUNdivpred5$uci[CC])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=FUNdivpred5$Day_Sampled[CC],y = FUNdivpred5$fit[CC],lwd = 2,col = 'grey30',lty = 1)
@@ -682,6 +783,9 @@ par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
 mtext(side=3,line=0,at = 10,'a)',cex=1.1)
+mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
+arrows(42,-1.3,150,-1.3, length =0.1)
 
 polygon(x = c(FUNdivpred8$Day_Sampled[FF],rev(FUNdivpred8$Day_Sampled[FF])), y = c(FUNdivpred8$lci[FF],rev(FUNdivpred8$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=FUNdivpred8$Day_Sampled[FF],y = FUNdivpred8$fit[FF],lwd = 2,col = 'grey30',lty = 1)
@@ -692,6 +796,23 @@ mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
 
 polygon(x = c(FUNdivpred8$Field_Area_Scaled[F_F],rev(FUNdivpred8$Field_Area_Scaled[F_F])), y = c(FUNdivpred8$lci[F_F],rev(FUNdivpred8$uci[F_F])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
 lines(x=FUNdivpred8$Field_Area_Scaled[F_F],y = FUNdivpred8$fit[F_F],lwd = 2,col = 'grey30')
+
+#Day
+
+summary(FUNDiv_D)
+head(FUNdivpred11);dim(FUNdivpred11)
+
+
+dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
+mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
+arrows(42,-1.3,150,-1.3, length =0.1)
+
+polygon(x = c(FUNdivpred11$Day_Sampled,rev(FUNdivpred11$Day_Sampled)), y = c(FUNdivpred11$lci,rev(FUNdivpred11$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=FUNdivpred11$Day_Sampled,y = FUNdivpred11$fit,lwd = 2,col = 'grey30',lty = 1)
 
 
 #END----

@@ -1,4 +1,9 @@
+
+#Author: Rhiannon Bird
+#Written under version R 4.5.1
+
 #This script contains the analysis and modelling of taxpnomic richness and diversity
+
 
 #Libraries----
 library("AICcmodavg")
@@ -50,7 +55,7 @@ richmodlist <- list("null" = Rich_null, "P" = Rich_P, "A" = Rich_A,
                     "PxAD" = Rich_PxAD, "PxDA" = Rich_PxDA)
 
 aictab(richmodlist)
-#top model is D*A (both scaled)
+#top model is A
 
 ##Step 2 - Environmental Variables----
 
@@ -60,7 +65,7 @@ TaxModel$GC_Scaled <- scale(TaxModel$GC)
 TaxModel$FieldNDVI_Scaled <- scale(TaxModel$NDVImean_Field)
 TaxModel$FieldArea_Scaled <- scale(TaxModel$Field_Area_m2)
 
-#had to scale a lot of variables for the models to converge properly 
+#had to scale some of the variables for the models to converge properly 
 
 Rich_Height <- glmmTMB(Species_Rich ~ Crop_Age_Days + Height + (1 | Field), family = nbinom2, data = TaxModel) 
 
@@ -78,21 +83,20 @@ richmodlist2 <- list("null" = Rich_null, "Height" = Rich_Height,
                      "GC" = Rich_GC, "Field Area" = Rich_FieldArea,
                      "Riparian" = Rich_Rip, 'Crops' = Rich_Crops, 
                      "NDVI 1km" = Rich_NDVI1km, 
-                     'Field_NDVI' = Rich_NDVIfield)
+                     'Field_NDVI' = Rich_NDVIfield,"Age" = Rich_A)
 aictab(richmodlist2)
 #top model is Field area
-#NDVI 1km is within 4 AICc none within 2 AICc
+#none within 2 AICc
 
 
 ##Step 3 - Check for spatial autocorrelation----
 
-#Field area model
-
 field_numbers <- unique(TaxModel$ID)
 
   
-  model_residuals <- simulateResiduals(Rich_FieldArea)
-  spatial_result <- data.frame(
+model_residuals <- simulateResiduals(Rich_FieldArea)
+  
+spatial_result <- data.frame(
     field = rep(NA, length(field_numbers)),
     statistic = rep(NA, length(field_numbers)),
     p_value = rep(NA, length(field_numbers)),
@@ -103,7 +107,7 @@ field_numbers <- unique(TaxModel$ID)
   
   for (f in field_numbers) {
     
-    cat("Field", f, "\n") #What field is it doing?
+    cat("Field", f, "\n") #What field is the loop doing?
     
     #Extracting specific residuals for individual fields
     field_indices <- which(TaxModel$ID == f)
@@ -113,7 +117,7 @@ field_numbers <- unique(TaxModel$ID)
     field_residuals$fittedPredictedResponse <- 
       model_residuals$fittedPredictedResponse[field_indices]
     
-    # Test spatial autocorrelation using your grid coordinates
+    #Testing spatial autocorrelation using XY grid coordinates
     spatial_test <- testSpatialAutocorrelation(field_residuals, 
        x = TaxModel$X_Cor[TaxModel$ID == f], 
        y = TaxModel$Y_Cor[TaxModel$ID == f])
@@ -142,58 +146,10 @@ spatial_result
 
 Spatial_auto_TaxRichTop <- spatial_result
 
-#NDVI 1km
-
-
-model_residuals <- simulateResiduals(Rich_NDVI1km)
-spatial_result <- data.frame(
-  field = rep(NA, length(field_numbers)),
-  statistic = rep(NA, length(field_numbers)),
-  p_value = rep(NA, length(field_numbers)),
-  method = rep(NA_character_, length(field_numbers)),
-  stringsAsFactors = FALSE)
-
-s <- 1
-
-for (f in field_numbers) {
-  
-  cat("Field", f, "\n") #What field is it doing?
-  
-  #Extracting specific residuals for individual fields
-  field_indices <- which(TaxModel$ID == f)
-  field_residuals <- model_residuals
-  field_residuals$scaledResiduals <- 
-    model_residuals$scaledResiduals[field_indices]
-  field_residuals$fittedPredictedResponse <- 
-    model_residuals$fittedPredictedResponse[field_indices]
-  
-  # Test spatial autocorrelation using your grid coordinates
-  spatial_test <- testSpatialAutocorrelation(field_residuals, 
-                                             x = TaxModel$X_Cor[TaxModel$ID == f], 
-                                             y = TaxModel$Y_Cor[TaxModel$ID == f])
-  
-  
-  spatial_result$field [s] <- f
-  spatial_result$statistic [s] <- spatial_test$statistic[1] 
-  spatial_result$p_value [s] <- spatial_test$p.value
-  spatial_result$method [s] <- spatial_test$method
-  
-  s <- s + 1
-  
-}
-
-head(spatial_result);dim(spatial_result)
-length(unique(TaxModel$ID))
-
-spatial_result
-#No Spatial Autocorrelation found in any of the fields/surveys
-
-Spatial_auto_TaxRichSI <- spatial_result
-
+write.xlsx(Spatial_auto_TaxRichTop, 'SpatialResult.xlsx')
 
 ##Step 4 - Predictions----
 
-#Field Area
 
 summary(Rich_FieldArea)
 
@@ -218,34 +174,9 @@ richpred2$uci<-exp(richpred2$uci.link)
 
 head(richpred2);dim(richpred2)
 
-#NDVI 1km
-
-summary(Rich_NDVI1km)
-
-Predictions_NDVI1km <- seq(min(TaxModel$NDVIsum_1km),max(TaxModel$NDVIsum_1km),length.out=20)
-
-
-richpred3 <- expand.grid(Age_Scaled = Predictions_Age, NDVIsum_1km = Predictions_NDVI1km)
-head(richpred3);dim(richpred3)
-
-richpred4 <- predict(object = Rich_NDVI1km,newdata= richpred3,se.fit = T, type = "link",re.form = NA)
-
-richpred5<-data.frame(richpred3,fit.link=richpred4$fit,se.link=richpred4$se.fit)
-
-richpred5$lci.link<-richpred5$fit.link-(1.96*richpred5$se.link)
-richpred5$uci.link<-richpred5$fit.link+(1.96*richpred5$se.link)
-
-richpred5$fit<-exp(richpred5$fit.link)
-richpred5$se<-exp(richpred5$se.link)
-richpred5$lci<-exp(richpred5$lci.link)
-richpred5$uci<-exp(richpred5$uci.link)
-
-head(richpred5);dim(richpred5)
-
 
 ##Step 5 - Richness Model Visalisation----
 
-#Field Area
 
 summary(Rich_FieldArea)
 head(richpred2);dim(richpred2)
@@ -257,45 +188,19 @@ R_R <- richpred2$Age_Scaled == Predictions_Age[10]
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Taxonomic Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
 axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
 mtext(side=3,line=0,at = -2.1,'a)',cex=1.1)
 
 polygon(x = c(richpred2$Age_Scaled[RR],rev(richpred2$Age_Scaled[RR])), y = c(richpred2$lci[RR],rev(richpred2$uci[RR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=richpred2$Age_Scaled[RR],y = richpred2$fit[RR],lwd = 2,col = 'grey30',lty = 1)
 
-plot(x = TaxModel$FieldArea_Scaled,y = TaxModel$Species_Rich,xlab = expression("Field Size (ha)"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+plot(x = TaxModel$FieldArea_Scaled,y = TaxModel$Species_Rich,xlab = expression("Field Size (ha)"),ylab = 'Taxonomic Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
 mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
 axis(side=1, at=seq(from=min(TaxModel$FieldArea_Scaled),to=max(TaxModel$FieldArea_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Field_Area_m2),to=max(TaxModel$Field_Area_m2),length.out=6)/10000,1))
 
 polygon(x = c(richpred2$FieldArea_Scaled[R_R],rev(richpred2$FieldArea_Scaled[R_R])), y = c(richpred2$lci[R_R],rev(richpred2$uci[R_R])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
 lines(x=richpred2$FieldArea_Scaled[R_R],y = richpred2$fit[R_R],lwd = 2,col = 'grey30')
-
-#NDVI 1km
-
-summary(Rich_NDVI1km)
-head(richpred5);dim(richpred5)
-
-
-VV <- richpred5$NDVIsum_1km == Predictions_1kmNDVI[10]
-V_V <- richpred5$Age_Scaled == Predictions_Age[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(richpred5$Age_Scaled),to=max(richpred5$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
-mtext(side=3,line=0,at = -2.1,'a)',cex=1.1)
-
-polygon(x = c(richpred5$Age_Scaled[VV],rev(richpred5$Age_Scaled[VV])), y = c(richpred5$lci[VV],rev(richpred5$uci[VV])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=richpred5$Age_Scaled[VV],y = richpred5$fit[VV],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = TaxModel$NDVIsum_1km,y = TaxModel$Species_Rich,xlab = expression("NDVI within 1km"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(richpred5$NDVIsum_1km),to=max(richpred5$NDVIsum_1km),length.out=6),labels=round(seq(from=min(TaxModel$NDVIsum_1km),to=max(TaxModel$NDVIsum_1km),length.out=6),-1))
-mtext(side=3,line=0,at = 370,'b)',cex=1.1)
-
-polygon(x = c(richpred5$NDVIsum_1km[V_V],rev(richpred5$NDVIsum_1km[V_V])), y = c(richpred5$lci[V_V],rev(richpred5$uci[V_V])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=richpred5$NDVIsum_1km[V_V],y = richpred5$fit[V_V],lwd = 2,col = 'grey30')
 
 
 #DIVERSITY MODELLING----
@@ -360,14 +265,96 @@ Div_NDVI1km <- glmer(Diversity ~ Day_Scaled * Age_Scaled + NDVIsum_1km  + (1 | F
 divlist2 <- list("null" = Div_null, "height" = Div_Height, 
                 "GC" = Div_GC, "Field Area" = Div_FieldArea, 
                 "Field NDVI" = Div_FieldNDVI, "Rip" = Div_Rip, 
-                "Crops" = Div_Crop, "NDVI 1km" = Div_NDVI1km)
+                "Crops" = Div_Crop, "NDVI 1km" = Div_NDVI1km,
+                "DxA" = Div_DxA)
 aictab(divlist2)
 
-#top model is crops and all the rest are within 2 AICc
+#top model is DxA with crops, field NDVI, NDVI 1km and GC witgin 2 AICc within 2 AICc
+#all ranked within 2 improved log liklihood
+#now going to look at effect size - see if it overlaps 0 (don't want to overlap 0 - means not a strong influence)
+
+#models I'm investigating
+ModList <- list(Div_DxA,Div_Crop, Div_FieldNDVI,Div_NDVI1km, Div_GC)
+Coefs_list <- list()
+m <- 1
+
+for (M in ModList) {
+  Coefs <- data.frame(Estimate = 
+                            c(summary(M)$coefficients[,1]),
+                          SE = 
+                            c(summary(M)$coefficients[,2]),
+                          Term = rownames(summary(
+                            M)$coefficients))
+  
+  Coefs$lci <- Coefs$Estimate - (Coefs$SE * 1.96)
+  Coefs$uci <- Coefs$Estimate + (Coefs$SE * 1.96)
+  rownames(Coefs) <- Coefs$Term
+  
+  Coefs_list[[m]] <- Coefs
+  
+  m <- m+1
+}
+
+Coefs_list
+
+term_replacements <- c(
+  "Age_Scaled"    = "Age", "Day_Scaled"    = "Day",
+  "Day_Scaled:Age_Scaled" = "Day:Age", "NDVIsum_1km" = "NDVI 1km",
+  "NDVImean_Field"  = "NDVI Field", 
+  "X1km_Prop_Crops"   = "Crops 1km")
+
+
+Coefs_list <- lapply(Coefs_list, function(df) {
+  matched <- term_replacements[df$Term]
+  df$Term <- ifelse(is.na(matched), df$Term, matched)
+  df
+})
+
+Coefs_list <- lapply(Coefs_list, function(df) {
+  rownames(df) <- df$Term
+  df
+})
+
+#check coefficents try to get the distance between the two rows better (par for each plot??)
+#Age crosses 0 but is in interaction so all good - all Enviro models have the extra parameter crossing 0 so just DxA to continue
+
+dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(5,5,2,3),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = T,oma =c(0,0,1,0))
+
+plot(Coefs_list[[1]]$Estimate, rev(1:nrow(Coefs_list[[1]])),xlim = c(min(Coefs_list[[1]]$lci),max(Coefs_list[[1]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[1]])),labels=rownames(Coefs_list[[1]]),las =1)
+arrows(Coefs_list[[1]]$uci,rev(1:nrow(Coefs_list[[1]])), Coefs_list[[1]]$lci,rev(1:nrow(Coefs_list[[1]])), lwd =0.8,code = 0)
+arrows(0,0.9,0,4.1,code = 0, lwd = 0.8)
+mtext("a)", line=0.2, at = -0.7,cex = 0.9)
+
+plot(Coefs_list[[2]]$Estimate, rev(1:nrow(Coefs_list[[2]])),xlim = c(min(Coefs_list[[2]]$lci),max(Coefs_list[[2]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[2]])),labels=rownames(Coefs_list[[2]]),las =1)
+arrows(Coefs_list[[2]]$uci,rev(1:nrow(Coefs_list[[2]])), Coefs_list[[2]]$lci,rev(1:nrow(Coefs_list[[2]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("b)", line=0.2, at = -0.9,cex = 0.9)
+
+plot(Coefs_list[[3]]$Estimate, rev(1:nrow(Coefs_list[[3]])),xlim = c(min(Coefs_list[[3]]$lci),max(Coefs_list[[3]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[3]])),labels=rownames(Coefs_list[[3]]),las =1)
+arrows(Coefs_list[[3]]$uci,rev(1:nrow(Coefs_list[[3]])), Coefs_list[[3]]$lci,rev(1:nrow(Coefs_list[[3]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("c)", line=0.2, at = -3,cex = 0.9)
+
+plot(Coefs_list[[4]]$Estimate, rev(1:nrow(Coefs_list[[4]])),xlim = c(min(Coefs_list[[4]]$lci),max(Coefs_list[[4]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[4]])),labels=rownames(Coefs_list[[4]]),las =1)
+arrows(Coefs_list[[4]]$uci,rev(1:nrow(Coefs_list[[4]])), Coefs_list[[4]]$lci,rev(1:nrow(Coefs_list[[4]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("d)", line=0.2, at = -0.7,cex = 0.9)
+
+plot(Coefs_list[[5]]$Estimate, rev(1:nrow(Coefs_list[[5]])),xlim = c(min(Coefs_list[[5]]$lci),max(Coefs_list[[5]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[5]])),labels=rownames(Coefs_list[[5]]),las =1)
+arrows(Coefs_list[[5]]$uci,rev(1:nrow(Coefs_list[[5]])), Coefs_list[[5]]$lci,rev(1:nrow(Coefs_list[[5]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("e)", line=0.2, at = -0.7,cex = 0.9)
+
 
 ##Step 3 - Check for spatial autocorrelation----
 
-model_residuals <- simulateResiduals(Div_FieldArea)
+model_residuals <- simulateResiduals(Div_DxA)
 spatial_result <- data.frame(
   field = rep(NA, length(field_numbers)),
   statistic = rep(NA, length(field_numbers)),
@@ -411,15 +398,55 @@ spatial_result
 
 #saved results
 
-Spatial_auto_TaxDivCrop <- spatial_result 
-Spatial_auto_TaxDivNDVIfield <- spatial_result 
-Spatial_auto_TaxDivNDVI1km <- spatial_result 
-Spatial_auto_TaxDivGC <- spatial_result 
-Spatial_auto_TaxDivFieldArea <- spatial_result 
-Spatial_auto_TaxDivRip <- spatial_result 
-Spatial_auto_TaxDivHeight <- spatial_result 
+Spatial_auto_TaxDiv <- spatial_result 
 
-#Spaital autocorrelation found in all models
-write.xlsx(Spatial_auto_TaxDivHeight, 'SpatialResult.xlsx')
+
+#Spaital autocorrelation found in two fields but statistic is negligable
+write.xlsx(Spatial_auto_TaxDiv, 'SpatialResult.xlsx')
+
+##Step 4 - Predictions----
+
+summary(Div_DxA)
+
+Divpred <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day)
+head(Divpred);dim(Divpred)
+
+Divpred1 <- predict(object = Div_DxA,newdata= Divpred,se.fit = T, type = "link",re.form = NA)
+
+Divpred2<-data.frame(Divpred,fit.link=Divpred1$fit,se.link=Divpred1$se.fit)
+
+Divpred2$lci.link<-Divpred2$fit.link-(1.96*Divpred2$se.link)
+Divpred2$uci.link<-Divpred2$fit.link+(1.96*Divpred2$se.link)
+
+Divpred2$fit<-exp(Divpred2$fit.link)
+Divpred2$se<-exp(Divpred2$se.link)
+Divpred2$lci<-exp(Divpred2$lci.link)
+Divpred2$uci<-exp(Divpred2$uci.link)
+
+head(Divpred2);dim(Divpred2)
+
+
+##Step 5 - Model Visalisation----
+
+
+summary(Div_DxA)
+head(Divpred2);dim(Divpred2)
+
+
+YY <- Divpred2$Day_Scaled == Predictions_Day[4] #Winter
+Y_Y <- Divpred2$Day_Scaled == Predictions_Day[15] #Spring
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Taxonomic Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
+
+polygon(x = c(Divpred2$Age_Scaled[YY],rev(Divpred2$Age_Scaled[YY])), y = c(Divpred2$lci[YY],rev(Divpred2$uci[YY])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred2$Age_Scaled[YY],y = Divpred2$fit[YY],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(Divpred2$Age_Scaled[Y_Y],rev(Divpred2$Age_Scaled[Y_Y])), y = c(Divpred2$lci[Y_Y],rev(Divpred2$uci[Y_Y])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred2$Age_Scaled[Y_Y],y = Divpred2$fit[Y_Y],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 #END----
