@@ -119,8 +119,8 @@ cordata$Position <- as.numeric(cordata$Position)
 
 str(cordata)#checking for any other character variables
 cor <- cor(cordata,method = "spearman")
-colnames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 1000m (S)","Riparian 500m","Riparian 1000m")
-rownames(cor) <- c("Height", "GC", "Position","Day Sampled","Crop Age","Field Area","Cropping 500m","Water 500m","Cropping 1000m","Water 1000m","Field NDVI (M)","NDVI 500m (S)","NDVI 1000m (S)","Riparian 500m","Riparian 1000m")
+colnames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Water 500m","Crop 1000m","Water 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
+rownames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Water 500m","Crop 1000m","Water 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
 
 dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor,method="color",  
