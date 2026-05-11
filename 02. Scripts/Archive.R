@@ -1,3 +1,14 @@
+
+#filter for orders included in functional analysis
+
+invert_filtered <- invert[invert$Order %in% c("Araneae", "Coleoptera", "Hemiptera", "Diptera"), ]
+
+head(invert_filtered);dim(invert_filtered)
+
+#log liklihood not improved by any below top model, so GC remain the top model
+
+
+
 #FUN RICH STEPS----
 #in case I need them two option exclude models with spatial auto correlation or do something to account for it so these will just stay here for now
 ##Step 4: Predictions----

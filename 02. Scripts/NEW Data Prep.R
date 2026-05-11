@@ -42,7 +42,6 @@ head(morpho)
 summary(morpho)
 morpho <- morpho[,-which(names(morpho)=='NOTES')]
 morpho <- morpho[,-which(names(morpho)=='Duplicates')]
-morpho <- morpho[,-which(names(morpho)=='Wings')]
 morpho <- morpho[,-which(names(morpho)=='Intro_Native')]
 
 summary(point)
@@ -111,7 +110,7 @@ cordata <- merge(cordata,field, by = "ID")
 
 head(cordata);dim(cordata)
 
-cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X500m_Prop_Water,X1km_Prop_Crops,X1km_Prop_Water,NDVImean_Field,NDVIsum_500m,NDVIsum_1km,X500m_Rip_Prop,X1km_Rip_Prop)
+cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X1km_Prop_Crops,NDVImean_Field,NDVIsum_500m,NDVIsum_1km,X500m_Rip_Prop,X1km_Rip_Prop)
 
 cordata$Position[cordata$Position == 'Outer'] <- 1
 cordata$Position[cordata$Position == 'Inner'] <- 2
@@ -119,30 +118,14 @@ cordata$Position <- as.numeric(cordata$Position)
 
 str(cordata)#checking for any other character variables
 cor <- cor(cordata,method = "spearman")
-colnames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Water 500m","Crop 1000m","Water 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
-rownames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Water 500m","Crop 1000m","Water 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
+colnames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Crop 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
+rownames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Crop 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
 
 dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor,method="color",  
                    type="upper",addCoef.col = 'black',number.cex = 0.6)
 head(cor)
 
-
-#Variables with the most amount of associated correlated variables were removed until we have no correlated variables: Cropping 500m, riparian 500m, water 500m
-
-#Checking how many correlated variables are left when the ones above have been removed
-head(cordata)
-cordata2 <- cordata %>% dplyr::select(-X500m_Prop_Crops,-X500m_Prop_Water,-X500m_Rip_Prop)
-cor2 <- cor(cordata2,method = "spearman")
-
-dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
-corrplot::corrplot(cor2,method="color",  
-                   type="upper",addCoef.col = 'black',number.cex = 0.6)
-
-#Correlated variables left are NDVI sum 500m and 1km (expected) and 1km water and 1km riparian 
-#we proceeded with NDVI 1km so it's on the same scale as other landscape variables and we chose riparian veg over water as we know from literature extra habitat impacts the invertebrate field communities
-
-head(cor)
 
 #Merging data bases----
 
@@ -207,7 +190,7 @@ head(morpho);dim(morpho)
 head(invert)
 length(point$Site) #total of 220 points
 
-table(invert$Order) #must have more then number of points in order to be included in functional diversity analysis 
+table(invert$Order) 
 
 table(invert$Order,invert$ID)
 
@@ -272,15 +255,20 @@ head(TaxModel);dim(TaxModel)
 
 #Setting up for RLQ Analysis----
 
+#filter for orders included in functional analysis
+#tried with all orders and the amount of groups recommended was insane, so only keeping orders with a high number of individuals
+
+length(which(is.na(invert$Order))
+
+invert_filtered <- invert[-which(is.na(invert$Order)), ]
+
+head(invert_filtered);dim(invert_filtered) 
+dim(invert);dim(invert_filtered)
+
 ##L Data (Site x Species)----
 
-head(invert);dim(invert)
-
-#filter for orders included in functional analysis
-
-invert_filtered <- invert[invert$Order %in% c("Araneae", "Coleoptera", "Hemiptera"), ]
-
 head(invert_filtered);dim(invert_filtered)
+
 
 #Count occurrences of each morphospecies at each site
 L_table <- invert_filtered %>%
@@ -312,6 +300,11 @@ Q_matrix <- Q_table %>%
   column_to_rownames("Morphospecies") %>%
   as.data.frame()
 head(Q_matrix);dim(Q_matrix)
+
+table(Q_matrix$Size)
+
+
+Q_matrix$Size[Q_matrix$Size == "Unknown"] <- "No_Size"
 
 
 ##R Data (Site x Environmental)----
@@ -384,6 +377,7 @@ any(is.na(L_matrix)) #No NA's
 any(is.na(R_matrix)) #No NA's
 any(is.na(Q_matrix)) #No NA's
 
+
 #Traits need to be factors
 
 Q_matrix[] <- lapply(Q_matrix, as.factor)
@@ -391,8 +385,8 @@ str(Q_matrix)
 
 levels(Q_matrix$Size)
 Q_matrix$Size <- factor(Q_matrix$Size, 
-                        levels = c("0-2.5", "2.5-5", "5-10", 
-                                   ">10", "No_Size", "Unknown"),
+                        levels = c("0-2.5", "2.5-5", 
+                                   "5-10", ">10", "No_Size"),
                         ordered = TRUE)
 levels(Q_matrix$Size)
 

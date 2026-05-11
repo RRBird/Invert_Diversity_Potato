@@ -19,9 +19,10 @@ library("DHARMa")
 
 Q_matrix$Size <- factor(Q_matrix$Size, 
                         levels = c("0-2.5", "2.5-5", "5-10", 
-                                   ">10","No_Size", "Unknown"),
+                                   ">10","No_Size"),
                         ordered = FALSE) #to make it work properly
 str(Q_matrix)
+
 
 R_matrix$Position <- factor(R_matrix$Position, 
                             levels = c("Inner", "Outer"),
@@ -76,17 +77,18 @@ s.label(rlq1$li, add.plot=T, clab=1.5)
 #Classifying scores to obtain functional groups----
 hc2 <- hclust(dist(rlq1$lQ), method = "ward.D")
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
-plot(hc2) #uninterpreted as I do
+plot(hc2) #uninterpretable
 
 #Calinsky-Harabasz criteria to find best partition 
-ntest <- 6
+#calinski didn't work so dchanged it to calinhara 
+
+ntest <- 8
 res <- rep(0,ntest - 1)
 
 for (i in 2:ntest){
   fac <- cutree(hc2, k = i)
   res[i-1] <- as.numeric(calinhara(rlq1$lQ, fac))
 }
-#calinski didn't work so needed to change it to calinhara 
 
 #Trait group numbers----
 dev.new(height=5,width=7,dpi=80,pointsize=14,noRStudioGD = T)
@@ -98,8 +100,8 @@ mtext(side=3,line=0,at = 2.7,'b)',cex=1.1)
 
 
 spe.group2 <- as.factor(cutree(hc2, k = which.max(res) +1))
-levels(spe.group2) <- c('E',"C","B","D","A")
-spe.group2 <- factor(spe.group2, levels=c("A","B","C","D","E"))
+levels(spe.group2) <- c("G","F",'E',"C","B","D","A")
+spe.group2 <- factor(spe.group2, levels=c("A","B","C","D","E","F","G"))
 
 #biplot (trait groups + Traits and also with trait groups + enviro)----
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
@@ -179,7 +181,7 @@ for(i in 2:ncol(Q_matrix)){
   label <- paste(names(Q_matrix)[i], "(cor.ratio =", round(eta2[i], 3), ")")  # Changed from eta2[i-1] to eta2[i]
   plot(Q_matrix[,i] ~ spe.group2, main = label, border = 1:nlevels(spe.group2))
 }
-#this isn't a great way to interpreate what each group contains
+#this isn't a great way to interpret what each group contains
 
 
 #get a better idea of traits associated with different groups---
@@ -366,6 +368,7 @@ aictab(FUNrichmodlist)
 
 FDModel$NDVI1km_Scaled <- scale(FDModel$NDVIsum_1km)
 FDModel$Field_Area_Scaled <- scale(FDModel$Field_Area_m2)
+FDModel$Crops_Scaled <- scale(FDModel$X1km_Prop_Crops)
 #scaling to allow models to converge
 
 head(FDModel)
@@ -377,7 +380,7 @@ FUNRich_FieldArea <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Field_Area_Scaled + (1 |
 FUNRich_NDVIfield <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVImean_Field  + (1 | Field), family = poisson, data = FDModel)  
 
 FUNRich_Rip <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Rip_Prop + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_Crops <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Prop_Crops + (1 | Field), family = poisson, data = FDModel) 
+FUNRich_Crops <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Crops_Scaled + (1 | Field), family = poisson, data = FDModel) 
 FUNRich_NDVI1km <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVI1km_Scaled + (1 | Field), family = poisson, data = FDModel) 
 
 
@@ -505,67 +508,69 @@ str(FDModel)
 FUNDiv_null <- glmer(Fun_Div ~ 1 + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
 FUNDiv_P <- glmer(Fun_Div ~ Position + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_A <- glmer(Fun_Div ~ Crop_Age_Days + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_D <- glmer(Fun_Div ~ Day_Sampled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_A <- glmer(Fun_Div ~ Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_D <- glmer(Fun_Div ~ Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #model failed to converge
 
-FUNDiv_PA <- glmer(Fun_Div ~ Position + Crop_Age_Days+ (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_PD <- glmer(Fun_Div ~ Position + Day_Sampled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_DA <- glmer(Fun_Div ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_PA <- glmer(Fun_Div ~ Position + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_PD <- glmer(Fun_Div ~ Position + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_DA <- glmer(Fun_Div ~ Day_Scaled + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 
-FUNDiv_PxA <- glmer(Fun_Div ~ Position * Crop_Age_Days + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_PxD <- glmer(Fun_Div ~ Position * Day_Sampled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_PxA <- glmer(Fun_Div ~ Position * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_PxD <- glmer(Fun_Div ~ Position * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 FUNDiv_DxA <- glmer(Fun_Div ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 
-FUNDiv_PAD <- glmer(Fun_Div ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_PxAD <- glmer(Fun_Div ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_PxDA <- glmer(Fun_Div ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_PAD <- glmer(Fun_Div ~ Position + Age_Scaled + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #failed to converge
+FUNDiv_PxAD <- glmer(Fun_Div ~ Position * Age_Scaled + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #Failed to converge
+FUNDiv_PxDA <- glmer(Fun_Div ~ Position * Day_Scaled + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 FUNDiv_PAxD <- glmer(Fun_Div ~ Position + Age_Scaled * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
 
 
 FUndivlist <- list("null" = FUNDiv_null, "P" = FUNDiv_P, 
-                   "A" = FUNDiv_A, "D" = FUNDiv_D,"PA" = FUNDiv_PA,
+                   "A" = FUNDiv_A, "PA" = FUNDiv_PA,
                    "PD" = FUNDiv_PD, "DA" = FUNDiv_DA,
                    "PxA" = FUNDiv_PxA, "PxD" = FUNDiv_PxD, 
-                   "DxA" = FUNDiv_DxA, "PAD" = FUNDiv_PAD, 
-                   "PxAD" = FUNDiv_PxAD, "PxDA" = FUNDiv_PxDA, 
+                   "DxA" = FUNDiv_DxA,  "PxDA" = FUNDiv_PxDA, 
                    "PAxD" = FUNDiv_PAxD)
 
 aictab(FUndivlist)
-#Top Model is Day
+#Top Model is Day x Age but Null is within 2 AICc
 
 
 ##Step 2: Environmental Variables----
 
+FDModel$Height_Scaled <- scale(FDModel$Height)
+FDModel$GC_Scaled <- scale(FDModel$GC)
+
+
 head(FDModel)
 
-FUNDiv_Height <- glmer(Fun_Div ~ Day_Sampled + Height + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_GC <- glmer(Fun_Div ~ Day_Sampled + GC + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_Height <- glmer(Fun_Div ~ Height_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_GC <- glmer(Fun_Div ~ GC_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
-FUNDiv_FieldArea <- glmer(Fun_Div ~ Day_Sampled + Field_Area_Scaled  + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_FieldNDVI <- glmer(Fun_Div ~ Day_Sampled + NDVImean_Field + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_FieldArea <- glmer(Fun_Div ~ Field_Area_Scaled  + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_FieldNDVI <- glmer(Fun_Div ~ NDVImean_Field + (1 | Field), family = Gamma(link = "log"), data = FDModel)
 
-FUNDiv_Rip <- glmer(Fun_Div ~ Day_Sampled + X1km_Rip_Prop + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_Crops <- glmer(Fun_Div ~ Day_Sampled + X1km_Prop_Crops + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_NDVI1km <- glmer(Fun_Div ~ Day_Sampled + NDVIsum_1km + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+FUNDiv_Rip <- glmer(Fun_Div ~ X1km_Rip_Prop + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_Crops <- glmer(Fun_Div ~ Crops_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+FUNDiv_NDVI1km <- glmer(Fun_Div ~ NDVI1km_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
 
 FUNdivlist2 <- list("null" = FUNDiv_null, "height" = FUNDiv_Height, 
                  "GC" = FUNDiv_GC, "Field Area" = FUNDiv_FieldArea, 
                  "Field NDVI" = FUNDiv_FieldNDVI,"Rip" = FUNDiv_Rip,
-                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km,
-                 "D" = FUNDiv_D)
+                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km)
 aictab(FUNdivlist2)
 
-#top model is GC
-#Day, crop and field area is within 2 AICc's
-#log liklihood not improved by any below top model, so GC remain the top model
+#top model is field area but null is within 2 AICcs
+#will still visalise this model but put it into the supporting info only
+
 
 ##Step 3: Check Spatial Autocorrelation----
 
 FDfield_numbers <- unique(FDModel$ID)
 
 
-FDmodel_residuals <- simulateResiduals(FUNDiv_D)
+FDmodel_residuals <- simulateResiduals(FUNDiv_FieldArea)
 FDspatial_result <- data.frame(
   field = rep(NA, length(FDfield_numbers)),
   statistic = rep(NA, length(FDfield_numbers)),
@@ -607,66 +612,12 @@ length(unique(FDModel$ID))
 
 FDspatial_result
 
-
-Spatial_auto_FD_GC <- FDspatial_result
-Spatial_auto_FD_Day <- FDspatial_result
-Spatial_auto_FD_Crops <- FDspatial_result
 Spatial_auto_FD_Field <- FDspatial_result
 
-
-#No Spatial Autocorrelation found in any fields/surveys
 write.xlsx(Spatial_auto_FD_Field, 'SpatialResult.xlsx')
 
 
 ##Step 4: Predictions----
-
-#GC
-summary(FUNDiv_GC)
-
-FUNPredictions_Day <- seq(min(FDModel$Day_Sampled),max(FDModel$Day_Sampled),length.out=20)
-FUNPredictions_GC <- seq(min(FDModel$GC),max(FDModel$GC),length.out=20)
-
-
-FUNdivpred <- expand.grid(Day_Sampled = FUNPredictions_Day, GC = FUNPredictions_GC)
-head(FUNdivpred);dim(FUNdivpred)
-
-FUNdivpred1 <- predict(object = FUNDiv_GC,newdata= FUNdivpred,se.fit = T, type = "link",re.form = NA)
-
-FUNdivpred2<-data.frame(FUNdivpred,fit.link=FUNdivpred1$fit,se.link=FUNdivpred1$se.fit)
-
-FUNdivpred2$lci.link<-FUNdivpred2$fit.link-(1.96*FUNdivpred2$se.link)
-FUNdivpred2$uci.link<-FUNdivpred2$fit.link+(1.96*FUNdivpred2$se.link)
-
-FUNdivpred2$fit<-exp(FUNdivpred2$fit.link)
-FUNdivpred2$se<-exp(FUNdivpred2$se.link)
-FUNdivpred2$lci<-exp(FUNdivpred2$lci.link)
-FUNdivpred2$uci<-exp(FUNdivpred2$uci.link)
-
-head(FUNdivpred2);dim(FUNdivpred2)
-
-#Crops
-
-summary(FUNDiv_Crops)
-
-FUNPredictions_Crop <- seq(min(FDModel$X1km_Prop_Crops),max(FDModel$X1km_Prop_Crops),length.out=20)
-
-
-FUNdivpred3 <- expand.grid(Day_Sampled = FUNPredictions_Day, X1km_Prop_Crops = FUNPredictions_Crop)
-head(FUNdivpred3);dim(FUNdivpred3)
-
-FUNdivpred4 <- predict(object = FUNDiv_Crops,newdata= FUNdivpred3,se.fit = T, type = "link",re.form = NA)
-
-FUNdivpred5<-data.frame(FUNdivpred3,fit.link=FUNdivpred4$fit,se.link=FUNdivpred4$se.fit)
-
-FUNdivpred5$lci.link<-FUNdivpred5$fit.link-(1.96*FUNdivpred5$se.link)
-FUNdivpred5$uci.link<-FUNdivpred5$fit.link+(1.96*FUNdivpred5$se.link)
-
-FUNdivpred5$fit<-exp(FUNdivpred5$fit.link)
-FUNdivpred5$se<-exp(FUNdivpred5$se.link)
-FUNdivpred5$lci<-exp(FUNdivpred5$lci.link)
-FUNdivpred5$uci<-exp(FUNdivpred5$uci.link)
-
-head(FUNdivpred5);dim(FUNdivpred5)
 
 
 #Field
@@ -675,144 +626,44 @@ summary(FUNDiv_FieldArea)
 
 FUNPredictions_FieldScaled <- seq(min(FDModel$Field_Area_Scaled),max(FDModel$Field_Area_Scaled),length.out=20)
 
+FUNdivpred <- data.frame(Field_Area_Scaled = FUNPredictions_FieldScaled)
 
-FUNdivpred6 <- expand.grid(Day_Sampled = FUNPredictions_Day, Field_Area_Scaled = FUNPredictions_FieldScaled)
-head(FUNdivpred6);dim(FUNdivpred6)
+FUNdivpred2 <- predict(object = FUNDiv_FieldArea,
+                       newdata= FUNdivpred,
+                       se.fit = T, type = "link",re.form = NA)
 
-FUNdivpred7 <- predict(object = FUNDiv_FieldArea,newdata= FUNdivpred6,se.fit = T, type = "link",re.form = NA)
+FUNdivpred3<-data.frame(FUNdivpred,fit.link=FUNdivpred2$fit,se.link=FUNdivpred2$se.fit)
 
-FUNdivpred8<-data.frame(FUNdivpred6,fit.link=FUNdivpred7$fit,se.link=FUNdivpred7$se.fit)
+FUNdivpred3$lci.link<-FUNdivpred3$fit.link-(1.96*FUNdivpred3$se.link)
+FUNdivpred3$uci.link<-FUNdivpred3$fit.link+(1.96*FUNdivpred3$se.link)
 
-FUNdivpred8$lci.link<-FUNdivpred8$fit.link-(1.96*FUNdivpred8$se.link)
-FUNdivpred8$uci.link<-FUNdivpred8$fit.link+(1.96*FUNdivpred8$se.link)
+FUNdivpred3$fit<-exp(FUNdivpred3$fit.link)
+FUNdivpred3$se<-exp(FUNdivpred3$se.link)
+FUNdivpred3$lci<-exp(FUNdivpred3$lci.link)
+FUNdivpred3$uci<-exp(FUNdivpred3$uci.link)
 
-FUNdivpred8$fit<-exp(FUNdivpred8$fit.link)
-FUNdivpred8$se<-exp(FUNdivpred8$se.link)
-FUNdivpred8$lci<-exp(FUNdivpred8$lci.link)
-FUNdivpred8$uci<-exp(FUNdivpred8$uci.link)
-
-head(FUNdivpred8);dim(FUNdivpred8)
-
-#Day
-summary(FUNDiv_D)
-
-FUNdivpred9 <- data.frame(Day_Sampled = FUNPredictions_Day)
-
-FUNdivpred10 <- predict(object = FUNDiv_D,newdata= FUNdivpred9,se.fit = T, type = "link",re.form = NA)
-
-FUNdivpred11<-data.frame(FUNdivpred9,fit.link=FUNdivpred10$fit,se.link=FUNdivpred10$se.fit)
-
-FUNdivpred11$lci.link<-FUNdivpred11$fit.link-(1.96*FUNdivpred11$se.link)
-FUNdivpred11$uci.link<-FUNdivpred11$fit.link+(1.96*FUNdivpred11$se.link)
-
-FUNdivpred11$fit<-exp(FUNdivpred11$fit.link)
-FUNdivpred11$se<-exp(FUNdivpred11$se.link)
-FUNdivpred11$lci<-exp(FUNdivpred11$lci.link)
-FUNdivpred11$uci<-exp(FUNdivpred11$uci.link)
-
-head(FUNdivpred11);dim(FUNdivpred11)
+head(FUNdivpred3);dim(FUNdivpred3)
 
 
 ##Step 5: Visualisation----
 
-#GC
-
-summary(FUNDiv_GC)
-head(FUNdivpred2);dim(FUNdivpred2)
-
-
-GG <- FUNdivpred2$GC == FUNPredictions_GC[10]
-G_G <- FUNdivpred2$Day_Sampled == FUNPredictions_Day[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
-mtext(side=3,line=0,at = 10,'a)',cex=1.1)
-mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
-arrows(42,-1.3,150,-1.3, length =0.1)
-
-polygon(x = c(FUNdivpred2$Day_Sampled[GG],rev(FUNdivpred2$Day_Sampled[GG])), y = c(FUNdivpred2$lci[GG],rev(FUNdivpred2$uci[GG])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNdivpred2$Day_Sampled[GG],y = FUNdivpred2$fit[GG],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = FDModel$GC,y = FDModel$Fun_Div,xlab = "Ground Cover (%)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = 4,'b)',cex=1.1)
-
-polygon(x = c(FUNdivpred2$GC[G_G],rev(FUNdivpred2$GC[G_G])), y = c(FUNdivpred2$lci[G_G],rev(FUNdivpred2$uci[G_G])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNdivpred2$GC[G_G],y = FUNdivpred2$fit[G_G],lwd = 2,col = 'grey30')
-
-#Crops
-
-summary(FUNDiv_Crops)
-head(FUNdivpred5);dim(FUNdivpred5)
-
-
-CC <- FUNdivpred5$X1km_Prop_Crops  == FUNPredictions_Crop[10]
-C_C <- FUNdivpred5$Day_Sampled == FUNPredictions_Day[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
-mtext(side=3,line=0,at = 10,'a)',cex=1.1)
-mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
-arrows(42,-1.3,150,-1.3, length =0.1)
-
-polygon(x = c(FUNdivpred5$Day_Sampled[CC],rev(FUNdivpred5$Day_Sampled[CC])), y = c(FUNdivpred5$lci[CC],rev(FUNdivpred5$uci[CC])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNdivpred5$Day_Sampled[CC],y = FUNdivpred5$fit[CC],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = FDModel$X1km_Prop_Crops,y = FDModel$Fun_Div,xlab = "Crops within 1km (%)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2)
-mtext(side=3,line=0,at = 79,'b)',cex=1.1)
-
-polygon(x = c(FUNdivpred5$X1km_Prop_Crops[C_C],rev(FUNdivpred5$X1km_Prop_Crops[C_C])), y = c(FUNdivpred5$lci[C_C],rev(FUNdivpred5$uci[C_C])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNdivpred5$X1km_Prop_Crops[C_C],y = FUNdivpred5$fit[C_C],lwd = 2,col = 'grey30')
-
-
 #Field Area
 summary(FUNDiv_FieldArea)
-head(FUNdivpred8);dim(FUNdivpred8)
+head(FUNdivpred3);dim(FUNdivpred3)
 
 
-FF <- FUNdivpred8$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
-F_F <- FUNdivpred8$Day_Sampled == FUNPredictions_Day[10]
+FF <- FUNdivpred3$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
+F_F <- FUNdivpred3$Day_Sampled == FUNPredictions_Day[10]
 
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
-mtext(side=3,line=0,at = 10,'a)',cex=1.1)
-mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
-arrows(42,-1.3,150,-1.3, length =0.1)
-
-polygon(x = c(FUNdivpred8$Day_Sampled[FF],rev(FUNdivpred8$Day_Sampled[FF])), y = c(FUNdivpred8$lci[FF],rev(FUNdivpred8$uci[FF])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNdivpred8$Day_Sampled[FF],y = FUNdivpred8$fit[FF],lwd = 2,col = 'grey30',lty = 1)
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Size (ha)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(FUNdivpred8$Field_Area_Scaled),to=max(FUNdivpred8$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
-mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
+axis(side=1, at=seq(from=min(FUNdivpred3$Field_Area_Scaled),to=max(FUNdivpred3$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
 
-polygon(x = c(FUNdivpred8$Field_Area_Scaled[F_F],rev(FUNdivpred8$Field_Area_Scaled[F_F])), y = c(FUNdivpred8$lci[F_F],rev(FUNdivpred8$uci[F_F])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNdivpred8$Field_Area_Scaled[F_F],y = FUNdivpred8$fit[F_F],lwd = 2,col = 'grey30')
+polygon(x = c(FUNdivpred3$Field_Area_Scaled,rev(FUNdivpred3$Field_Area_Scaled)), y = c(FUNdivpred3$lci,rev(FUNdivpred3$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
+lines(x=FUNdivpred3$Field_Area_Scaled,y = FUNdivpred3$fit,lwd = 2,col = 'grey30')
 
-#Day
-
-summary(FUNDiv_D)
-head(FUNdivpred11);dim(FUNdivpred11)
-
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Day_Sampled,y = FDModel$Fun_Div,xlab = "Day Sampled",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
-mtext(side=1,line=3,at = 20,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 160,'Spring',cex=0.8)
-arrows(42,-1.3,150,-1.3, length =0.1)
-
-polygon(x = c(FUNdivpred11$Day_Sampled,rev(FUNdivpred11$Day_Sampled)), y = c(FUNdivpred11$lci,rev(FUNdivpred11$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNdivpred11$Day_Sampled,y = FUNdivpred11$fit,lwd = 2,col = 'grey30',lty = 1)
 
 
 #END----
