@@ -94,9 +94,9 @@ for (i in 2:ntest){
 dev.new(height=5,width=7,dpi=80,pointsize=14,noRStudioGD = T)
 par(mfrow=c(1,2))
 plot(2:ntest, res, type='b', pch=20, xlab="Number of groups", ylab = "C-H index")
-mtext(side=3,line=0,at = 1.5,'a)',cex=1.1)
+mtext(side=3,line=0,at = 1.2,'a)',cex=1.1)
 plot(3:ntest, diff(res), type='b', pch=20, xlab="Number of groups", ylab = "Diff in C-H index")
-mtext(side=3,line=0,at = 2.7,'b)',cex=1.1)
+mtext(side=3,line=0,at = 2.2,'b)',cex=1.1)
 
 
 spe.group2 <- as.factor(cutree(hc2, k = which.max(res) +1))
@@ -119,13 +119,14 @@ s.arrow(rlq1$l1, add.plot = T, clab = 0.6,boxes = FALSE)
 
 #Making it more readable
 l1_short <- rlq1$l1
-rownames(l1_short) <- c("     H", "GC", "In", "Out","Day", "A           ", "FA", "C", "NF", "N1km","R")
+rownames(l1_short) <- c("H", "GC", "In", "Out","Day ", "A", "FA", "C", "NF", "N1km","R")
 l1_labels <- l1_short * 1.30
 
 dev.new(height=10, width=10, dpi=80, pointsize=14, noRStudioGD = T)
 ade4::s.class(rlq1$lQ, spe.group2, col = 1:nlevels(spe.group2))
 s.arrow(rlq1$l1, add.plot = T, clab = 0)
 s.label(l1_labels, add.plot = T, clab = 0.7, boxes = T)
+mtext(side=3,line=-4.8,at = 0.36,'*',cex=2)
 
 #Adjust these to match environmental variables in order
 #Check what they are first:
@@ -277,7 +278,7 @@ ggplot(heatmap_data, aes(x = Group, y = Traits, fill = Proportion)) +
              labeller = as_labeller(heatmap_labs)) +
   scale_fill_gradient(low = "white", high = "black") + 
   theme_minimal(base_size = 16) +
-  theme(strip.text = element_text(hjust = 0))
+  theme(strip.text = element_text(hjust = 0, vjust = 1))
 
 
 #Extract the trait groups----
@@ -483,7 +484,7 @@ A_A <- FUNrichpred2$Crop_Age_Days == FUNPredictions_Age[10]
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Div,xlab = "Crop Age",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
+plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Div,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
 mtext(side=3,line=0,at = 47,'a)',cex=1.1)
 
 polygon(x = c(FUNrichpred2$Crop_Age_Days[AA],rev(FUNrichpred2$Crop_Age_Days[AA])), y = c(FUNrichpred2$lci[AA],rev(FUNrichpred2$uci[AA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
@@ -651,9 +652,6 @@ head(FUNdivpred3);dim(FUNdivpred3)
 summary(FUNDiv_FieldArea)
 head(FUNdivpred3);dim(FUNdivpred3)
 
-
-FF <- FUNdivpred3$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
-F_F <- FUNdivpred3$Day_Sampled == FUNPredictions_Day[10]
 
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
