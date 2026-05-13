@@ -572,7 +572,7 @@ head(FDModel)
 TGB_Height <- glmmTMB(TG_B ~ Height + (1 | Field), family = binomial, data = FDModel)
 TGB_GC <- glmmTMB(TG_B ~ GC + (1 | Field), family = binomial, data = FDModel)
 
-TGB_FieldArea <- glmmTMB(TG_B ~ Field_Area_m2 + (1 | Field), family = binomial, data = FDModel)
+TGB_FieldArea <- glmmTMB(TG_B ~ Field_Size_Scaled + (1 | Field), family = binomial, data = FDModel)
 TGB_NDVIfield <- glmmTMB(TG_B ~ NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
 
 TGB_Rip <- glmmTMB(TG_B ~ X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
@@ -647,8 +647,34 @@ TG_B_Spatial <- TGspatial_result
 
 write.xlsx(TG_B_Spatial, 'TG_B_Spatial.xlsx')
 
+##Step 4: Predictions----
 
-#TO DO STEP 4, STEP 5 ----
+
+summary(TGB_FieldArea)
+
+TG_Predictions_FieldSize_Scaled <- seq(min(FDModel$Field_Size_Scaled),max(FDModel$Field_Size_Scaled),length.out=20)
+
+
+TG_B_pred <- data.frame(Field_Size_Scaled =
+                          TG_Predictions_FieldSize_Scaled)
+head(TG_B_pred);dim(TG_B_pred)
+
+TG_B_pred1 <- predict(object = TGB_FieldArea,newdata= TG_B_pred,se.fit = T, type = "link",re.form = ~0)
+#Predict was struggling but I just went back to modelling and scaled predictor then it was all good
+
+TG_B_pred2<-data.frame(TG_B_pred,fit.link=TG_B_pred1$fit,se.link=TG_B_pred1$se.fit)
+
+TG_B_pred2$lci.link<-TG_B_pred2$fit.link-(1.96*TG_B_pred2$se.link)
+TG_B_pred2$uci.link<-TG_B_pred2$fit.link+(1.96*TG_B_pred2$se.link)
+
+TG_B_pred2$fit<-exp(TG_B_pred2$fit.link)
+TG_B_pred2$se<-exp(TG_B_pred2$se.link)
+TG_B_pred2$lci<-exp(TG_B_pred2$lci.link)
+TG_B_pred2$uci<-exp(TG_B_pred2$uci.link)
+
+head(TG_B_pred2);dim(TG_B_pred2)
+
+#TO DO STEP 5 ----
 
 
 #Trait Group C----
@@ -897,9 +923,6 @@ head(TGspatial_result);dim(TGspatial_result)
 length(unique(FDModel$ID))
 
 TGspatial_result
-#One field significant but spatial autocorrelation is negligable
-#No spatial autocorrelation found
-
 
 TG_D_Spatial_PxAD <- TGspatial_result #One field significant but spatial autocorrelation is negligable
 TG_D_Spatial_FieldNDVI <- TGspatial_result #One field significant but spatial autocorrelation is negligable
@@ -981,9 +1004,62 @@ TGE_modlist2 <- list("null" = TGE_null,
 aictab(TGE_modlist2)
 #Top model is NDVI 1km (None within 2 AICc's)
 
+##Step 3: Check for Spatial Autocorrelation----
+
+summary(TGE_NDVI1km)
 
 
-#TO DO STEP 3, STEP 4, STEP 5 ----
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGE_NDVI1km)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in TGfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(TGspatial_result);dim(TGspatial_result)
+length(unique(FDModel$ID))
+
+TGspatial_result
+
+
+TG_E_Spatial <- TGspatial_result
+#No spatial autocorrelation found 
+
+write.xlsx(TG_E_Spatial, 'TG_E_Spatial.xlsx')
+
+#TO DO STEP 4, STEP 5 ----
 
 #Trait Group F----
 ##Step 1: Modelling Design Variables----
@@ -1048,8 +1124,64 @@ aictab(TGF_modlist2)
 #Top model is GC (None within 2 AICc's)
 
 
+##Step 3: Check for Spatial Autocorrelation----
 
-#TO DO STEP 3, STEP 4, STEP 5 ----
+summary(TGF_GC)
+
+
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGF_GC)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in TGfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(TGspatial_result);dim(TGspatial_result)
+length(unique(FDModel$ID))
+
+TGspatial_result
+
+
+TG_F_Spatial <- TGspatial_result
+#One field significant but spatial autocorrelation is negligable
+
+
+write.xlsx(TG_F_Spatial, 'TG_F_Spatial.xlsx')
+
+
+#TO DO STEP 4, STEP 5 ----
 
 #Trait Group G----
 ##Step 1: Modelling Design Variables----
@@ -1114,7 +1246,72 @@ aictab(TGG_modlist2)
 #Top model is Crop (3 within 2 AICc's)
 
 
+##Step 3: Check for Spatial Autocorrelation----
 
-#TO DO STEP 3, STEP 4, STEP 5 ----
+summary(TGG_Crops)
+summary(TGG_NDVIfield)
+summary(TGG_FieldArea)
+summary(TGG_GC)
+
+
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGG_GC)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in TGfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(TGspatial_result);dim(TGspatial_result)
+length(unique(FDModel$ID))
+
+TGspatial_result
+
+
+TG_G_Spatial_Crops <- TGspatial_result
+#One field significant but spatial autocorrelation is negligable
+TG_G_Spatial_FieldNDVI <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_G_Spatial_FieldSize <- TGspatial_result #Two field significant but spatial autocorrelation is negligable
+TG_G_Spatial_GC <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+
+
+write.xlsx(TG_G_Spatial_Crops, 'TG_G_Spatial_Crops.xlsx')
+write.xlsx(TG_G_Spatial_FieldNDVI, 'TG_G_Spatial_FieldNDVI.xlsx')
+write.xlsx(TG_G_Spatial_FieldSize, 'TG_G_Spatial_FieldSize.xlsx')
+write.xlsx(TG_G_Spatial_GC, 'TG_G_Spatial_GC.xlsx')
+
+
+#TO DO STEP 4, STEP 5 ----
 
 #END----
