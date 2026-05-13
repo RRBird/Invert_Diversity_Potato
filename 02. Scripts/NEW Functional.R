@@ -4,6 +4,8 @@
 
 #Used Methods for assessing functional responses to environmental gradients -- Kleyer et al. -- June 22, 2009
 
+options(scipen = 999) #So R doesn't use scientific notation
+
 #Libraries----
 
 library("ade4")
@@ -289,29 +291,142 @@ head(Trait_Group);dim(Trait_Group)
 
 invert_trait_group <- merge(Trait_Group,invert_filtered, by = "Morphospecies")
 head(invert_trait_group);dim(invert_trait_group)
-colnames(invert_trait_group)[colnames(invert_trait_group) == "ID"] <- "Site"
 
-#Creating Modelling data and calculating functuional Diversity 
+#Creating Modelling data and calculating functional Diversity 
 
 FDModel <- data.frame(Site = variables$Site)
-
-#functional richness
-FUNrichness <- aggregate(trait_group ~ Site, data = invert_trait_group, FUN = function(x) length(unique(x)))
-FDModel <- merge(FDModel,FUNrichness,by = "Site",all.x = T)
-head(FDModel);dim(FDModel)
-colnames(FDModel)[2] <- "Fun_Rich"
 head(FDModel);dim(FDModel)
 
-FDModel$Fun_Rich[is.na(FDModel$Fun_Rich)] <- 0
+##Richness----
 
-#Functional Diversity
-FUNdiversity <- aggregate(trait_group ~ Site, data = invert_trait_group, FUN = function(x) diversity(table(x), index = "invsimpson"))
-FDModel <- merge(FDModel,FUNdiversity,by = "Site",all.x = T)
+#Trait Group A
+TG_A <- invert_trait_group[invert_trait_group$trait_group=="A",]
+head(TG_A);dim(TG_A)
+
+FUNrichness_A <- aggregate(Morphospecies ~ Site, data = TG_A, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_A,by = "Site",all.x = T)
 head(FDModel);dim(FDModel)
-colnames(FDModel)[3] <- "Fun_Div"
+colnames(FDModel)[2] <- "A_Rich"
 head(FDModel);dim(FDModel)
 
-FDModel$Fun_Div[is.na(FDModel$Fun_Div)] <- 0.00001
+FDModel$A_Rich[is.na(FDModel$A_Rich)] <- 0
+
+#Trait Group B
+TG_B <- invert_trait_group[invert_trait_group$trait_group=="B",]
+head(TG_B);dim(TG_B)
+
+FUNrichness_B <- aggregate(Morphospecies ~ Site, data = TG_B, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_B,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[3] <- "B_Rich"
+head(FDModel);dim(FDModel)
+
+FDModel$B_Rich[is.na(FDModel$B_Rich)] <- 0
+
+#Trait Group C
+TG_C <- invert_trait_group[invert_trait_group$trait_group=="C",]
+head(TG_C);dim(TG_C)
+
+FUNrichness_C <- aggregate(Morphospecies ~ Site, data = TG_C, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_C,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[4] <- "C_Rich"
+
+FDModel$C_Rich[is.na(FDModel$C_Rich)] <- 0
+head(FDModel);dim(FDModel)
+
+#Trait Group D
+TG_D <- invert_trait_group[invert_trait_group$trait_group=="D",]
+head(TG_D);dim(TG_D)
+
+FUNrichness_D <- aggregate(Morphospecies ~ Site, data = TG_D, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_D,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[5] <- "D_Rich"
+
+FDModel$D_Rich[is.na(FDModel$D_Rich)] <- 0
+head(FDModel);dim(FDModel)
+
+#Trait Group E
+TG_E <- invert_trait_group[invert_trait_group$trait_group=="E",]
+head(TG_E);dim(TG_E)
+
+FUNrichness_E <- aggregate(Morphospecies ~ Site, data = TG_E, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_E,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[6] <- "E_Rich"
+
+FDModel$E_Rich[is.na(FDModel$E_Rich)] <- 0
+head(FDModel);dim(FDModel)
+
+#Trait Group F
+TG_F <- invert_trait_group[invert_trait_group$trait_group=="F",]
+head(TG_F);dim(TG_F)
+
+FUNrichness_F <- aggregate(Morphospecies ~ Site, data = TG_F, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_F,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[7] <- "F_Rich"
+
+FDModel$F_Rich[is.na(FDModel$F_Rich)] <- 0
+head(FDModel);dim(FDModel)
+
+#Trait Group G
+TG_G <- invert_trait_group[invert_trait_group$trait_group=="G",]
+head(TG_G);dim(TG_G)
+
+FUNrichness_G <- aggregate(Morphospecies ~ Site, data = TG_G, FUN = function(x) length(unique(x)))
+FDModel <- merge(FDModel,FUNrichness_G,by = "Site",all.x = T)
+head(FDModel);dim(FDModel)
+colnames(FDModel)[8] <- "G_Rich"
+
+FDModel$G_Rich[is.na(FDModel$G_Rich)] <- 0
+head(FDModel);dim(FDModel)
+
+##Diversity----
+v <- 9
+TG <- list("A","B","C","D","E","F","G")
+
+for (k in TG) {
+  TG_Div <- invert_trait_group[invert_trait_group$trait_group==k,]
+  
+  FUNdiversity <- aggregate(Morphospecies ~ Site, data = TG_Div, FUN = function(x) diversity(table(x), index = "invsimpson"))
+  
+  FDModel <- merge(FDModel,FUNdiversity,by = "Site",all.x = T)
+  
+  colnames(FDModel)[v] <- k
+  
+  v <- v+1
+}
+
+head(FDModel);dim(FDModel)
+
+
+FDModel$A[is.na(FDModel$A)] <- 0.00001
+FDModel$B[is.na(FDModel$B)] <- 0.00001
+FDModel$C[is.na(FDModel$C)] <- 0.00001
+FDModel$D[is.na(FDModel$D)] <- 0.00001
+FDModel$E[is.na(FDModel$E)] <- 0.00001
+FDModel$F[is.na(FDModel$F)] <- 0.00001
+FDModel$G[is.na(FDModel$G)] <- 0.00001
+
+colnames(FDModel)[9] <- "A_Div"
+colnames(FDModel)[10] <- "B_Div"
+colnames(FDModel)[11] <- "C_Div"
+colnames(FDModel)[12] <- "D_Div"
+colnames(FDModel)[13] <- "E_Div"
+colnames(FDModel)[14] <- "F_Div"
+colnames(FDModel)[15] <- "G_Div"
+
+head(FDModel);dim(FDModel)
+
+##lets check prop 0's----
+
+lapply(FDModel[,2:8], function(x){length(which(x==0))/length(x)})
+
+#okay looks like they all need to be binomial models rather then richness and diversity models
+
+FDModel <- FDModel[,1:8]
 
 #Variables and XY coordinates
 
@@ -321,347 +436,685 @@ head(FDModel);dim(FDModel)
 FDModel <- merge(FDModel,coords,by = "Site")
 head(FDModel);dim(FDModel)
 
+#update to pres/abs
+FDModel$A_Rich <- ifelse(FDModel$A_Rich>0, yes = 1,no = 0)
+FDModel$B_Rich <- ifelse(FDModel$B_Rich>0, yes = 1,no = 0)
+FDModel$C_Rich <- ifelse(FDModel$C_Rich>0, yes = 1,no = 0)
+FDModel$D_Rich <- ifelse(FDModel$D_Rich>0, yes = 1,no = 0)
+FDModel$E_Rich <- ifelse(FDModel$E_Rich>0, yes = 1,no = 0)
+FDModel$F_Rich <- ifelse(FDModel$F_Rich>0, yes = 1,no = 0)
+FDModel$G_Rich <- ifelse(FDModel$G_Rich>0, yes = 1,no = 0)
+
+colnames(FDModel)[2] <- "TG_A"
+colnames(FDModel)[3] <- "TG_B"
+colnames(FDModel)[4] <- "TG_C"
+colnames(FDModel)[5] <- "TG_D"
+colnames(FDModel)[6] <- "TG_E"
+colnames(FDModel)[7] <- "TG_F"
+colnames(FDModel)[8] <- "TG_G"
 
 
-#Functional Richness----
-##Step 1: Design Variables----
-#position, age and day - all the various combinations of these 
+head(FDModel);dim(FDModel)
 
 FDModel$Day_Scaled <- scale(FDModel$Day_Sampled)
 FDModel$Age_Scaled <- scale(FDModel$Crop_Age_Days)
+FDModel$Field_Size_Scaled <- scale(FDModel$Field_Area_m2)
+
+#Trait Group A----
+##Step 1: Modelling Design Variables----
+
 
 
 head(FDModel);dim(FDModel)
 str(FDModel)
 
-FUNRich_null <- glmmTMB(Fun_Rich ~ 1 + (1 | Field), family = poisson, data = FDModel)
+TGA_null <- glmmTMB(TG_A  ~ 1 + (1 | Field), family = binomial, data = FDModel)
 
-FUNRich_P <- glmmTMB(Fun_Rich ~ Position + (1 | Field), family = poisson, data = FDModel)
-FUNRich_A <- glmmTMB(Fun_Rich ~ Crop_Age_Days + (1 | Field), family = poisson, data = FDModel)
-FUNRich_D <- glmmTMB(Fun_Rich ~ Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
+TGA_P <- glmmTMB(TG_A ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGA_A <- glmmTMB(TG_A ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGA_D <- glmmTMB(TG_A ~ Day_Scaled + (1 | Field), family = binomial, data = FDModel)
 
-FUNRich_PA <- glmmTMB(Fun_Rich ~ Position + Crop_Age_Days + (1 | Field), family = poisson, data = FDModel)
-FUNRich_PD <- glmmTMB(Fun_Rich ~ Position + Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_DA <- glmmTMB(Fun_Rich ~ Day_Scaled + Crop_Age_Days + (1 | Field), family = poisson, data = FDModel) 
+TGA_PA <- glmmTMB(TG_A ~ Position + Age_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGA_PD <- glmmTMB(TG_A ~ Position + Day_Scaled + (1 | Field), family = binomial, data = FDModel) 
+TGA_DA <- glmmTMB(TG_A ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
 
-FUNRich_PxA <- glmmTMB(Fun_Rich ~ Position * Age_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_PxD <- glmmTMB(Fun_Rich ~ Position * Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_DxA <- glmmTMB(Fun_Rich ~ Day_Scaled * Age_Scaled + (1 | Field), family = poisson, data = FDModel) 
+TGA_PxA <- glmmTMB(TG_A ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGA_PxD <- glmmTMB(TG_A ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGA_DxA <- glmmTMB(TG_A ~ Day_Scaled * Age_Scaled + (1 | Field), family = binomial, data = FDModel) 
 
-FUNRich_PAD <- glmmTMB(Fun_Rich ~ Position + Age_Scaled + Day_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_PxAD <- glmmTMB(Fun_Rich ~ Position * Age_Scaled + Day_Scaled + (1 | Field), family = poisson, data = FDModel)
-FUNRich_PxDA <- glmmTMB(Fun_Rich ~ Position * Day_Scaled + Age_Scaled + (1 | Field), family = poisson, data = FDModel)
-FUNRich_PAxD <- glmmTMB(Fun_Rich ~ Position + Day_Scaled * Age_Scaled + (1 | Field), family = poisson, data = FDModel) 
+TGA_PAD <- glmmTMB(TG_A ~ Position + Age_Scaled + Day_Scaled + (1 | Field), family = binomial, data = FDModel) 
+TGA_PxAD <- glmmTMB(TG_A ~ Position * Age_Scaled + Day_Scaled + (1 | Field), family = binomial, data = FDModel) #Convergence problems
+TGA_PxDA <- glmmTMB(TG_A ~ Position * Day_Scaled + Age_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGA_PAxD <- glmmTMB(TG_A ~ Position + Day_Scaled * Age_Scaled + (1 | Field), family = binomial, data = FDModel) 
 
 #collect models
-FUNrichmodlist <- list("null" = FUNRich_null, "P" = FUNRich_P, 
-                       "A" = FUNRich_A, "D" = FUNRich_D, 
-                       "PA" = FUNRich_PA, "PD" = FUNRich_PD, 
-                       "DA" = FUNRich_DA,"PxA" = FUNRich_PxA, 
-                       "PxD" = FUNRich_PxD,"DxA" = FUNRich_DxA,
-                       "PAD" = FUNRich_PAD, "PxAD" = FUNRich_PxAD, 
-                       "PxDA" = FUNRich_PxDA, "PAxD" = FUNRich_PAxD)
+TGA_modlist <- list("null" = TGA_null, "P" = TGA_P, "A" = TGA_A,
+                    'D' = TGA_D, "PA" = TGA_PA, "PD" = TGA_PD, 
+                    "DA" = TGA_DA, "PxA" = TGA_PxA, "PxD" =TGA_PxD,
+                    "DxA" = TGA_DxA,"PAD" = TGA_PAD,
+                    'PxAD'=TGA_PxAD,"PxDA" = TGA_PxDA, 
+                    "PAxD" = TGA_PAxD)
 
-aictab(FUNrichmodlist)
-#Top model is Age
+aictab(TGA_modlist)
+#Top model is null
 
 ##Step 2: Environmental Variables----
 
-FDModel$NDVI1km_Scaled <- scale(FDModel$NDVIsum_1km)
-FDModel$Field_Area_Scaled <- scale(FDModel$Field_Area_m2)
-FDModel$Crops_Scaled <- scale(FDModel$X1km_Prop_Crops)
-#scaling to allow models to converge
 
 head(FDModel)
 
-FUNRich_Height <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Height + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_GC <- glmmTMB(Fun_Rich ~ Crop_Age_Days + GC + (1 | Field), family = poisson, data = FDModel)
+TGA_Height <- glmmTMB(TG_A ~ Height + (1 | Field), family = binomial, data = FDModel)
+TGA_GC <- glmmTMB(TG_A ~ GC + (1 | Field), family = binomial, data = FDModel)
 
-FUNRich_FieldArea <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Field_Area_Scaled + (1 | Field), family = poisson, data = FDModel)
-FUNRich_NDVIfield <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVImean_Field  + (1 | Field), family = poisson, data = FDModel)  
+TGA_FieldArea <- glmmTMB(TG_A ~ Field_Area_m2 + (1 | Field), family = binomial, data = FDModel)
+TGA_NDVIfield <- glmmTMB(TG_A ~ NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
 
-FUNRich_Rip <- glmmTMB(Fun_Rich ~ Crop_Age_Days + X1km_Rip_Prop + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_Crops <- glmmTMB(Fun_Rich ~ Crop_Age_Days + Crops_Scaled + (1 | Field), family = poisson, data = FDModel) 
-FUNRich_NDVI1km <- glmmTMB(Fun_Rich ~ Crop_Age_Days + NDVI1km_Scaled + (1 | Field), family = poisson, data = FDModel) 
-
-
-FUNrichmodlist2 <- list("null" = FUNRich_null, 
-                        "Height" = FUNRich_Height, 
-                        "GC" = FUNRich_GC,
-                        "Field Area" = FUNRich_FieldArea, 
-                        "Field NDVI" = FUNRich_NDVIfield,
-                        "Rip" = FUNRich_Rip,
-                        "Crop" = FUNRich_Crops, 
-                        "NDVI 1km" = FUNRich_NDVI1km,
-                        "A" = FUNRich_A)
-aictab(FUNrichmodlist2)
-#field area is top model and none within 2 AICcs
-
-##Step 3: Check Spatial Autocorrelation----
-
-FRfield_numbers <- unique(FDModel$ID)
+TGA_Rip <- glmmTMB(TG_A ~ X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGA_Crops <- glmmTMB(TG_A ~ X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGA_NDVI1km <- glmmTMB(TG_A ~ NDVIsum_1km + (1 | Field), family = binomial, data = FDModel) 
 
 
-FRmodel_residuals <- simulateResiduals(FUNRich_FieldArea)
-FRspatial_result <- data.frame(
-  field = rep(NA, length(FRfield_numbers)),
-  statistic = rep(NA, length(FRfield_numbers)),
-  p_value = rep(NA, length(FRfield_numbers)),
-  method = rep(NA_character_, length(FRfield_numbers)),
-  stringsAsFactors = FALSE)
+TGA_modlist2 <- list("null" = TGA_null,
+                     "Height" = TGA_Height,   
+                     "GC" = TGA_GC,
+                     "Field Size" = TGA_FieldArea,
+                     "Field NDVI" = TGA_NDVIfield,
+                     "Rip" = TGA_Rip,
+                     "Crop" = TGA_Crops,
+                     "NDVI 1km" = TGA_NDVI1km)
 
-s <- 1
+aictab(TGA_modlist2)
+#Top model is Null
+#all except GC is within 2 AICc's of null 
 
-for (f in FRfield_numbers) {
-  
-  cat("Field", f, "\n") #What field is it doing?
-  
-  #Extracting specific residuals for individual fields
-  FRfield_indices <- which(FDModel$ID == f)
-  FRfield_residuals <- FRmodel_residuals
-  FRfield_residuals$scaledResiduals <- 
-    FRmodel_residuals$scaledResiduals[FRfield_indices]
-  FRfield_residuals$fittedPredictedResponse <- 
-    FRmodel_residuals$fittedPredictedResponse[FRfield_indices]
-  
-  # Test spatial autocorrelation using your grid coordinates
-  FRspatial_test <- testSpatialAutocorrelation(FRfield_residuals, 
-                   x = FDModel$X_Cor[FDModel$ID == f], 
-                   y = FDModel$Y_Cor[FDModel$ID == f])
-  
-  
-  FRspatial_result$field [s] <- f
-  FRspatial_result$statistic [s] <- FRspatial_test$statistic[1] 
-  FRspatial_result$p_value [s] <- FRspatial_test$p.value
-  FRspatial_result$method [s] <- FRspatial_test$method
-  
-  s <- s + 1
-  
-}
+#When null is top model or within 2 AICc's of top model exlcuded from rest of analysis
 
-head(FRspatial_result);dim(FRspatial_result)
-length(unique(FDModel$ID))
-
-FRspatial_result
-
-
-Spatial_auto_FR_Field <- FRspatial_result
-#Spatial Autocorrelation found in one fields/surveys but autocorrelation is negligible
-
-write.xlsx(Spatial_auto_FR_Field, 'SpatialResult.xlsx')
-
-
-##Step 4: Predictions----
-
-summary(FUNRich_FieldArea)
-
-FUNrichpred <- expand.grid(Crop_Age_Days = FUNPredictions_Age, Field_Area_Scaled = FUNPredictions_FieldScaled)
-head(FUNrichpred);dim(FUNrichpred)
-
-FUNrichpred1 <- predict(object = FUNRich_FieldArea,newdata= FUNrichpred,se.fit = T, type = "link",re.form = NA)
-
-FUNrichpred2<-data.frame(FUNrichpred,fit.link=FUNrichpred1$fit,se.link=FUNrichpred1$se.fit)
-
-FUNrichpred2$lci.link<-FUNrichpred2$fit.link-(1.96*FUNrichpred2$se.link)
-FUNrichpred2$uci.link<-FUNrichpred2$fit.link+(1.96*FUNrichpred2$se.link)
-
-FUNrichpred2$fit<-exp(FUNrichpred2$fit.link)
-FUNrichpred2$se<-exp(FUNrichpred2$se.link)
-FUNrichpred2$lci<-exp(FUNrichpred2$lci.link)
-FUNrichpred2$uci<-exp(FUNrichpred2$uci.link)
-
-head(FUNrichpred2);dim(FUNrichpred2)
-
-##Step 5: Visualisation----
-
-summary(FUNDiv_FieldArea)
-head(FUNrichpred2);dim(FUNrichpred2)
-
-
-AA <- FUNrichpred2$Field_Area_Scaled == FUNPredictions_FieldScaled[10]
-A_A <- FUNrichpred2$Crop_Age_Days == FUNPredictions_Age[10]
-
-dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
-
-plot(x = FDModel$Crop_Age_Days,y = FDModel$Fun_Div,xlab = "Crop Age (Days)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95)
-mtext(side=3,line=0,at = 47,'a)',cex=1.1)
-
-polygon(x = c(FUNrichpred2$Crop_Age_Days[AA],rev(FUNrichpred2$Crop_Age_Days[AA])), y = c(FUNrichpred2$lci[AA],rev(FUNrichpred2$uci[AA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=FUNrichpred2$Crop_Age_Days[AA],y = FUNrichpred2$fit[AA],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Size (ha)",ylab = 'Trait Group Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt = 'n')
-axis(side=1, at=seq(from=min(FUNrichpred2$Field_Area_Scaled),to=max(FUNrichpred2$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1))
-mtext(side=3,line=0,at = -2.2,'b)',cex=1.1)
-
-polygon(x = c(FUNrichpred2$Field_Area_Scaled[A_A],rev(FUNrichpred2$Field_Area_Scaled[A_A])), y = c(FUNrichpred2$lci[A_A],rev(FUNrichpred2$uci[A_A])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNrichpred2$Field_Area_Scaled[A_A],y = FUNrichpred2$fit[A_A],lwd = 2,col = 'grey30')
-
-
-
-#Functional Diversity----
-##Step 1: Design Variables----
+#Trait Group B----
+##Step 1: Modelling Design Variables----
 
 head(FDModel);dim(FDModel)
 str(FDModel)
 
+TGB_null <- glmmTMB(TG_B  ~ 1 + (1 | Field), family = binomial, data = FDModel)
 
-FUNDiv_null <- glmer(Fun_Div ~ 1 + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+TGB_P <- glmmTMB(TG_B ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGB_A <- glmmTMB(TG_B ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGB_D <- glmmTMB(TG_B ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
 
-FUNDiv_P <- glmer(Fun_Div ~ Position + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_A <- glmer(Fun_Div ~ Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_D <- glmer(Fun_Div ~ Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #model failed to converge
+TGB_PA <- glmmTMB(TG_B ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGB_PD <- glmmTMB(TG_B ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGB_DA <- glmmTMB(TG_B ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
 
-FUNDiv_PA <- glmer(Fun_Div ~ Position + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_PD <- glmer(Fun_Div ~ Position + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_DA <- glmer(Fun_Div ~ Day_Scaled + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+TGB_PxA <- glmmTMB(TG_B ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGB_PxD <- glmmTMB(TG_B ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGB_DxA <- glmmTMB(TG_B ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
 
-FUNDiv_PxA <- glmer(Fun_Div ~ Position * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_PxD <- glmer(Fun_Div ~ Position * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_DxA <- glmer(Fun_Div ~ Day_Scaled * Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
+TGB_PAD <- glmmTMB(TG_B ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGB_PxAD <- glmmTMB(TG_B ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGB_PxDA <- glmmTMB(TG_B ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGB_PAxD <- glmmTMB(TG_B ~ Position + Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
 
-FUNDiv_PAD <- glmer(Fun_Div ~ Position + Age_Scaled + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #failed to converge
-FUNDiv_PxAD <- glmer(Fun_Div ~ Position * Age_Scaled + Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) #Failed to converge
-FUNDiv_PxDA <- glmer(Fun_Div ~ Position * Day_Scaled + Age_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-FUNDiv_PAxD <- glmer(Fun_Div ~ Position + Age_Scaled * Day_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+#collect models
+TGB_modlist <- list("null" = TGB_null, "P" = TGB_P,"A" = TGB_A,
+                    "D" = TGB_D, "PA" = TGB_PA, "PD" = TGB_PD, 
+                    "DA" = TGB_DA, "PxA" = TGB_PxA, 
+                    "PxD" =TGB_PxD,"DxA" = TGB_DxA,
+                    "PAD" = TGB_PAD,"PxAD" = TGB_PxAD, 
+                    "PxDA" = TGB_PxDA, "PAxD" = TGB_PAxD)
 
-
-
-FUndivlist <- list("null" = FUNDiv_null, "P" = FUNDiv_P, 
-                   "A" = FUNDiv_A, "PA" = FUNDiv_PA,
-                   "PD" = FUNDiv_PD, "DA" = FUNDiv_DA,
-                   "PxA" = FUNDiv_PxA, "PxD" = FUNDiv_PxD, 
-                   "DxA" = FUNDiv_DxA,  "PxDA" = FUNDiv_PxDA, 
-                   "PAxD" = FUNDiv_PAxD)
-
-aictab(FUndivlist)
-#Top Model is Day x Age but Null is within 2 AICc
-
+aictab(TGB_modlist)
+#Top model is position by null is within 2 AICc
 
 ##Step 2: Environmental Variables----
 
-FDModel$Height_Scaled <- scale(FDModel$Height)
-FDModel$GC_Scaled <- scale(FDModel$GC)
-
-
 head(FDModel)
 
-FUNDiv_Height <- glmer(Fun_Div ~ Height_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_GC <- glmer(Fun_Div ~ GC_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+TGB_Height <- glmmTMB(TG_B ~ Height + (1 | Field), family = binomial, data = FDModel)
+TGB_GC <- glmmTMB(TG_B ~ GC + (1 | Field), family = binomial, data = FDModel)
 
-FUNDiv_FieldArea <- glmer(Fun_Div ~ Field_Area_Scaled  + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_FieldNDVI <- glmer(Fun_Div ~ NDVImean_Field + (1 | Field), family = Gamma(link = "log"), data = FDModel)
+TGB_FieldArea <- glmmTMB(TG_B ~ Field_Area_m2 + (1 | Field), family = binomial, data = FDModel)
+TGB_NDVIfield <- glmmTMB(TG_B ~ NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
 
-FUNDiv_Rip <- glmer(Fun_Div ~ X1km_Rip_Prop + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_Crops <- glmer(Fun_Div ~ Crops_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel)
-FUNDiv_NDVI1km <- glmer(Fun_Div ~ NDVI1km_Scaled + (1 | Field), family = Gamma(link = "log"), data = FDModel) 
-
-FUNdivlist2 <- list("null" = FUNDiv_null, "height" = FUNDiv_Height, 
-                 "GC" = FUNDiv_GC, "Field Area" = FUNDiv_FieldArea, 
-                 "Field NDVI" = FUNDiv_FieldNDVI,"Rip" = FUNDiv_Rip,
-                 "Crop" = FUNDiv_Crops, "NDVI 1km" = FUNDiv_NDVI1km)
-aictab(FUNdivlist2)
-
-#top model is field area but null is within 2 AICcs
-#will still visalise this model but put it into the supporting info only
+TGB_Rip <- glmmTMB(TG_B ~ X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGB_Crops <- glmmTMB(TG_B ~ X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGB_NDVI1km <- glmmTMB(TG_B ~ NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
 
 
-##Step 3: Check Spatial Autocorrelation----
+TGB_modlist2 <- list("null" = TGB_null,
+                     "Height" = TGB_Height,
+                     "GC" = TGB_GC,
+                     "Field Size" = TGB_FieldArea,
+                     "Field NDVI" = TGB_NDVIfield,
+                     "Rip" = TGB_Rip,
+                     "Crop" = TGB_Crops,
+                     "NDVI" = TGB_NDVI1km)
+aictab(TGB_modlist2)
+#Top model is Field size (None within 2 AICc's)
 
-FDfield_numbers <- unique(FDModel$ID)
+##Step 3: Check for Spatial Autocorrelation----
 
+summary(TGB_FieldArea)
 
-FDmodel_residuals <- simulateResiduals(FUNDiv_FieldArea)
-FDspatial_result <- data.frame(
-  field = rep(NA, length(FDfield_numbers)),
-  statistic = rep(NA, length(FDfield_numbers)),
-  p_value = rep(NA, length(FDfield_numbers)),
-  method = rep(NA_character_, length(FDfield_numbers)),
+TGfield_numbers <- unique(FDModel$ID)
+
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGB_FieldArea)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
   stringsAsFactors = FALSE)
 
 s <- 1
 
-for (f in FDfield_numbers) {
+for (f in TGfield_numbers) {
   
   cat("Field", f, "\n") #What field is it doing?
   
   #Extracting specific residuals for individual fields
-  FDfield_indices <- which(FDModel$ID == f)
-  FDfield_residuals <- FDmodel_residuals
-  FDfield_residuals$scaledResiduals <- 
-    FDmodel_residuals$scaledResiduals[FDfield_indices]
-  FDfield_residuals$fittedPredictedResponse <- 
-    FDmodel_residuals$fittedPredictedResponse[FDfield_indices]
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
   
   # Test spatial autocorrelation using your grid coordinates
-  FDspatial_test <- testSpatialAutocorrelation(FDfield_residuals, 
-                                               x = FDModel$X_Cor[FDModel$ID == f], 
-                                               y = FDModel$Y_Cor[FDModel$ID == f])
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
   
   
-  FDspatial_result$field [s] <- f
-  FDspatial_result$statistic [s] <- FDspatial_test$statistic[1] 
-  FDspatial_result$p_value [s] <- FDspatial_test$p.value
-  FDspatial_result$method [s] <- FDspatial_test$method
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
   
   s <- s + 1
   
 }
 
-head(FDspatial_result);dim(FDspatial_result)
+head(TGspatial_result);dim(TGspatial_result)
 length(unique(FDModel$ID))
 
-FDspatial_result
-
-Spatial_auto_FD_Field <- FDspatial_result
-
-write.xlsx(Spatial_auto_FD_Field, 'SpatialResult.xlsx')
+TGspatial_result
 
 
-##Step 4: Predictions----
+TG_B_Spatial <- TGspatial_result
+#No spatial autocorrelation found 
+
+write.xlsx(TG_B_Spatial, 'TG_B_Spatial.xlsx')
 
 
-#Field
-
-summary(FUNDiv_FieldArea)
-
-FUNPredictions_FieldScaled <- seq(min(FDModel$Field_Area_Scaled),max(FDModel$Field_Area_Scaled),length.out=20)
-
-FUNdivpred <- data.frame(Field_Area_Scaled = FUNPredictions_FieldScaled)
-
-FUNdivpred2 <- predict(object = FUNDiv_FieldArea,
-                       newdata= FUNdivpred,
-                       se.fit = T, type = "link",re.form = NA)
-
-FUNdivpred3<-data.frame(FUNdivpred,fit.link=FUNdivpred2$fit,se.link=FUNdivpred2$se.fit)
-
-FUNdivpred3$lci.link<-FUNdivpred3$fit.link-(1.96*FUNdivpred3$se.link)
-FUNdivpred3$uci.link<-FUNdivpred3$fit.link+(1.96*FUNdivpred3$se.link)
-
-FUNdivpred3$fit<-exp(FUNdivpred3$fit.link)
-FUNdivpred3$se<-exp(FUNdivpred3$se.link)
-FUNdivpred3$lci<-exp(FUNdivpred3$lci.link)
-FUNdivpred3$uci<-exp(FUNdivpred3$uci.link)
-
-head(FUNdivpred3);dim(FUNdivpred3)
+#TO DO STEP 4, STEP 5 ----
 
 
-##Step 5: Visualisation----
+#Trait Group C----
+##Step 1: Modelling Design Variables----
 
-#Field Area
-summary(FUNDiv_FieldArea)
-head(FUNdivpred3);dim(FUNdivpred3)
+head(FDModel);dim(FDModel)
+str(FDModel)
+
+TGC_null <- glmmTMB(TG_C ~ 1 + (1 | Field), family = binomial, data = FDModel)
+
+TGC_P <- glmmTMB(TG_C ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGC_A <- glmmTMB(TG_C ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGC_D <- glmmTMB(TG_C ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+
+TGC_PA <- glmmTMB(TG_C ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGC_PD <- glmmTMB(TG_C ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGC_DA <- glmmTMB(TG_C ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+
+TGC_PxA <- glmmTMB(TG_C ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGC_PxD <- glmmTMB(TG_C ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGC_DxA <- glmmTMB(TG_C ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+
+TGC_PAD <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGC_PxAD <- glmmTMB(TG_C ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGC_PxDA <- glmmTMB(TG_C ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGC_PAxD <- glmmTMB(TG_C ~ Position + Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+#collect models
+TGC_modlist <- list("null" = TGC_null, "P" = TGC_P,"A" = TGC_A,
+                    "D" = TGC_D,"PA" = TGC_PA, "PD" = TGC_PD, 
+                    "DA" =TGC_DA, "PxA" =TGC_PxA, "PxD" = TGC_PxD,
+                    "PAD" = TGC_PAD, "DxA" = TGC_DxA,
+                    "PxAD" = TGC_PxAD,"PxDA" = TGC_PxDA, 
+                    "PAxD" = TGC_PAxD)
 
 
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+aictab(TGC_modlist)
+#Top model is Position + Age + Day
 
-plot(x = FDModel$Field_Area_Scaled,y = FDModel$Fun_Div,xlab = "Field Size (ha)",ylab = 'Trait Group Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(FUNdivpred3$Field_Area_Scaled),to=max(FUNdivpred3$Field_Area_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
+##Step 2: Environmental Variables----
 
-polygon(x = c(FUNdivpred3$Field_Area_Scaled,rev(FUNdivpred3$Field_Area_Scaled)), y = c(FUNdivpred3$lci,rev(FUNdivpred3$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
-lines(x=FUNdivpred3$Field_Area_Scaled,y = FUNdivpred3$fit,lwd = 2,col = 'grey30')
+FDModel$Crop_Scaled <- scale(FDModel$X1km_Prop_Crops)
+
+head(FDModel)
+
+TGC_Height <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + Height + (1 | Field), family = binomial, data = FDModel)
+TGC_GC <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + GC + (1 | Field), family = binomial, data = FDModel)
+
+TGC_FieldArea <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + Field_Size_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGC_NDVIfield <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
+
+TGC_Rip <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel)
+TGC_Crops <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGC_NDVI1km <- glmmTMB(TG_C ~ Position + Crop_Age_Days + Day_Sampled + NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
 
 
+TGC_modlist2 <- list("null" = TGC_null,
+                     "Height" = TGC_Height,
+                     "GC" = TGC_GC,
+                     "Field Size" = TGC_FieldArea,
+                     "Field NDVI" = TGC_NDVIfield,
+                     "Rip" = TGC_Rip,
+                     "Crop" = TGC_Crops,
+                     "NDVI" = TGC_NDVI1km,
+                     "PAD" = TGC_PAD)
+aictab(TGC_modlist2)
+#Top model is Riparian with field size within 2 AICc's
+
+##Step 3: Check for Spatial Autocorrelation----
+
+#running loon two models this for C so make sure to change over between running the loop
+summary(TGC_Rip)
+summary(TGC_FieldArea)
+
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGC_FieldArea)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in TGfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(TGspatial_result);dim(TGspatial_result)
+length(unique(FDModel$ID))
+
+TGspatial_result
+
+
+TG_C_Spatial_Rip <- TGspatial_result
+#One field significant but spatial autocorrelation is negligable
+TG_C_Spatial_Size <- TGspatial_result
+#One field significant but spatial autocorrelation is negligable
+
+
+write.xlsx(TG_C_Spatial_Rip, 'TG_C_Spatial_Rip.xlsx')
+write.xlsx(TG_C_Spatial_Size, 'TG_C_Spatial_Size.xlsx')
+
+#TO DO STEP 4, STEP 5 ----
+
+
+
+#Trait Group D----
+##Step 1: Modelling Design Variables----
+
+head(FDModel);dim(FDModel)
+str(FDModel)
+
+TGD_null <- glmmTMB(TG_D  ~ 1 + (1 | Field), family = binomial, data = FDModel)
+
+
+TGD_P <- glmmTMB(TG_D ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGD_A <- glmmTMB(TG_D ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGD_D <- glmmTMB(TG_D ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+
+TGD_PA <- glmmTMB(TG_D ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGD_PD <- glmmTMB(TG_D ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGD_DA <- glmmTMB(TG_D ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGD_PxA <- glmmTMB(TG_D ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGD_PxD <- glmmTMB(TG_D ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGD_DxA <- glmmTMB(TG_D ~ Day_Scaled * Age_Scaled + (1 | Field), family = binomial, data = FDModel) 
+
+TGD_PAD <- glmmTMB(TG_D ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGD_PxAD <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGD_PxDA <- glmmTMB(TG_D ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGD_PAxD <- glmmTMB(TG_D ~ Position + Day_Scaled * Age_Scaled + (1 | Field), family = binomial, data = FDModel) 
+
+#collect models
+TGD_modlist <- list("null"=TGD_null,"P"=TGD_P,"A"=TGD_A,"D"=TGD_D,
+                    "PA" = TGD_PA, "PD" = TGD_PD, "DA" = TGD_DA,
+                    "PxA" = TGD_PxA, "PxD" =TGD_PxD,"DxA" = TGD_DxA,
+                    "PAD" = TGD_PAD,"PxAD" = TGD_PxAD, 
+                    "PxDA" = TGD_PxDA, "PAxD" = TGD_PAxD)
+
+aictab(TGD_modlist)
+#Top model is Position * Age + Day
+
+##Step 2: Environmental Variables----
+
+head(FDModel)
+
+TGD_Height <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled +Height + (1 | Field), family = binomial, data = FDModel)
+TGD_GC <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled +GC + (1 | Field), family = binomial, data = FDModel)
+
+TGD_FieldArea <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled + Field_Size_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGD_NDVIfield <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled +NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
+
+TGD_Rip <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled + X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGD_Crops <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled +X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGD_NDVI1km <- glmmTMB(TG_D ~ Position * Crop_Age_Days + Day_Sampled +NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
+
+
+TGD_modlist2 <- list("null" = TGD_null,
+                     "Height" = TGD_Height,
+                     "GC" = TGD_GC,
+                     "Field Size" = TGD_FieldArea,
+                     "Field NDVI" = TGD_NDVIfield,
+                     "Rip" = TGD_Rip,
+                     "Crop" = TGD_Crops,
+                     "NDVI" = TGD_NDVI1km,
+                     "PxAD" = TGD_PxAD)
+aictab(TGD_modlist2)
+#Top model is Posistion * Age + Day (none within 2 AICc)
+
+##Step 3: Check for Spatial Autocorrelation----
+
+#running loon two models this for C so make sure to change over between running the loop
+summary(TGD_PxAD)
+summary(TGD_NDVIfield)
+summary(TGD_GC)
+summary(TGD_FieldArea)
+summary(TGD_Height)
+summary(TGD_Rip)
+
+#run before loop
+TGmodel_residuals <- simulateResiduals(TGD_Rip)
+TGspatial_result <- data.frame(
+  field = rep(NA, length(TGfield_numbers)),
+  statistic = rep(NA, length(TGfield_numbers)),
+  p_value = rep(NA, length(TGfield_numbers)),
+  method = rep(NA_character_, length(TGfield_numbers)),
+  stringsAsFactors = FALSE)
+
+s <- 1
+
+for (f in TGfield_numbers) {
+  
+  cat("Field", f, "\n") #What field is it doing?
+  
+  #Extracting specific residuals for individual fields
+  TGfield_indices <- which(FDModel$ID == f)
+  TGfield_residuals <- TGmodel_residuals
+  TGfield_residuals$scaledResiduals <- 
+    TGmodel_residuals$scaledResiduals[TGfield_indices]
+  TGfield_residuals$fittedPredictedResponse <- 
+    TGmodel_residuals$fittedPredictedResponse[TGfield_indices]
+  
+  # Test spatial autocorrelation using your grid coordinates
+  TGspatial_test <- testSpatialAutocorrelation(
+    TGfield_residuals, 
+    x = FDModel$X_Cor[FDModel$ID == f], 
+    y = FDModel$Y_Cor[FDModel$ID == f])
+  
+  
+  TGspatial_result$field [s] <- f
+  TGspatial_result$statistic [s] <- TGspatial_test$statistic[1] 
+  TGspatial_result$p_value [s] <- TGspatial_test$p.value
+  TGspatial_result$method [s] <- TGspatial_test$method
+  
+  s <- s + 1
+  
+}
+
+head(TGspatial_result);dim(TGspatial_result)
+length(unique(FDModel$ID))
+
+TGspatial_result
+#One field significant but spatial autocorrelation is negligable
+#No spatial autocorrelation found
+
+
+TG_D_Spatial_PxAD <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_FieldNDVI <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_GC <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_FieldSize <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_Height <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_Rip <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+
+
+write.xlsx(TG_C_Spatial_PxAD, 'TG_C_Spatial_PxAD.xlsx')
+write.xlsx(TG_C_Spatial_FieldNDVI, 'TG_C_Spatial_FieldNDVI.xlsx')
+write.xlsx(TG_C_Spatial_GC, 'TG_C_Spatial_GC.xlsx')
+write.xlsx(TG_C_Spatial_FieldSize, 'TG_C_Spatial_FieldSize.xlsx')
+write.xlsx(TG_C_Spatial_Height, 'TG_C_Spatial_Height.xlsx')
+write.xlsx(TG_C_Spatial_Rip, 'TG_C_Spatial_Rip.xlsx')
+
+
+#TO DO STEP 4, STEP 5 ----
+
+#Trait Group E----
+##Step 1: Modelling Design Variables----
+
+head(FDModel);dim(FDModel)
+str(FDModel)
+
+TGE_null <- glmmTMB(TG_E  ~ 1 + (1 | Field), family = binomial, data = FDModel)
+
+TGE_P <- glmmTMB(TG_E ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGE_A <- glmmTMB(TG_E ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGE_D <- glmmTMB(TG_E ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+
+TGE_PA <- glmmTMB(TG_E ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGE_PD <- glmmTMB(TG_E ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGE_DA <- glmmTMB(TG_E ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGE_PxA <- glmmTMB(TG_E ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGE_PxD <- glmmTMB(TG_E ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGE_DxA <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGE_PAD <- glmmTMB(TG_E ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGE_PxAD <- glmmTMB(TG_E ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGE_PxDA <- glmmTMB(TG_E ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGE_PAxD <- glmmTMB(TG_E ~ Position + Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+#collect models
+TGE_modlist <- list("null" = TGE_null, "P" = TGE_P,"A" = TGE_A,
+                    "D" = TGE_D, "PA" = TGE_PA, "PD" = TGE_PD, 
+                    "DA" = TGE_DA, "PxA" = TGE_PxA, 
+                    "PxD" = TGE_PxD,"DxA" = TGE_DxA,
+                    "PAD" = TGE_PAD,"PxAD" = TGE_PxAD, 
+                    "PxDA" = TGE_PxDA, "PAxD" = TGE_PAxD)
+
+aictab(TGE_modlist)
+#Top model is Day * Age
+
+##Step 2: Environmental Variables----
+
+head(FDModel)
+
+TGE_Height <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + Height + (1 | Field), family = binomial, data = FDModel)
+TGE_GC <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + GC + (1 | Field), family = binomial, data = FDModel)
+
+TGE_FieldArea <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + Field_Area_m2 + (1 | Field), family = binomial, data = FDModel)
+TGE_NDVIfield <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
+
+TGE_Rip <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGE_Crops <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGE_NDVI1km <- glmmTMB(TG_E ~ Day_Sampled * Crop_Age_Days + NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
+
+
+TGE_modlist2 <- list("null" = TGE_null,
+                     "Height" = TGE_Height,
+                     "GC" = TGE_GC,
+                     "Field Size" = TGE_FieldArea,
+                     "Field NDVI" = TGE_NDVIfield,
+                     "Rip" = TGE_Rip,
+                     "Crop" = TGE_Crops,
+                     "NDVI 1km" = TGE_NDVI1km)
+aictab(TGE_modlist2)
+#Top model is NDVI 1km (None within 2 AICc's)
+
+
+
+#TO DO STEP 3, STEP 4, STEP 5 ----
+
+#Trait Group F----
+##Step 1: Modelling Design Variables----
+
+head(FDModel);dim(FDModel)
+str(FDModel)
+
+TGF_null <- glmmTMB(TG_F  ~ 1 + (1 | Field), family = binomial, data = FDModel)
+
+TGF_P <- glmmTMB(TG_F ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGF_A <- glmmTMB(TG_F ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGF_D <- glmmTMB(TG_F ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+
+TGF_PA <- glmmTMB(TG_F ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGF_PD <- glmmTMB(TG_F ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGF_DA <- glmmTMB(TG_F ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGF_PxA <- glmmTMB(TG_F ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGF_PxD <- glmmTMB(TG_F ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGF_DxA <- glmmTMB(TG_F ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGF_PAD <- glmmTMB(TG_F ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGF_PxAD <- glmmTMB(TG_F ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGF_PxDA <- glmmTMB(TG_F ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGF_PAxD <- glmmTMB(TG_F ~ Position + Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+#collect models
+TGF_modlist <- list("null" = TGF_null, "P" = TGF_P,"A" = TGF_A,
+                    "D" = TGF_D, "PA" = TGF_PA, "PD" = TGF_PD, 
+                    "DA" = TGF_DA, "PxA" = TGF_PxA, 
+                    "PxD" =TGF_PxD,"DxA" = TGF_DxA,
+                    "PAD" = TGF_PAD,"PxAD" = TGF_PxAD, 
+                    "PxDA" = TGF_PxDA, "PAxD" = TGF_PAxD)
+
+aictab(TGF_modlist)
+#Top model is null
+
+##Step 2: Environmental Variables----
+
+head(FDModel)
+
+TGF_Height <- glmmTMB(TG_F ~ Height + (1 | Field), family = binomial, data = FDModel)
+TGF_GC <- glmmTMB(TG_F ~ GC + (1 | Field), family = binomial, data = FDModel)
+
+TGF_FieldArea <- glmmTMB(TG_F ~ Field_Size_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGF_NDVIfield <- glmmTMB(TG_F ~ NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
+
+TGF_Rip <- glmmTMB(TG_F ~ X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGF_Crops <- glmmTMB(TG_F ~ X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGF_NDVI1km <- glmmTMB(TG_F ~ NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
+
+
+TGF_modlist2 <- list("null" = TGF_null,
+                     "Height" = TGF_Height,
+                     "GC" = TGF_GC,
+                     "Field Size" = TGF_FieldArea,
+                     "Field NDVI" = TGF_NDVIfield,
+                     "Rip" = TGF_Rip,
+                     "Crop" = TGF_Crops,
+                     "NDVI 1km" = TGF_NDVI1km)
+aictab(TGF_modlist2)
+#Top model is GC (None within 2 AICc's)
+
+
+
+#TO DO STEP 3, STEP 4, STEP 5 ----
+
+#Trait Group G----
+##Step 1: Modelling Design Variables----
+
+head(FDModel);dim(FDModel)
+str(FDModel)
+
+TGG_null <- glmmTMB(TG_G  ~ 1 + (1 | Field), family = binomial, data = FDModel)
+
+TGG_P <- glmmTMB(TG_G ~ Position + (1 | Field), family = binomial, data = FDModel)
+TGG_A <- glmmTMB(TG_G ~ Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGG_D <- glmmTMB(TG_G ~ Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+
+TGG_PA <- glmmTMB(TG_G ~ Position + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGG_PD <- glmmTMB(TG_G ~ Position + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGG_DA <- glmmTMB(TG_G ~ Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGG_PxA <- glmmTMB(TG_G ~ Position * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+TGG_PxD <- glmmTMB(TG_G ~ Position * Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGG_DxA <- glmmTMB(TG_G ~ Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+TGG_PAD <- glmmTMB(TG_G ~ Position + Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel) 
+TGG_PxAD <- glmmTMB(TG_G ~ Position * Crop_Age_Days + Day_Sampled + (1 | Field), family = binomial, data = FDModel)
+TGG_PxDA <- glmmTMB(TG_G ~ Position * Day_Sampled + Crop_Age_Days + (1 | Field), family = binomial, data = FDModel)
+TGG_PAxD <- glmmTMB(TG_G ~ Position + Day_Sampled * Crop_Age_Days + (1 | Field), family = binomial, data = FDModel) 
+
+#collect models
+TGG_modlist <- list("null" = TGG_null, "P" = TGG_P,"A" = TGG_A,
+                    "D" = TGG_D, "PA" = TGG_PA, "PD" = TGG_PD, 
+                    "DA" = TGG_DA, "PxA" = TGG_PxA, 
+                    "PxD" = TGG_PxD,"DxA" = TGG_DxA,
+                    "PAD" = TGG_PAD,"PxAD" = TGG_PxAD, 
+                    "PxDA" = TGG_PxDA, "PAxD" = TGG_PAxD)
+
+aictab(TGG_modlist)
+#Top model is Day
+
+##Step 2: Environmental Variables----
+
+head(FDModel)
+
+TGG_Height <- glmmTMB(TG_G ~ Day_Sampled + Height + (1 | Field), family = binomial, data = FDModel)
+TGG_GC <- glmmTMB(TG_G ~ Day_Sampled + GC + (1 | Field), family = binomial, data = FDModel)
+
+TGG_FieldArea <- glmmTMB(TG_G ~ Day_Sampled + Field_Size_Scaled + (1 | Field), family = binomial, data = FDModel)
+TGG_NDVIfield <- glmmTMB(TG_G ~ Day_Sampled + NDVImean_Field  + (1 | Field), family = binomial, data = FDModel)  
+
+TGG_Rip <- glmmTMB(TG_G ~ Day_Sampled + X1km_Rip_Prop + (1 | Field), family = binomial, data = FDModel) 
+TGG_Crops <- glmmTMB(TG_G ~ Day_Sampled + X1km_Prop_Crops + (1 | Field), family = binomial, data = FDModel) 
+TGG_NDVI1km <- glmmTMB(TG_G ~ Day_Sampled + NDVIsum_1km + (1 | Field), family = binomial, data = FDModel)
+
+
+TGG_modlist2 <- list("null" = TGG_null,
+                     "Height" = TGG_Height,
+                     "GC" = TGG_GC,
+                     "Field Size" = TGG_FieldArea,
+                     "Field NDVI" = TGG_NDVIfield,
+                     "Rip" = TGG_Rip,
+                     "Crop" = TGG_Crops,
+                     "NDVI" = TGG_NDVI1km)
+aictab(TGG_modlist2)
+#Top model is Crop (3 within 2 AICc's)
+
+
+
+#TO DO STEP 3, STEP 4, STEP 5 ----
 
 #END----

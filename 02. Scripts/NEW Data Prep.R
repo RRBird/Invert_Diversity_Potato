@@ -28,6 +28,7 @@ head(morpho);dim(morpho)
 obs <- read.csv("01. Data/Observation_Data.csv")
 head(obs);dim(obs)
 
+head
 
 #Prepping data----
 
@@ -255,10 +256,9 @@ head(TaxModel);dim(TaxModel)
 
 #Setting up for RLQ Analysis----
 
-#filter for orders included in functional analysis
-#tried with all orders and the amount of groups recommended was insane, so only keeping orders with a high number of individuals
+#filtered out morphospecies that are an unknown order
 
-length(which(is.na(invert$Order))
+length(which(is.na(invert$Order)))
 
 invert_filtered <- invert[-which(is.na(invert$Order)), ]
 
@@ -377,6 +377,9 @@ any(is.na(L_matrix)) #No NA's
 any(is.na(R_matrix)) #No NA's
 any(is.na(Q_matrix)) #No NA's
 
+head(L_matrix[,1:10]);dim(L_matrix)
+head(R_matrix[,1:10]);dim(R_matrix)
+head(Q_matrix);dim(Q_matrix)
 
 #Traits need to be factors
 
