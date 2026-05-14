@@ -667,14 +667,27 @@ TG_B_pred2<-data.frame(TG_B_pred,fit.link=TG_B_pred1$fit,se.link=TG_B_pred1$se.f
 TG_B_pred2$lci.link<-TG_B_pred2$fit.link-(1.96*TG_B_pred2$se.link)
 TG_B_pred2$uci.link<-TG_B_pred2$fit.link+(1.96*TG_B_pred2$se.link)
 
-TG_B_pred2$fit<-exp(TG_B_pred2$fit.link)
-TG_B_pred2$se<-exp(TG_B_pred2$se.link)
-TG_B_pred2$lci<-exp(TG_B_pred2$lci.link)
-TG_B_pred2$uci<-exp(TG_B_pred2$uci.link)
+TG_B_pred2$fit<-plogis(TG_B_pred2$fit.link)
+TG_B_pred2$se<-plogis(TG_B_pred2$se.link)
+TG_B_pred2$lci<-plogis(TG_B_pred2$lci.link)
+TG_B_pred2$uci<-plogis(TG_B_pred2$uci.link)
 
 head(TG_B_pred2);dim(TG_B_pred2)
 
-#TO DO STEP 5 ----
+##Step 5: Visualisation----
+
+summary(TGB_FieldArea)
+head(TG_B_pred2);dim(TG_B_pred2)
+
+
+dev.new(height=5,width=5,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = FDModel$Field_Size_Scaled,y = FDModel$TG_B,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,xaxt = 'n',ylim = c(0,1))
+axis(side=1, at=seq(from=min(TG_B_pred2$Field_Size_Scaled),to=max(TG_B_pred2$Field_Size_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
+
+polygon(x = c(TG_B_pred2$Field_Size_Scaled,rev(TG_B_pred2$Field_Size_Scaled)), y = c(TG_B_pred2$lci,rev(TG_B_pred2$uci)),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_B_pred2$Field_Size_Scaled,y = TG_B_pred2$fit,lwd = 2,col = 'grey30',lty = 1)
 
 
 #Trait Group C----
@@ -803,7 +816,141 @@ TG_C_Spatial_Size <- TGspatial_result
 write.xlsx(TG_C_Spatial_Rip, 'TG_C_Spatial_Rip.xlsx')
 write.xlsx(TG_C_Spatial_Size, 'TG_C_Spatial_Size.xlsx')
 
-#TO DO STEP 4, STEP 5 ----
+##Step 4: Predictions----
+
+#Riparian Predictions
+summary(TGC_Rip)
+
+TG_Predictions_Age <- seq(min(FDModel$Crop_Age_Days),max(FDModel$Crop_Age_Days),length.out=20)
+TG_Predictions_Day <- seq(min(FDModel$Day_Sampled),max(FDModel$Day_Sampled),length.out=20)
+TG_Predictions_Rip <- seq(min(FDModel$X1km_Rip_Prop),max(FDModel$X1km_Rip_Prop),length.out=20)
+
+
+TG_C_pred <- expand.grid(Position  = unique(FDModel$Position),
+                         Crop_Age_Days = TG_Predictions_Age,
+                         Day_Sampled = TG_Predictions_Day,
+                         X1km_Rip_Prop = TG_Predictions_Rip)
+
+head(TG_C_pred);dim(TG_C_pred)
+
+TG_C_pred1 <- predict(object = TGC_Rip,newdata= TG_C_pred,se.fit = T, type = "link",re.form = ~0)
+
+TG_C_pred2<-data.frame(TG_C_pred,fit.link=TG_C_pred1$fit,se.link=TG_C_pred1$se.fit)
+
+TG_C_pred2$lci.link<-TG_C_pred2$fit.link-(1.96*TG_C_pred2$se.link)
+TG_C_pred2$uci.link<-TG_C_pred2$fit.link+(1.96*TG_C_pred2$se.link)
+
+TG_C_pred2$fit<-plogis(TG_C_pred2$fit.link)
+TG_C_pred2$se<-plogis(TG_C_pred2$se.link)
+TG_C_pred2$lci<-plogis(TG_C_pred2$lci.link)
+TG_C_pred2$uci<-plogis(TG_C_pred2$uci.link)
+
+head(TG_C_pred2);dim(TG_C_pred2)
+
+#Field Area predictions
+summary(TGC_FieldArea)
+
+
+TG_C_pred3 <- expand.grid(Position  = unique(FDModel$Position),
+                         Crop_Age_Days = TG_Predictions_Age,
+                         Day_Sampled = TG_Predictions_Day,
+              Field_Size_Scaled = TG_Predictions_FieldSize_Scaled)
+
+head(TG_C_pred3);dim(TG_C_pred3)
+
+TG_C_pred4 <- predict(object = TGC_FieldArea,newdata= TG_C_pred3,se.fit = T, type = "link",re.form = ~0)
+
+TG_C_pred5<-data.frame(TG_C_pred3,fit.link=TG_C_pred4$fit,se.link=TG_C_pred4$se.fit)
+
+TG_C_pred5$lci.link<-TG_C_pred5$fit.link-(1.96*TG_C_pred5$se.link)
+TG_C_pred5$uci.link<-TG_C_pred5$fit.link+(1.96*TG_C_pred5$se.link)
+
+TG_C_pred5$fit<-plogis(TG_C_pred5$fit.link)
+TG_C_pred5$se<-plogis(TG_C_pred5$se.link)
+TG_C_pred5$lci<-plogis(TG_C_pred5$lci.link)
+TG_C_pred5$uci<-plogis(TG_C_pred5$uci.link)
+
+head(TG_C_pred5);dim(TG_C_pred5)
+
+##Step 5: Visualisation----
+
+summary(TGC_Rip)
+head(TG_C_pred2);dim(TG_C_pred2)
+
+raw_x <- ifelse(FDModel$Position == "Outer", 1, 
+                ifelse(FDModel$Position == "Inner", 2, NA))
+
+AA <- TG_C_pred2$Crop_Age_Days == TG_Predictions_Age[10] & TG_C_pred2$Day_Sampled == TG_Predictions_Day [10] & TG_C_pred2$X1km_Rip_Prop ==TG_Predictions_Rip[10]
+AAA <- TG_C_pred2$Day_Sampled == TG_Predictions_Day [10] & TG_C_pred2$X1km_Rip_Prop ==TG_Predictions_Rip[10] & TG_C_pred2$Position == "Outer"
+A_A <- TG_C_pred2$Crop_Age_Days == TG_Predictions_Age [10] & TG_C_pred2$X1km_Rip_Prop ==TG_Predictions_Rip[10] & TG_C_pred2$Position == "Outer"
+A_A_ <- TG_C_pred2$Crop_Age_Days == TG_Predictions_Age [10] & TG_C_pred2$Day_Sampled ==TG_Predictions_Day[10] & TG_C_pred2$Position == "Outer"
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = 1:2,y = TG_C_pred2$fit [AA],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
+axis(side=1,at=1:2,labels=c('Outer','Inner'))
+
+arrows(x0=1:2, y0=TG_C_pred2$lci [AA],x1=1:2, y1=TG_C_pred2$uci[AA],angle=90,length=0.2, code=3, lwd=2,col = "black")
+
+points(x = jitter(raw_x, factor = 1),y = FDModel$TG_C, pch = 16, cex = 0.4, col = "black")
+
+
+plot(x = jitter(FDModel$Crop_Age_Days,factor = 1),y = FDModel$TG_C,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
+
+polygon(x = c(TG_C_pred2$Crop_Age_Days[AAA],rev(TG_C_pred2$Crop_Age_Days[AAA])), y = c(TG_C_pred2$lci[AAA],rev(TG_C_pred2$uci[AAA])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred2$Crop_Age_Days[AAA],y = TG_C_pred2$fit[AAA],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = jitter(FDModel$Day_Sampled,factor = 1),y = FDModel$TG_C,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
+
+polygon(x = c(TG_C_pred2$Day_Sampled[A_A],rev(TG_C_pred2$Day_Sampled[A_A])), y = c(TG_C_pred2$lci[A_A],rev(TG_C_pred2$uci[A_A])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred2$Day_Sampled[A_A],y = TG_C_pred2$fit[A_A],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = jitter(FDModel$X1km_Rip_Prop,factor = 1),y = FDModel$TG_C,xlab = "Proprtion Riparian",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
+
+polygon(x = c(TG_C_pred2$X1km_Rip_Prop[A_A_],rev(TG_C_pred2$X1km_Rip_Prop[A_A_])), y = c(TG_C_pred2$lci[A_A_],rev(TG_C_pred2$uci[A_A_])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred2$X1km_Rip_Prop[A_A_],y = TG_C_pred2$fit[A_A_],lwd = 2,col = 'grey30',lty = 1)
+
+#Field Model
+
+summary(TGC_FieldArea)
+head(TG_C_pred5);dim(TG_C_pred5)
+
+CC <- TG_C_pred5$Crop_Age_Days == TG_Predictions_Age[10] & TG_C_pred5$Day_Sampled == TG_Predictions_Day [10] & TG_C_pred5$Field_Size_Scaled ==TG_Predictions_FieldSize_Scaled[10]
+CCC <- TG_C_pred5$Day_Sampled == TG_Predictions_Day [10] & TG_C_pred5$Field_Size_Scaled ==TG_Predictions_FieldSize_Scaled[10] & TG_C_pred5$Position == "Outer"
+C_C <- TG_C_pred5$Crop_Age_Days == TG_Predictions_Age [10] & TG_C_pred5$Field_Size_Scaled ==TG_Predictions_FieldSize_Scaled[10] & TG_C_pred5$Position == "Outer"
+C_C_ <- TG_C_pred5$Crop_Age_Days == TG_Predictions_Age [10] & TG_C_pred5$Day_Sampled ==TG_Predictions_Day[10] & TG_C_pred5$Position == "Outer"
+
+dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = 1:2,y = TG_C_pred5$fit [CC],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
+axis(side=1,at=1:2,labels=c('Outer','Inner'))
+
+arrows(x0=1:2, y0=TG_C_pred5$lci [CC],x1=1:2, y1=TG_C_pred5$uci[CC],angle=90,length=0.2, code=3, lwd=2,col = "black")
+
+points(x = jitter(raw_x, factor = 1),y = FDModel$TG_C, pch = 16, cex = 0.4, col = "black")
+
+
+plot(x = jitter(FDModel$Crop_Age_Days,factor = 1),y = FDModel$TG_C,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
+
+polygon(x = c(TG_C_pred5$Crop_Age_Days[CCC],rev(TG_C_pred5$Crop_Age_Days[CCC])), y = c(TG_C_pred5$lci[CCC],rev(TG_C_pred5$uci[CCC])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred5$Crop_Age_Days[CCC],y = TG_C_pred5$fit[CCC],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = jitter(FDModel$Day_Sampled,factor = 1),y = FDModel$TG_C,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
+
+polygon(x = c(TG_C_pred5$Day_Sampled[C_C],rev(TG_C_pred5$Day_Sampled[C_C])), y = c(TG_C_pred5$lci[C_C],rev(TG_C_pred5$uci[C_C])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred5$Day_Sampled[C_C],y = TG_C_pred5$fit[C_C],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = jitter(FDModel$Field_Size_Scaled,factor = 1),y = FDModel$TG_C,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
+axis(side=1, at=seq(from=min(TG_C_pred5$Field_Size_Scaled),to=max(TG_C_pred5$Field_Size_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=1)
+
+polygon(x = c(TG_C_pred5$Field_Size_Scaled[C_C_],rev(TG_C_pred5$Field_Size_Scaled[C_C_])), y = c(TG_C_pred5$lci[C_C_],rev(TG_C_pred5$uci[C_C_])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=TG_C_pred5$Field_Size_Scaled[C_C_],y = TG_C_pred5$fit[C_C_],lwd = 2,col = 'grey30',lty = 1)
 
 
 
