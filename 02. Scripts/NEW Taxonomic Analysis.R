@@ -14,6 +14,9 @@ library("DHARMa")
 library("arm")
 library("openxlsx")
 
+length(which(TaxModel$Species_Rich==0))/
+  length(TaxModel$Species_Rich)
+
 #SPECIES RICHNESSS----
 
 
@@ -188,19 +191,19 @@ R_R <- richpred2$Age_Scaled == Predictions_Age[10]
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Taxonomic Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
-mtext(side=3,line=0,at = -2.1,'a)',cex=1.1)
-
-polygon(x = c(richpred2$Age_Scaled[RR],rev(richpred2$Age_Scaled[RR])), y = c(richpred2$lci[RR],rev(richpred2$uci[RR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=richpred2$Age_Scaled[RR],y = richpred2$fit[RR],lwd = 2,col = 'grey30',lty = 1)
-
-plot(x = TaxModel$FieldArea_Scaled,y = TaxModel$Species_Rich,xlab = expression("Field Size (ha)"),ylab = 'Taxonomic Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
-mtext(side=3,line=0,at = -2.3,'b)',cex=1.1)
+plot(x = TaxModel$FieldArea_Scaled,y = TaxModel$Species_Rich,xlab = expression("Field Size (ha)"),ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,xaxt ="n")
+mtext(side=3,line=0,at = -2.3,'a)',cex=1.1)
 axis(side=1, at=seq(from=min(TaxModel$FieldArea_Scaled),to=max(TaxModel$FieldArea_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Field_Area_m2),to=max(TaxModel$Field_Area_m2),length.out=6)/10000,1))
 
 polygon(x = c(richpred2$FieldArea_Scaled[R_R],rev(richpred2$FieldArea_Scaled[R_R])), y = c(richpred2$lci[R_R],rev(richpred2$uci[R_R])),col = rgb(0.5, 0.5, 0.5, 0.5),border=NA)
 lines(x=richpred2$FieldArea_Scaled[R_R],y = richpred2$fit[R_R],lwd = 2,col = 'grey30')
+
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Species Richness', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
+mtext(side=3,line=0,at = -2.1,'b)',cex=1.1)
+
+polygon(x = c(richpred2$Age_Scaled[RR],rev(richpred2$Age_Scaled[RR])), y = c(richpred2$lci[RR],rev(richpred2$uci[RR])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=richpred2$Age_Scaled[RR],y = richpred2$fit[RR],lwd = 2,col = 'grey30',lty = 1)
 
 
 #DIVERSITY MODELLING----
@@ -269,92 +272,17 @@ divlist2 <- list("null" = Div_null, "height" = Div_Height,
                 "DxA" = Div_DxA)
 aictab(divlist2)
 
-#top model is DxA with crops, field NDVI, NDVI 1km and GC witgin 2 AICc within 2 AICc
-#all ranked within 2 improved log liklihood
-#now going to look at effect size - see if it overlaps 0 (don't want to overlap 0 - means not a strong influence)
-
-#models I'm investigating
-ModList <- list(Div_DxA,Div_Crop, Div_FieldNDVI,Div_NDVI1km, Div_GC)
-Coefs_list <- list()
-m <- 1
-
-for (M in ModList) {
-  Coefs <- data.frame(Estimate = 
-                            c(summary(M)$coefficients[,1]),
-                          SE = 
-                            c(summary(M)$coefficients[,2]),
-                          Term = rownames(summary(
-                            M)$coefficients))
-  
-  Coefs$lci <- Coefs$Estimate - (Coefs$SE * 1.96)
-  Coefs$uci <- Coefs$Estimate + (Coefs$SE * 1.96)
-  rownames(Coefs) <- Coefs$Term
-  
-  Coefs_list[[m]] <- Coefs
-  
-  m <- m+1
-}
-
-Coefs_list
-
-term_replacements <- c(
-  "Age_Scaled"    = "Age", "Day_Scaled"    = "Day",
-  "Day_Scaled:Age_Scaled" = "Day:Age", "NDVIsum_1km" = "NDVI 1km",
-  "NDVImean_Field"  = "NDVI Field", 
-  "X1km_Prop_Crops"   = "Crops 1km")
-
-
-Coefs_list <- lapply(Coefs_list, function(df) {
-  matched <- term_replacements[df$Term]
-  df$Term <- ifelse(is.na(matched), df$Term, matched)
-  df
-})
-
-Coefs_list <- lapply(Coefs_list, function(df) {
-  rownames(df) <- df$Term
-  df
-})
-
-#check coefficents try to get the distance between the two rows better (par for each plot??)
-#Age crosses 0 but is in interaction so all good - all Enviro models have the extra parameter crossing 0 so just DxA to continue
-
-dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(5,5,2,3),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = T,oma =c(0,0,1,0))
-
-plot(Coefs_list[[1]]$Estimate, rev(1:nrow(Coefs_list[[1]])),xlim = c(min(Coefs_list[[1]]$lci),max(Coefs_list[[1]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
-axis(side = 2, at = rev(1:nrow(Coefs_list[[1]])),labels=rownames(Coefs_list[[1]]),las =1)
-arrows(Coefs_list[[1]]$uci,rev(1:nrow(Coefs_list[[1]])), Coefs_list[[1]]$lci,rev(1:nrow(Coefs_list[[1]])), lwd =0.8,code = 0)
-arrows(0,0.9,0,4.1,code = 0, lwd = 0.8)
-mtext("a)", line=0.2, at = -0.7,cex = 0.9)
-
-plot(Coefs_list[[2]]$Estimate, rev(1:nrow(Coefs_list[[2]])),xlim = c(min(Coefs_list[[2]]$lci),max(Coefs_list[[2]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
-axis(side = 2, at = rev(1:nrow(Coefs_list[[2]])),labels=rownames(Coefs_list[[2]]),las =1)
-arrows(Coefs_list[[2]]$uci,rev(1:nrow(Coefs_list[[2]])), Coefs_list[[2]]$lci,rev(1:nrow(Coefs_list[[2]])), lwd =0.8,code = 0)
-arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
-mtext("b)", line=0.2, at = -0.9,cex = 0.9)
-
-plot(Coefs_list[[3]]$Estimate, rev(1:nrow(Coefs_list[[3]])),xlim = c(min(Coefs_list[[3]]$lci),max(Coefs_list[[3]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
-axis(side = 2, at = rev(1:nrow(Coefs_list[[3]])),labels=rownames(Coefs_list[[3]]),las =1)
-arrows(Coefs_list[[3]]$uci,rev(1:nrow(Coefs_list[[3]])), Coefs_list[[3]]$lci,rev(1:nrow(Coefs_list[[3]])), lwd =0.8,code = 0)
-arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
-mtext("c)", line=0.2, at = -3,cex = 0.9)
-
-plot(Coefs_list[[4]]$Estimate, rev(1:nrow(Coefs_list[[4]])),xlim = c(min(Coefs_list[[4]]$lci),max(Coefs_list[[4]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
-axis(side = 2, at = rev(1:nrow(Coefs_list[[4]])),labels=rownames(Coefs_list[[4]]),las =1)
-arrows(Coefs_list[[4]]$uci,rev(1:nrow(Coefs_list[[4]])), Coefs_list[[4]]$lci,rev(1:nrow(Coefs_list[[4]])), lwd =0.8,code = 0)
-arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
-mtext("d)", line=0.2, at = -0.7,cex = 0.9)
-
-plot(Coefs_list[[5]]$Estimate, rev(1:nrow(Coefs_list[[5]])),xlim = c(min(Coefs_list[[5]]$lci),max(Coefs_list[[5]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
-axis(side = 2, at = rev(1:nrow(Coefs_list[[5]])),labels=rownames(Coefs_list[[5]]),las =1)
-arrows(Coefs_list[[5]]$uci,rev(1:nrow(Coefs_list[[5]])), Coefs_list[[5]]$lci,rev(1:nrow(Coefs_list[[5]])), lwd =0.8,code = 0)
-arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
-mtext("e)", line=0.2, at = -0.7,cex = 0.9)
-
 
 ##Step 3 - Check for spatial autocorrelation----
 
-model_residuals <- simulateResiduals(Div_DxA)
+summary(Div_DxA)
+summary(Div_Crop)
+summary(Div_FieldNDVI)
+summary(Div_NDVI1km)
+summary(Div_GC)
+
+
+model_residuals <- simulateResiduals(Div_GC)
 spatial_result <- data.frame(
   field = rep(NA, length(field_numbers)),
   statistic = rep(NA, length(field_numbers)),
@@ -399,9 +327,12 @@ spatial_result
 #saved results
 
 Spatial_auto_TaxDiv <- spatial_result 
+Spatial_auto_TaxDivCrop <- spatial_result 
+Spatial_auto_TaxDivNDVIfield <- spatial_result
+Spatial_auto_TaxDivNDVI1km <- spatial_result
+Spatial_auto_TaxDivGC <- spatial_result
 
-
-#Spaital autocorrelation found in two fields but statistic is negligable
+#Spatial autocorrelation found in two fields but statistic is negligable
 write.xlsx(Spatial_auto_TaxDiv, 'SpatialResult.xlsx')
 
 ##Step 4 - Predictions----
@@ -426,6 +357,96 @@ Divpred2$uci<-exp(Divpred2$uci.link)
 head(Divpred2);dim(Divpred2)
 
 
+summary(Div_Crop)
+Div_Predictions_Crops <- seq(min(TaxModel$X1km_Prop_Crops),max(TaxModel$X1km_Prop_Crops),length.out=20)
+
+
+Divpred3 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,X1km_Prop_Crops = Div_Predictions_Crops)
+head(Divpred3);dim(Divpred3)
+
+Divpred4 <- predict(object = Div_Crop,newdata= Divpred3,se.fit = T, type = "link",re.form = NA)
+
+Divpred5<-data.frame(Divpred3,fit.link=Divpred4$fit,se.link=Divpred4$se.fit)
+
+Divpred5$lci.link<-Divpred5$fit.link-(1.96*Divpred5$se.link)
+Divpred5$uci.link<-Divpred5$fit.link+(1.96*Divpred5$se.link)
+
+Divpred5$fit<-exp(Divpred5$fit.link)
+Divpred5$se<-exp(Divpred5$se.link)
+Divpred5$lci<-exp(Divpred5$lci.link)
+Divpred5$uci<-exp(Divpred5$uci.link)
+
+head(Divpred5);dim(Divpred5)
+
+
+summary(Div_FieldNDVI)
+Div_Predictions_FieldNDVI <- seq(min(TaxModel$NDVImean_Field),max(TaxModel$NDVImean_Field),length.out=20)
+
+
+Divpred6 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,NDVImean_Field = Div_Predictions_FieldNDVI)
+head(Divpred6);dim(Divpred6)
+
+Divpred7 <- predict(object = Div_FieldNDVI,newdata= Divpred6,se.fit = T, type = "link",re.form = NA)
+
+Divpred8<-data.frame(Divpred6,fit.link=Divpred7$fit,se.link=Divpred7$se.fit)
+
+Divpred8$lci.link<-Divpred8$fit.link-(1.96*Divpred8$se.link)
+Divpred8$uci.link<-Divpred8$fit.link+(1.96*Divpred8$se.link)
+
+Divpred8$fit<-exp(Divpred8$fit.link)
+Divpred8$se<-exp(Divpred8$se.link)
+Divpred8$lci<-exp(Divpred8$lci.link)
+Divpred8$uci<-exp(Divpred8$uci.link)
+
+head(Divpred8);dim(Divpred8)
+
+
+summary(Div_NDVI1km)
+Div_Predictions_NDVI1km <- seq(min(TaxModel$NDVIsum_1km),max(TaxModel$NDVIsum_1km),length.out=20)
+
+
+Divpred9 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,NDVIsum_1km = Div_Predictions_NDVI1km)
+head(Divpred9);dim(Divpred9)
+
+Divpred10 <- predict(object = Div_NDVI1km,newdata= Divpred9,se.fit = T, type = "link",re.form = NA)
+
+Divpred11<-data.frame(Divpred9,fit.link=Divpred10$fit,se.link=Divpred10$se.fit)
+
+Divpred11$lci.link<-Divpred11$fit.link-(1.96*Divpred11$se.link)
+Divpred11$uci.link<-Divpred11$fit.link+(1.96*Divpred11$se.link)
+
+Divpred11$fit<-exp(Divpred11$fit.link)
+Divpred11$se<-exp(Divpred11$se.link)
+Divpred11$lci<-exp(Divpred11$lci.link)
+Divpred11$uci<-exp(Divpred11$uci.link)
+
+head(Divpred11);dim(Divpred11)
+
+
+
+summary(Div_GC)
+
+Div_Predictions_GC <- seq(min(TaxModel$GC),max(TaxModel$GC),length.out=20)
+
+
+Divpred12 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,GC = Div_Predictions_GC)
+head(Divpred12);dim(Divpred12)
+
+Divpred13 <- predict(object = Div_GC,newdata= Divpred12,se.fit = T, type = "link",re.form = NA)
+
+Divpred14<-data.frame(Divpred12,fit.link=Divpred13$fit,se.link=Divpred13$se.fit)
+
+Divpred14$lci.link<-Divpred14$fit.link-(1.96*Divpred14$se.link)
+Divpred14$uci.link<-Divpred14$fit.link+(1.96*Divpred14$se.link)
+
+Divpred14$fit<-exp(Divpred14$fit.link)
+Divpred14$se<-exp(Divpred14$se.link)
+Divpred14$lci<-exp(Divpred14$lci.link)
+Divpred14$uci<-exp(Divpred14$uci.link)
+
+head(Divpred14);dim(Divpred14)
+
+
 ##Step 5 - Model Visalisation----
 
 
@@ -439,8 +460,8 @@ Y_Y <- Divpred2$Day_Scaled == Predictions_Day[15] #Spring
 dev.new(height=5,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(1,2),mgp=c(2.5,1,0),xpd = T)
 
-plot(x = TaxModel$Age_Scaled,y = TaxModel$Species_Rich,xlab = "Crop Age (Days)",ylab = 'Taxonomic Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
-axis(side=1, at=seq(from=min(richpred2$Age_Scaled),to=max(richpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Diversity,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n')
+axis(side=1, at=seq(from=min(Divpred2$Age_Scaled),to=max(Divpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1))
 
 polygon(x = c(Divpred2$Age_Scaled[YY],rev(Divpred2$Age_Scaled[YY])), y = c(Divpred2$lci[YY],rev(Divpred2$uci[YY])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=Divpred2$Age_Scaled[YY],y = Divpred2$fit[YY],lwd = 2,col = 'grey30',lty = 1)
@@ -449,5 +470,64 @@ polygon(x = c(Divpred2$Age_Scaled[Y_Y],rev(Divpred2$Age_Scaled[Y_Y])), y = c(Div
 lines(x=Divpred2$Age_Scaled[Y_Y],y = Divpred2$fit[Y_Y],lwd = 2,col = 'grey30',lty = 2)
 
 legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+
+
+##Supporting Info Models----
+
+ZZ <- Divpred5$Day_Scaled == Predictions_Day[10] & Divpred5$Age_Scaled == Predictions_Age[10]
+ZZZ <- Divpred8$Day_Scaled == Predictions_Day[10] & Divpred8$Age_Scaled == Predictions_Age[10]
+Z_Z <- Divpred11$Day_Scaled == Predictions_Day[10] & Divpred11$Age_Scaled == Predictions_Age[10]
+ZZ_ZZ <- Divpred14$Day_Scaled == Predictions_Day[10] & Divpred14$Age_Scaled == Predictions_Age[10]
+
+
+
+dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(4,4,2,2),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = T)
+
+plot(x = TaxModel$Age_Scaled,y = TaxModel$Diversity,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',cex.lab= 1.3,cex.axis=1.2)
+axis(side=1, at=seq(from=min(Divpred2$Age_Scaled),to=max(Divpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1),cex.axis=1.2)
+mtext(side=3,line=0,at = -2.1,'a)',cex=1)
+
+polygon(x = c(Divpred2$Age_Scaled[YY],rev(Divpred2$Age_Scaled[YY])), y = c(Divpred2$lci[YY],rev(Divpred2$uci[YY])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred2$Age_Scaled[YY],y = Divpred2$fit[YY],lwd = 2,col = 'grey30',lty = 1)
+
+polygon(x = c(Divpred2$Age_Scaled[Y_Y],rev(Divpred2$Age_Scaled[Y_Y])), y = c(Divpred2$lci[Y_Y],rev(Divpred2$uci[Y_Y])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred2$Age_Scaled[Y_Y],y = Divpred2$fit[Y_Y],lwd = 2,col = 'grey30',lty = 2)
+
+legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1.3)
+
+
+plot(x = TaxModel$X1km_Prop_Crops,y = TaxModel$Diversity,xlab = "Crops within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2)
+mtext(side=3,line=0,at = 79.2,'b)',cex=1)
+
+polygon(x = c(Divpred5$X1km_Prop_Crops[ZZ],rev(Divpred5$X1km_Prop_Crops[ZZ])), y = c(Divpred5$lci[ZZ],rev(Divpred5$uci[ZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred5$X1km_Prop_Crops[ZZ],y = Divpred5$fit[ZZ],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = TaxModel$NDVImean_Field,y = TaxModel$Diversity,xlab = "Field NDVI",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2,xaxt = 'n')
+axis(side=1, at=seq(from=min(Divpred8$NDVImean_Field),to=max(Divpred8$NDVImean_Field),length.out=5),labels=round(seq(from=min(TaxModel$NDVImean_Field),to=max(TaxModel$NDVImean_Field),length.out=5),2),cex.axis=1.2)
+mtext(side=3,line=0,at = 0.12,'c)',cex=1)
+
+polygon(x = c(Divpred8$NDVImean_Field[ZZZ],rev(Divpred8$NDVImean_Field[ZZZ])), y = c(Divpred8$lci[ZZZ],rev(Divpred8$uci[ZZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred8$NDVImean_Field[ZZZ],y = Divpred8$fit[ZZZ],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = TaxModel$NDVIsum_1km,y = TaxModel$Diversity,xlab = "NDVI within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2,xaxt = 'n')
+axis(side=1, at=seq(from=min(Divpred11$NDVIsum_1km),to=max(Divpred11$NDVIsum_1km),length.out=5),labels=round(seq(from=min(TaxModel$NDVIsum_1km),to=max(TaxModel$NDVIsum_1km),length.out=5),-1),cex.axis=1.2)
+mtext(side=3,line=0,at = 370,'d)',cex=1)
+
+polygon(x = c(Divpred11$NDVIsum_1km[Z_Z],rev(Divpred11$NDVIsum_1km[Z_Z])), y = c(Divpred11$lci[Z_Z],rev(Divpred11$uci[Z_Z])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred11$NDVIsum_1km[Z_Z],y = Divpred11$fit[Z_Z],lwd = 2,col = 'grey30',lty = 1)
+
+
+plot(x = TaxModel$GC,y = TaxModel$Diversity,xlab = "Ground Cover (%)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2)
+mtext(side=3,line=0,at = 3,'e)',cex=1)
+
+polygon(x = c(Divpred14$GC[ZZ_ZZ],rev(Divpred14$GC[ZZ_ZZ])), y = c(Divpred14$lci[ZZ_ZZ],rev(Divpred14$uci[ZZ_ZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
+lines(x=Divpred14$GC[ZZ_ZZ],y = Divpred14$fit[ZZ_ZZ],lwd = 2,col = 'grey30',lty = 1)
+
+
+
+
 
 #END----

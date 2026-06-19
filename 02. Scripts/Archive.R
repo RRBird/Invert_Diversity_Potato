@@ -1,4 +1,95 @@
 
+#Checking coefficents of models-----
+
+
+#top model is DxA with crops, field NDVI, NDVI 1km and GC witgin 2 AICc within 2 AICc
+#all ranked within 2 improved log liklihood
+#now going to look at effect size - see if it overlaps 0 (don't want to overlap 0 - means not a strong influence)
+
+#models I'm investigating
+ModList <- list(Div_DxA,Div_Crop, Div_FieldNDVI,Div_NDVI1km, Div_GC)
+Coefs_list <- list()
+m <- 1
+
+for (M in ModList) {
+  Coefs <- data.frame(Estimate = 
+                        c(summary(M)$coefficients[,1]),
+                      SE = 
+                        c(summary(M)$coefficients[,2]),
+                      Term = rownames(summary(
+                        M)$coefficients))
+  
+  Coefs$lci <- Coefs$Estimate - (Coefs$SE * 1.96)
+  Coefs$uci <- Coefs$Estimate + (Coefs$SE * 1.96)
+  rownames(Coefs) <- Coefs$Term
+  
+  Coefs_list[[m]] <- Coefs
+  
+  m <- m+1
+}
+
+Coefs_list
+
+term_replacements <- c(
+  "Age_Scaled"    = "Age", "Day_Scaled"    = "Day",
+  "Day_Scaled:Age_Scaled" = "Day:Age", "NDVIsum_1km" = "NDVI 1km",
+  "NDVImean_Field"  = "NDVI Field", 
+  "X1km_Prop_Crops"   = "Crops 1km")
+
+
+Coefs_list <- lapply(Coefs_list, function(df) {
+  matched <- term_replacements[df$Term]
+  df$Term <- ifelse(is.na(matched), df$Term, matched)
+  df
+})
+
+Coefs_list <- lapply(Coefs_list, function(df) {
+  rownames(df) <- df$Term
+  df
+})
+
+#check coefficents try to get the distance between the two rows better (par for each plot??)
+#Age crosses 0 but is in interaction so all good - all Enviro models have the extra parameter crossing 0 so just DxA to continue
+
+
+
+dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
+par(mar=c(5,5,2,3),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = T,oma =c(0,0,1,0))
+
+plot(Coefs_list[[1]]$Estimate, rev(1:nrow(Coefs_list[[1]])),xlim = c(min(Coefs_list[[1]]$lci),max(Coefs_list[[1]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[1]])),labels=rownames(Coefs_list[[1]]),las =1)
+arrows(Coefs_list[[1]]$uci,rev(1:nrow(Coefs_list[[1]])), Coefs_list[[1]]$lci,rev(1:nrow(Coefs_list[[1]])), lwd =0.8,code = 0)
+arrows(0,0.9,0,4.1,code = 0, lwd = 0.8)
+mtext("a)", line=0.2, at = -0.7,cex = 0.9)
+
+plot(Coefs_list[[2]]$Estimate, rev(1:nrow(Coefs_list[[2]])),xlim = c(min(Coefs_list[[2]]$lci),max(Coefs_list[[2]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[2]])),labels=rownames(Coefs_list[[2]]),las =1)
+arrows(Coefs_list[[2]]$uci,rev(1:nrow(Coefs_list[[2]])), Coefs_list[[2]]$lci,rev(1:nrow(Coefs_list[[2]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("b)", line=0.2, at = -0.9,cex = 0.9)
+
+plot(Coefs_list[[3]]$Estimate, rev(1:nrow(Coefs_list[[3]])),xlim = c(min(Coefs_list[[3]]$lci),max(Coefs_list[[3]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[3]])),labels=rownames(Coefs_list[[3]]),las =1)
+arrows(Coefs_list[[3]]$uci,rev(1:nrow(Coefs_list[[3]])), Coefs_list[[3]]$lci,rev(1:nrow(Coefs_list[[3]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("c)", line=0.2, at = -3,cex = 0.9)
+
+plot(Coefs_list[[4]]$Estimate, rev(1:nrow(Coefs_list[[4]])),xlim = c(min(Coefs_list[[4]]$lci),max(Coefs_list[[4]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[4]])),labels=rownames(Coefs_list[[4]]),las =1)
+arrows(Coefs_list[[4]]$uci,rev(1:nrow(Coefs_list[[4]])), Coefs_list[[4]]$lci,rev(1:nrow(Coefs_list[[4]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("d)", line=0.2, at = -0.7,cex = 0.9)
+
+plot(Coefs_list[[5]]$Estimate, rev(1:nrow(Coefs_list[[5]])),xlim = c(min(Coefs_list[[5]]$lci),max(Coefs_list[[5]]$uci)),las =1, cex = 1.8, ylab = "", xlab = expression(bold("Effect Size")),pch = 20, yaxt = "n", col = "black")
+axis(side = 2, at = rev(1:nrow(Coefs_list[[5]])),labels=rownames(Coefs_list[[5]]),las =1)
+arrows(Coefs_list[[5]]$uci,rev(1:nrow(Coefs_list[[5]])), Coefs_list[[5]]$lci,rev(1:nrow(Coefs_list[[5]])), lwd =0.8,code = 0)
+arrows(0,0.8,0,5.15,code = 0, lwd = 0.8)
+mtext("e)", line=0.2, at = -0.7,cex = 0.9)
+
+
+
+
+
 #OLD FUNCTIONAL (trait group richness and diversity)----
 #extracting trait group
 

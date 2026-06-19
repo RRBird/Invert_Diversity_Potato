@@ -1,4 +1,4 @@
-options(scipen = 999) #prevents r from automatically displaying large numbers with scientic notation
+options(scipen = 999) #prevents r from automatically displaying large numbers with scientific notation
 
 #Author: Rhiannon Bird
 #Written under version R 4.5.1
@@ -199,6 +199,12 @@ table(invert$Order,invert$Trophic)
 table(invert$Order,invert$Size)
 table(invert$Order,invert$Hunting.Style)
 
+length(unique(invert$Morphospecies))
+length(invert$Morphospecies)
+table(invert$ID_Level)
+
+length(unique(invert$Family))
+length(unique(invert$Genus))
 #Prep for taxonomic Modelling----
 
 names(invert)[names(invert) == "ID"] <- "Site"
