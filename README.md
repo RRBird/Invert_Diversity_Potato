@@ -9,7 +9,7 @@ R scripts, project and data for invertebrate predator dominance analysis
 3. Results: Results from analysis included in article
 
 # Code Authors
-Rhiannon Bird and Annabel Smith unless otherwise stated in script
+Rhiannon Bird unless otherwise stated in script
 
 # License
 The Invert_Diversity_Potato project by Rhiannon Bird and Annabel Smith is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License
