@@ -81,10 +81,9 @@ hc2 <- hclust(dist(rlq1$lQ), method = "ward.D")
 dev.new(height=20,width=40,dpi=80,pointsize=14,noRStudioGD = T)
 plot(hc2) #uninterpretable
 
-#Calinsky-Harabasz criteria to find best partition 
-#calinski didn't work so dchanged it to calinhara 
+#Calinski-Harabasz criteria to find best partition 
 
-ntest <- 8
+ntest <- 10
 res <- rep(0,ntest - 1)
 
 for (i in 2:ntest){
@@ -100,10 +99,13 @@ mtext(side=3,line=0,at = 1.2,'a)',cex=1.1)
 plot(3:ntest, diff(res), type='b', pch=20, xlab="Number of groups", ylab = "Diff in C-H index")
 mtext(side=3,line=0,at = 2.2,'b)',cex=1.1)
 
+#nine groups as levels off between nine and 10
+
 
 spe.group2 <- as.factor(cutree(hc2, k = which.max(res) +1))
-levels(spe.group2) <- c("G","F",'E',"C","B","D","A")
-spe.group2 <- factor(spe.group2, levels=c("A","B","C","D","E","F","G"))
+levels(spe.group2) <- c("A","B","C","D","E","F","G","H","I")
+spe.group2 <- factor(spe.group2, levels=c("A","B","C","D","E","F","G","H","I"))
+summary(spe.group2)
 
 #biplot (trait groups + Traits and also with trait groups + enviro)----
 dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
@@ -120,16 +122,6 @@ dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 ade4::s.class(rlq1$lQ, spe.group2, col= 1:nlevels(spe.group2))
 s.arrow(rlq1$l1, add.plot = T, clab = 0.6,boxes = FALSE)
 
-#Making it more readable
-l1_short <- rlq1$l1
-rownames(l1_short) <- c("H", "GC", "In", "Out","Day   ", "A", "FA", "C", "NF", "N1km","R")
-l1_labels <- l1_short * 1.30
-
-dev.new(height=10, width=10, dpi=80, pointsize=14, noRStudioGD = T)
-ade4::s.class(rlq1$lQ, spe.group2, col = 1:nlevels(spe.group2))
-s.arrow(rlq1$l1, add.plot = T, clab = 0)
-s.label(l1_labels, add.plot = T, clab = 0.7, boxes = T)
-mtext(side=3,line=-4.8,at = 0.36,'*',cex=2)
 
 #Adjust these to match environmental variables in order
 #Check what they are first:
@@ -231,14 +223,17 @@ for(trait in names(Q_matrix)) {
 }
 
 str(heatmap_data)
+levels(heatmap_data$Trait_Value)
 
 heatmap_data$Trait_Value <- gsub("Active_Hunting", "Active", heatmap_data$Trait_Value)
 heatmap_data$Trait_Value <- gsub("Ambush_Hunter", "Ambush", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("No_Size", "No Size", heatmap_data$Trait_Value)
+heatmap_data$Trait_Value <- gsub("Web_Building", "Web", heatmap_data$Trait_Value)
 heatmap_data$Trait_Value <- gsub("0-2.5", "0-2.5mm", heatmap_data$Trait_Value)
 heatmap_data$Trait_Value <- gsub("2.5-5", "2.5-5mm", heatmap_data$Trait_Value)
 heatmap_data$Trait_Value <- gsub("5-10", "5-10mm", heatmap_data$Trait_Value)
 heatmap_data$Trait_Value <- gsub(">10", ">10mm", heatmap_data$Trait_Value)
-heatmap_data$Trait_Value <- gsub("No_Size", "No Size", heatmap_data$Trait_Value)
+
 
 heatmap_data$Trait <- gsub("Hunting.Style", "Hunting", heatmap_data$Trait)
 
@@ -1823,17 +1818,17 @@ TGG_modlist2 <- list("null" = TGG_null,
                      "NDVI" = TGG_NDVI1km,
                      "D" = TGG_D)
 aictab(TGG_modlist2)
-#Top model is Crop (3 within 2 AICc's)
+11.41#Top model is Crop (3 within 2 AICc's)
 #Day is within AICc's but crop is not considered uninformative because the models LL is improved by it 
 
 
 ##Step 3: Check for Spatial Autocorrelation----
 
 summary(TGG_Crops)
+summary(TGG_D)
 summary(TGG_NDVIfield)
 summary(TGG_FieldArea)
 summary(TGG_GC)
-summary(TGG_D)
 
 
 
@@ -2128,7 +2123,7 @@ dev.new(height=15,width=20,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(3,4),mgp=c(1.8,0.5,0),xpd = T)
 
 plot(x = 1:2,y = TG_C_pred2$fit [AA],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
-axis(side=1,at=1:2,labels=c('Outer','Inner'),cex.axis = 0.9)
+axis(side=1,at=c(1,2.3),labels=c('Edge','Interior'),cex.axis = 0.9)
 mtext(side=3,line=0,at = -0.3,'a)',cex=0.8)
 
 arrows(x0=1:2, y0=TG_C_pred2$lci [AA],x1=1:2, y1=TG_C_pred2$uci[AA],angle=90,length=0.1, code=3, lwd=2,col = "black")
@@ -2192,7 +2187,7 @@ lines(x=TG_D_pred2$Crop_Age_Days[DD],y = TG_D_pred2$fit[DD],lwd = 2,col = 'grey3
 
 polygon(x = c(TG_D_pred2$Crop_Age_Days[DDD],rev(TG_D_pred2$Crop_Age_Days[DDD])), y = c(TG_D_pred2$lci[DDD],rev(TG_D_pred2$uci[DDD])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=TG_D_pred2$Crop_Age_Days[DDD],y = TG_D_pred2$fit[DDD],lwd = 2,col = 'grey30',lty = 2)
-legend('bottomright',legend = c('Outer', "Inner"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+legend('bottomright',legend = c('Edge', "Interior"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 plot(x = FDModel$Day_Sampled,y = FDModel$TG_G,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
 mtext(side=3,line=0,at = 10,'h)',cex=0.8)
@@ -2255,7 +2250,7 @@ dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
 par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
 
 plot(x = 1:2,y = TG_C_pred5$fit [CC],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
-axis(side=1,at=1:2,labels=c('Outer','Inner'))
+axis(side=1,at=1:2,labels=c('Edge','Interior'))
 
 arrows(x0=1:2, y0=TG_C_pred5$lci [CC],x1=1:2, y1=TG_C_pred5$uci[CC],angle=90,length=0.2, code=3, lwd=2,col = "black")
 
@@ -2302,7 +2297,7 @@ lines(x=TG_D_pred5$Crop_Age_Days[DD.2],y = TG_D_pred5$fit[DD.2],lwd = 2,col = 'g
 
 polygon(x = c(TG_D_pred5$Crop_Age_Days[DDD.2],rev(TG_D_pred5$Crop_Age_Days[DDD.2])), y = c(TG_D_pred5$lci[DDD.2],rev(TG_D_pred5$uci[DDD.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
 lines(x=TG_D_pred5$Crop_Age_Days[DDD.2],y = TG_D_pred5$fit[DDD.2],lwd = 2,col = 'grey30',lty = 2)
-legend('bottomright',legend = c('Outer', "Inner"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+legend('bottomright',legend = c('Edge', "Interior"), lty = c(1,2), col = 'grey30',pt.cex = 1)
 
 
 plot(x = FDModel$Day_Sampled,y = FDModel$TG_G,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
