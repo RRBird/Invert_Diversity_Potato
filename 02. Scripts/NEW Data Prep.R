@@ -58,17 +58,6 @@ field <- field[,-which(names(field) =="Potato_Varient_1")]
 field <- field[,-which(names(field) =="Potato_Varient_2")] 
  
 
-table(field$X500m_Prop_Build) #high proportion of zeros makes it unsuitable for modelling 
-field <- field[,-which(names(field) =="X500m_Prop_Build")]
-
-table(field$X500m_Prop_Nat_Graze) #high proportion of zeros makes it unsuitable for modelling
-field <- field[,-which(names(field) =="X500m_Prop_Nat_Graze")]
-
-table(field$X500m_Rip_Prop)
-table(field$X500m_Prop_Crops)
-table(field$X500m_Prop_Water)
-
-
 table(field$X1km_Prop_Build)#Not enough variation in data - unsuitable for modelling
 field <- field[,-which(names(field) =="X1km_Prop_Build")]
 
@@ -111,7 +100,7 @@ cordata <- merge(cordata,field, by = "ID")
 
 head(cordata);dim(cordata)
 
-cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X500m_Prop_Crops,X1km_Prop_Crops,NDVImean_Field,NDVIsum_500m,NDVIsum_1km,X500m_Rip_Prop,X1km_Rip_Prop)
+cordata <- cordata %>% dplyr::select(Height, GC, Position,Day_Sampled,Crop_Age_Days,Field_Area_m2,X1km_Prop_Crops,NDVImean_Field,NDVIsum_1km,X1km_Rip_Prop)
 
 cordata$Position[cordata$Position == 'Outer'] <- 1
 cordata$Position[cordata$Position == 'Inner'] <- 2
@@ -119,8 +108,8 @@ cordata$Position <- as.numeric(cordata$Position)
 
 str(cordata)#checking for any other character variables
 cor <- cor(cordata,method = "spearman")
-colnames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Crop 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
-rownames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 500m","Crop 1000m","Field NDVI Mean","NDVI 500m Sum","NDVI 1000m Sum","Riparian 500m","Riparian 1000m")
+colnames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 1000m","Field NDVI Mean","NDVI 1000m Sum","Riparian 1000m")
+rownames(cor) <- c("Height", "Ground Cover", "Position","Day Sampled","Crop Age","Field Area","Crop 1000m","Field NDVI Mean","NDVI 1000m Sum","Riparian 1000m")
 
 dev.new(height=8,width=8,dpi=80,pointsize=14,noRStudioGD = T)
 corrplot::corrplot(cor,method="color",  

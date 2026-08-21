@@ -804,9 +804,9 @@ TGspatial_result
 
 
 TG_C_Spatial_Rip <- TGspatial_result
-#One field significant but spatial autocorrelation is negligable
+ 
 TG_C_Spatial_Size <- TGspatial_result
-#One field significant but spatial autocorrelation is negligable
+ 
 
 
 write.xlsx(TG_C_Spatial_Rip, 'TG_C_Spatial_Rip.xlsx')
@@ -843,30 +843,22 @@ TG_C_pred2$uci<-plogis(TG_C_pred2$uci.link)
 
 head(TG_C_pred2);dim(TG_C_pred2)
 
-#Field Area predictions
+#Field Area estimates
 summary(TGC_FieldArea)
 
+TGC_FieldArea_cf <- summary(TGC_FieldArea)$coefficients$cond
 
-TG_C_pred3 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-              Field_Size_Scaled = TG_Predictions_FieldSize_Scaled)
+TGC_FieldArea_cf <- data.frame(term = row.names(TGC_FieldArea_cf),TGC_FieldArea_cf)
+row.names(TGC_FieldArea_cf) <- 1:nrow(TGC_FieldArea_cf)
 
-head(TG_C_pred3);dim(TG_C_pred3)
+colnames(TGC_FieldArea_cf) <- c("term","est",'std_err',"z","p")
 
-TG_C_pred4 <- predict(object = TGC_FieldArea,newdata= TG_C_pred3,se.fit = T, type = "link",re.form = ~0)
+TGC_FieldArea_cf$lci <- TGC_FieldArea_cf$est-(1.96*TGC_FieldArea_cf$std_err)
+TGC_FieldArea_cf$uci <- TGC_FieldArea_cf$est+(1.96*TGC_FieldArea_cf$std_err)
 
-TG_C_pred5<-data.frame(TG_C_pred3,fit.link=TG_C_pred4$fit,se.link=TG_C_pred4$se.fit)
+head(TGC_FieldArea_cf)
 
-TG_C_pred5$lci.link<-TG_C_pred5$fit.link-(1.96*TG_C_pred5$se.link)
-TG_C_pred5$uci.link<-TG_C_pred5$fit.link+(1.96*TG_C_pred5$se.link)
-
-TG_C_pred5$fit<-plogis(TG_C_pred5$fit.link)
-TG_C_pred5$se<-plogis(TG_C_pred5$se.link)
-TG_C_pred5$lci<-plogis(TG_C_pred5$lci.link)
-TG_C_pred5$uci<-plogis(TG_C_pred5$uci.link)
-
-head(TG_C_pred5);dim(TG_C_pred5)
+TGC_FieldArea_cf$term <- c("Intercept", "Interior", "Age", "Day","Field Size")
 
 ##Step 5: Visualisation----
 
@@ -1011,7 +1003,7 @@ TGD_modlist2 <- list("null" = TGD_null,
                      "NDVI" = TGD_NDVI1km,
                      "PxAD" = TGD_PxAD)
 aictab(TGD_modlist2)
-#Top model is Posistion * Age + Day (none within 2 AICc)
+#Top model is Posistion * Age + Day (five within 2 AICc)
 
 ##Step 3: Check for Spatial Autocorrelation----
 
@@ -1067,12 +1059,12 @@ length(unique(FDModel$ID))
 
 TGspatial_result
 
-TG_D_Spatial_PxAD <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_D_Spatial_FieldNDVI <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_D_Spatial_GC <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_D_Spatial_FieldSize <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_D_Spatial_Height <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_D_Spatial_Rip <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+TG_D_Spatial_PxAD <- TGspatial_result
+TG_D_Spatial_FieldNDVI <- TGspatial_result 
+TG_D_Spatial_GC <- TGspatial_result 
+TG_D_Spatial_FieldSize <- TGspatial_result  
+TG_D_Spatial_Height <- TGspatial_result  
+TG_D_Spatial_Rip <- TGspatial_result  
 
 
 write.xlsx(TG_D_Spatial_PxAD, 'TG_D_Spatial_PxAD.xlsx')
@@ -1110,130 +1102,88 @@ head(TG_D_pred2);dim(TG_D_pred2)
 #NDVIfield
 summary(TGD_NDVIfield)
 
-TG_D_pred3 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-                         NDVImean_Field = TG_Predictions_NDVIField)
+TGD_NDVIfield_cf <- summary(TGD_NDVIfield)$coefficients$cond
 
-head(TG_D_pred3);dim(TG_D_pred3)
+TGD_NDVIfield_cf <- data.frame(term = row.names(TGD_NDVIfield_cf),TGD_NDVIfield_cf)
+row.names(TGD_NDVIfield_cf) <- 1:nrow(TGD_NDVIfield_cf)
 
-TG_D_pred4 <- predict(object = TGD_NDVIfield,newdata= TG_D_pred3,se.fit = T, type = "link",re.form = ~0)
+colnames(TGD_NDVIfield_cf) <- c("term","est",'std_err',"z","p")
 
-TG_D_pred5<-data.frame(TG_D_pred3,fit.link=TG_D_pred4$fit,se.link=TG_D_pred4$se.fit)
+TGD_NDVIfield_cf$lci <- TGD_NDVIfield_cf$est-(1.96*TGD_NDVIfield_cf$std_err)
+TGD_NDVIfield_cf$uci <- TGD_NDVIfield_cf$est+(1.96*TGD_NDVIfield_cf$std_err)
 
-TG_D_pred5$lci.link<-TG_D_pred5$fit.link-(1.96*TG_D_pred5$se.link)
-TG_D_pred5$uci.link<-TG_D_pred5$fit.link+(1.96*TG_D_pred5$se.link)
+head(TGD_NDVIfield_cf)
 
-TG_D_pred5$fit<-plogis(TG_D_pred5$fit.link)
-TG_D_pred5$se<-plogis(TG_D_pred5$se.link)
-TG_D_pred5$lci<-plogis(TG_D_pred5$lci.link)
-TG_D_pred5$uci<-plogis(TG_D_pred5$uci.link)
-
-head(TG_D_pred5);dim(TG_D_pred5)
+TGD_NDVIfield_cf$term <- c("Intercept", "Edge", "Age", "Day","NDVI Field", "Edge:Age")
 
 #Ground cover
 summary(TGD_GC)
 
-TG_Predictions_GC <- seq(min(FDModel$GC),max(FDModel$GC),length.out=20)
+TGD_GC_cf <- summary(TGD_GC)$coefficients$cond
 
+TGD_GC_cf <- data.frame(term = row.names(TGD_GC_cf),TGD_GC_cf)
+row.names(TGD_GC_cf) <- 1:nrow(TGD_GC_cf)
 
-TG_D_pred6 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-                         GC = TG_Predictions_GC)
+colnames(TGD_GC_cf) <- c("term","est",'std_err',"z","p")
 
-head(TG_D_pred6);dim(TG_D_pred6)
+TGD_GC_cf$lci <- TGD_GC_cf$est-(1.96*TGD_GC_cf$std_err)
+TGD_GC_cf$uci <- TGD_GC_cf$est+(1.96*TGD_GC_cf$std_err)
 
-TG_D_pred7 <- predict(object = TGD_GC,newdata= TG_D_pred6,se.fit = T, type = "link",re.form = ~0)
+head(TGD_GC_cf)
 
-TG_D_pred8<-data.frame(TG_D_pred6,fit.link=TG_D_pred7$fit,se.link=TG_D_pred7$se.fit)
-
-TG_D_pred8$lci.link<-TG_D_pred8$fit.link-(1.96*TG_D_pred8$se.link)
-TG_D_pred8$uci.link<-TG_D_pred8$fit.link+(1.96*TG_D_pred8$se.link)
-
-TG_D_pred8$fit<-plogis(TG_D_pred8$fit.link)
-TG_D_pred8$se<-plogis(TG_D_pred8$se.link)
-TG_D_pred8$lci<-plogis(TG_D_pred8$lci.link)
-TG_D_pred8$uci<-plogis(TG_D_pred8$uci.link)
-
-head(TG_D_pred8);dim(TG_D_pred8)
+TGD_GC_cf$term <- c("Intercept", "Edge", "Age", "Day","Ground Cover","Edge:Days")
 
 #Field Area
 summary(TGD_FieldArea)
-TG_D_pred9 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-                         Field_Size_Scaled = 
-                           TG_Predictions_FieldSize_Scaled)
 
-head(TG_D_pred9);dim(TG_D_pred9)
+TGD_FieldArea_cf <- summary(TGD_FieldArea)$coefficients$cond
 
-TG_D_pred10 <- predict(object = TGD_FieldArea,newdata= TG_D_pred9,se.fit = T, type = "link",re.form = ~0)
+TGD_FieldArea_cf <- data.frame(term = row.names(TGD_FieldArea_cf),TGD_FieldArea_cf)
+row.names(TGD_FieldArea_cf) <- 1:nrow(TGD_FieldArea_cf)
 
-TG_D_pred11<-data.frame(TG_D_pred9,fit.link=TG_D_pred10$fit,se.link=TG_D_pred10$se.fit)
+colnames(TGD_FieldArea_cf) <- c("term","est",'std_err',"z","p")
 
-TG_D_pred11$lci.link<-TG_D_pred11$fit.link-(1.96*TG_D_pred11$se.link)
-TG_D_pred11$uci.link<-TG_D_pred11$fit.link+(1.96*TG_D_pred11$se.link)
+TGD_FieldArea_cf$lci <- TGD_FieldArea_cf$est-(1.96*TGD_FieldArea_cf$std_err)
+TGD_FieldArea_cf$uci <- TGD_FieldArea_cf$est+(1.96*TGD_FieldArea_cf$std_err)
 
-TG_D_pred11$fit<-plogis(TG_D_pred11$fit.link)
-TG_D_pred11$se<-plogis(TG_D_pred11$se.link)
-TG_D_pred11$lci<-plogis(TG_D_pred11$lci.link)
-TG_D_pred11$uci<-plogis(TG_D_pred11$uci.link)
+head(TGD_FieldArea_cf)
 
-head(TG_D_pred11);dim(TG_D_pred11)
+TGD_FieldArea_cf$term <- c("Intercept", "Edge", "Age", "Day","Field Size","Edge:Age")
 
 
 #Height
 summary(TGD_Height)
 
-TG_Predictions_Height <- seq(min(FDModel$Height),max(FDModel$Height),length.out=20)
+TGD_Height_cf <- summary(TGD_Height)$coefficients$cond
 
+TGD_Height_cf <- data.frame(term = row.names(TGD_Height_cf),TGD_Height_cf)
+row.names(TGD_Height_cf) <- 1:nrow(TGD_Height_cf)
 
-TG_D_pred12 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-                         Height = TG_Predictions_Height)
+colnames(TGD_Height_cf) <- c("term","est",'std_err',"z","p")
 
-head(TG_D_pred12);dim(TG_D_pred12)
+TGD_Height_cf$lci <- TGD_Height_cf$est-(1.96*TGD_Height_cf$std_err)
+TGD_Height_cf$uci <- TGD_Height_cf$est+(1.96*TGD_Height_cf$std_err)
 
-TG_D_pred13 <- predict(object = TGD_Height,newdata= TG_D_pred12,se.fit = T, type = "link",re.form = ~0)
+head(TGD_Height_cf)
 
-TG_D_pred14<-data.frame(TG_D_pred12,fit.link=TG_D_pred13$fit,se.link=TG_D_pred13$se.fit)
-
-TG_D_pred14$lci.link<-TG_D_pred14$fit.link-(1.96*TG_D_pred14$se.link)
-TG_D_pred14$uci.link<-TG_D_pred14$fit.link+(1.96*TG_D_pred14$se.link)
-
-TG_D_pred14$fit<-plogis(TG_D_pred14$fit.link)
-TG_D_pred14$se<-plogis(TG_D_pred14$se.link)
-TG_D_pred14$lci<-plogis(TG_D_pred14$lci.link)
-TG_D_pred14$uci<-plogis(TG_D_pred14$uci.link)
-
-head(TG_D_pred14);dim(TG_D_pred14)
+TGD_Height_cf$term <- c("Intercept", "Edge", "Age", "Day","Crop Height","Edge:Age")
 
 #Riparian
 summary(TGD_Rip)
 
-TG_D_pred15 <- expand.grid(Position  = unique(FDModel$Position),
-                         Crop_Age_Days = TG_Predictions_Age,
-                         Day_Sampled = TG_Predictions_Day,
-                         X1km_Rip_Prop = TG_Predictions_Rip)
+TGD_Rip_cf <- summary(TGD_Rip)$coefficients$cond
 
-head(TG_D_pred15);dim(TG_D_pred15)
+TGD_Rip_cf <- data.frame(term = row.names(TGD_Rip_cf),TGD_Rip_cf)
+row.names(TGD_Rip_cf) <- 1:nrow(TGD_Rip_cf)
 
-TG_D_pred16 <- predict(object = TGD_Rip,newdata= TG_D_pred15,se.fit = T, type = "link",re.form = ~0)
+colnames(TGD_Rip_cf) <- c("term","est",'std_err',"z","p")
 
-TG_D_pred17<-data.frame(TG_D_pred15,fit.link=TG_D_pred16$fit,se.link=TG_D_pred16$se.fit)
+TGD_Rip_cf$lci <- TGD_Rip_cf$est-(1.96*TGD_Rip_cf$std_err)
+TGD_Rip_cf$uci <- TGD_Rip_cf$est+(1.96*TGD_Rip_cf$std_err)
 
-TG_D_pred17$lci.link<-TG_D_pred17$fit.link-(1.96*TG_D_pred17$se.link)
-TG_D_pred17$uci.link<-TG_D_pred17$fit.link+(1.96*TG_D_pred17$se.link)
+head(TGD_Rip_cf)
 
-TG_D_pred17$fit<-plogis(TG_D_pred17$fit.link)
-TG_D_pred17$se<-plogis(TG_D_pred17$se.link)
-TG_D_pred17$lci<-plogis(TG_D_pred17$lci.link)
-TG_D_pred17$uci<-plogis(TG_D_pred17$uci.link)
-
-head(TG_D_pred17);dim(TG_D_pred17)
-
+TGD_Rip_cf$term <- c("Intercept", "Edge", "Age", "Day","Riparian in 1km","Edge:Age")
 
 ##Step 5: Visualisation----
 
@@ -1713,7 +1663,7 @@ TGspatial_result
 
 
 TG_F_Spatial <- TGspatial_result
-#One field significant but spatial autocorrelation is negligable
+ 
 
 
 write.xlsx(TG_F_Spatial, 'TG_F_Spatial.xlsx')
@@ -1878,11 +1828,11 @@ TGspatial_result
 
 
 TG_G_Spatial_Crops <- TGspatial_result
-#One field significant but spatial autocorrelation is negligable
-TG_G_Spatial_FieldNDVI <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_G_Spatial_FieldSize <- TGspatial_result #Two field significant but spatial autocorrelation is negligable
-TG_G_Spatial_GC <- TGspatial_result #One field significant but spatial autocorrelation is negligable
-TG_G_Spatial_D <- TGspatial_result #One field significant but spatial autocorrelation is negligable
+ 
+TG_G_Spatial_FieldNDVI <- TGspatial_result  
+TG_G_Spatial_FieldSize <- TGspatial_result  
+TG_G_Spatial_GC <- TGspatial_result  
+TG_G_Spatial_D <- TGspatial_result  
 
 
 
@@ -1923,97 +1873,71 @@ head(TG_G_pred2);dim(TG_G_pred2)
 #NDVI field
 summary(TGG_NDVIfield)
 
-TG_Predictions_NDVIField <- seq(min(FDModel$NDVImean_Field ),max(FDModel$NDVImean_Field ),length.out=20)
+TGG_NDVIfield_cf <- summary(TGG_NDVIfield)$coefficients$cond
 
+TGG_NDVIfield_cf <- data.frame(term = row.names(TGG_NDVIfield_cf),TGG_NDVIfield_cf)
+row.names(TGG_NDVIfield_cf) <- 1:nrow(TGG_NDVIfield_cf)
 
-TG_G_pred3 <- expand.grid(Day_Sampled = TG_Predictions_Day,
-                         NDVImean_Field = TG_Predictions_NDVIField)
-head(TG_G_pred3);dim(TG_G_pred3)
+colnames(TGG_NDVIfield_cf) <- c("term","est",'std_err',"z","p")
 
-TG_G_pred4 <- predict(object = TGG_NDVIfield,newdata= TG_G_pred3,se.fit = T, type = "link",re.form = ~0)
+TGG_NDVIfield_cf$lci <- TGG_NDVIfield_cf$est-(1.96*TGG_NDVIfield_cf$std_err)
+TGG_NDVIfield_cf$uci <- TGG_NDVIfield_cf$est+(1.96*TGG_NDVIfield_cf$std_err)
 
-TG_G_pred5<-data.frame(TG_G_pred3,fit.link=TG_G_pred4$fit,se.link=TG_G_pred4$se.fit)
+head(TGG_NDVIfield_cf)
 
-TG_G_pred5$lci.link<-TG_G_pred5$fit.link-(1.96*TG_G_pred5$se.link)
-TG_G_pred5$uci.link<-TG_G_pred5$fit.link+(1.96*TG_G_pred5$se.link)
-
-TG_G_pred5$fit<-plogis(TG_G_pred5$fit.link)
-TG_G_pred5$se<-plogis(TG_G_pred5$se.link)
-TG_G_pred5$lci<-plogis(TG_G_pred5$lci.link)
-TG_G_pred5$uci<-plogis(TG_G_pred5$uci.link)
-
-head(TG_G_pred5);dim(TG_G_pred5)
+TGG_NDVIfield_cf$term <- c("Intercept", "Day","Field NDVI")
 
 #Field Area
 summary(TGG_FieldArea)
 
-TG_Predictions_NDVIField <- seq(min(FDModel$NDVImean_Field ),max(FDModel$NDVImean_Field ),length.out=20)
+TGG_FieldArea_cf <- summary(TGG_FieldArea)$coefficients$cond
 
+TGG_FieldArea_cf <- data.frame(term = row.names(TGG_FieldArea_cf),TGG_FieldArea_cf)
+row.names(TGG_FieldArea_cf) <- 1:nrow(TGG_FieldArea_cf)
 
-TG_G_pred6 <- expand.grid(Day_Sampled = TG_Predictions_Day,
-                          Field_Size_Scaled =
-                            TG_Predictions_FieldSize_Scaled)
-head(TG_G_pred6);dim(TG_G_pred6)
+colnames(TGG_FieldArea_cf) <- c("term","est",'std_err',"z","p")
 
-TG_G_pred7 <- predict(object = TGG_FieldArea,newdata= TG_G_pred6,se.fit = T, type = "link",re.form = ~0)
+TGG_FieldArea_cf$lci <- TGG_FieldArea_cf$est-(1.96*TGG_FieldArea_cf$std_err)
+TGG_FieldArea_cf$uci <- TGG_FieldArea_cf$est+(1.96*TGG_FieldArea_cf$std_err)
 
-TG_G_pred8<-data.frame(TG_G_pred6,fit.link=TG_G_pred7$fit,se.link=TG_G_pred7$se.fit)
+head(TGG_FieldArea_cf)
 
-TG_G_pred8$lci.link<-TG_G_pred8$fit.link-(1.96*TG_G_pred8$se.link)
-TG_G_pred8$uci.link<-TG_G_pred8$fit.link+(1.96*TG_G_pred8$se.link)
-
-TG_G_pred8$fit<-plogis(TG_G_pred8$fit.link)
-TG_G_pred8$se<-plogis(TG_G_pred8$se.link)
-TG_G_pred8$lci<-plogis(TG_G_pred8$lci.link)
-TG_G_pred8$uci<-plogis(TG_G_pred8$uci.link)
-
-head(TG_G_pred8);dim(TG_G_pred8)
+TGG_FieldArea_cf$term <- c("Intercept", "Day","Field Area")
 
 #Ground Cover
 summary(TGG_GC)
 
-TG_Predictions_NDVIField <- seq(min(FDModel$NDVImean_Field ),max(FDModel$NDVImean_Field ),length.out=20)
+TGG_GC_cf <- summary(TGG_GC)$coefficients$cond
 
+TGG_GC_cf <- data.frame(term = row.names(TGG_GC_cf),TGG_GC_cf)
+row.names(TGG_GC_cf) <- 1:nrow(TGG_GC_cf)
 
-TG_G_pred9 <- expand.grid(Day_Sampled = TG_Predictions_Day,
-                          GC = TG_Predictions_GC)
-head(TG_G_pred9);dim(TG_G_pred9)
+colnames(TGG_GC_cf) <- c("term","est",'std_err',"z","p")
 
-TG_G_pred10 <- predict(object = TGG_GC,newdata= TG_G_pred9,se.fit = T, type = "link",re.form = ~0)
+TGG_GC_cf$lci <- TGG_GC_cf$est-(1.96*TGG_GC_cf$std_err)
+TGG_GC_cf$uci <- TGG_GC_cf$est+(1.96*TGG_GC_cf$std_err)
 
-TG_G_pred11<-data.frame(TG_G_pred9,fit.link=TG_G_pred10$fit,se.link=TG_G_pred10$se.fit)
+head(TGG_GC_cf)
 
-TG_G_pred11$lci.link<-TG_G_pred11$fit.link-(1.96*TG_G_pred11$se.link)
-TG_G_pred11$uci.link<-TG_G_pred11$fit.link+(1.96*TG_G_pred11$se.link)
-
-TG_G_pred11$fit<-plogis(TG_G_pred11$fit.link)
-TG_G_pred11$se<-plogis(TG_G_pred11$se.link)
-TG_G_pred11$lci<-plogis(TG_G_pred11$lci.link)
-TG_G_pred11$uci<-plogis(TG_G_pred11$uci.link)
-
-head(TG_G_pred11);dim(TG_G_pred11)
+TGG_GC_cf$term <- c("Intercept", "Day","Ground Cover")
 
 #Day
 
 summary(TGG_D)
 
+TGG_D_cf <- summary(TGG_D)$coefficients$cond
 
-TG_G_pred12 <- expand.grid(Day_Sampled = TG_Predictions_Day)
-head(TG_G_pred12);dim(TG_G_pred12)
+TGG_D_cf <- data.frame(term = row.names(TGG_D_cf),TGG_D_cf)
+row.names(TGG_D_cf) <- 1:nrow(TGG_D_cf)
 
-TG_G_pred13 <- predict(object = TGG_D,newdata= TG_G_pred12,se.fit = T, type = "link",re.form = ~0)
+colnames(TGG_D_cf) <- c("term","est",'std_err',"z","p")
 
-TG_G_pred14<-data.frame(TG_G_pred12,fit.link=TG_G_pred13$fit,se.link=TG_G_pred13$se.fit)
+TGG_D_cf$lci <- TGG_D_cf$est-(1.96*TGG_D_cf$std_err)
+TGG_D_cf$uci <- TGG_D_cf$est+(1.96*TGG_D_cf$std_err)
 
-TG_G_pred14$lci.link<-TG_G_pred14$fit.link-(1.96*TG_G_pred14$se.link)
-TG_G_pred14$uci.link<-TG_G_pred14$fit.link+(1.96*TG_G_pred14$se.link)
+head(TGG_D_cf)
 
-TG_G_pred14$fit<-plogis(TG_G_pred14$fit.link)
-TG_G_pred14$se<-plogis(TG_G_pred14$se.link)
-TG_G_pred14$lci<-plogis(TG_G_pred14$lci.link)
-TG_G_pred14$uci<-plogis(TG_G_pred14$uci.link)
-
-head(TG_G_pred14);dim(TG_G_pred14)
+TGG_D_cf$term <- c("Intercept", "Day")
 
 ##Step 5: Visualisation----
 
@@ -2246,147 +2170,90 @@ lines(x=TG_G_pred2$Day_Sampled[GG],y = TG_G_pred2$fit[GG],lwd = 2,col = 'grey30'
 
 ###C Group----
 
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
+TGC_FieldArea_cf
 
-plot(x = 1:2,y = TG_C_pred5$fit [CC],xlab = " ",ylab = 'Probability of Occurrence', type = 'p',pch = 16,cex =2.5,col = 'black', las = 1, ylim=c(0,1),xaxt = "n",xlim = c(0,3))
-axis(side=1,at=1:2,labels=c('Edge','Interior'))
+dev.new(height=8,width=10,dpi=60,pointsize=14,noRStudioGD = T)
+par(mar=c(6,10,1,1),mfrow=c(1,1),mgp=c(2.5,1,0),xpd = F)
 
-arrows(x0=1:2, y0=TG_C_pred5$lci [CC],x1=1:2, y1=TG_C_pred5$uci[CC],angle=90,length=0.2, code=3, lwd=2,col = "black")
-
-points(x = jitter(raw_x, factor = 1),y = FDModel$TG_C, pch = 16, cex = 0.4, col = "black")
-mtext(side=3,line=0,at = -0.3,'a)',cex=1)
-
-plot(x = jitter(FDModel$Crop_Age_Days,factor = 1),y = FDModel$TG_C,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_C_pred5$Crop_Age_Days),to=max(TG_C_pred5$Crop_Age_Days),length.out=6),labels=round(seq(from=min(FDModel$Crop_Age_Days),to=max(FDModel$Crop_Age_Days),length.out=6)),cex.axis=0.95)
-mtext(side=3,line=0,at = 46,'b)',cex=1)
-
-polygon(x = c(TG_C_pred5$Crop_Age_Days[CCC],rev(TG_C_pred5$Crop_Age_Days[CCC])), y = c(TG_C_pred5$lci[CCC],rev(TG_C_pred5$uci[CCC])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_C_pred5$Crop_Age_Days[CCC],y = TG_C_pred5$fit[CCC],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = jitter(FDModel$Day_Sampled,factor = 1),y = FDModel$TG_C,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_C_pred5$Day_Sampled),to=max(TG_C_pred5$Day_Sampled),length.out=6),labels=round(seq(from=min(FDModel$Day_Sampled),to=max(FDModel$Day_Sampled),length.out=6)),cex.axis=0.9)
-mtext(side=3,line=0,at = 12,'c)',cex=1)
-mtext(side=1,line=3,at = 10,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 157,'Spring',cex=0.8)
-arrows(50,-0.42,140,-0.42, length =0.1)
-
-polygon(x = c(TG_C_pred5$Day_Sampled[C_C],rev(TG_C_pred5$Day_Sampled[C_C])), y = c(TG_C_pred5$lci[C_C],rev(TG_C_pred5$uci[C_C])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_C_pred5$Day_Sampled[C_C],y = TG_C_pred5$fit[C_C],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = jitter(FDModel$Field_Size_Scaled,factor = 1),y = FDModel$TG_C,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_C_pred5$Field_Size_Scaled),to=max(TG_C_pred5$Field_Size_Scaled),length.out=6),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=6)/10000,1),cex.axis=0.95)
-mtext(side=3,line=0,at = -2.3,'d)',cex=1)
-
-polygon(x = c(TG_C_pred5$Field_Size_Scaled[C_C_],rev(TG_C_pred5$Field_Size_Scaled[C_C_])), y = c(TG_C_pred5$lci[C_C_],rev(TG_C_pred5$uci[C_C_])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_C_pred5$Field_Size_Scaled[C_C_],y = TG_C_pred5$fit[C_C_],lwd = 2,col = 'grey30',lty = 1)
+plot(x=rev(TGC_FieldArea_cf$est),y=1:length(TGC_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGC_FieldArea_cf$lci),max(TGC_FieldArea_cf$uci)))
+axis(2, at=1:length(TGC_FieldArea_cf$term),labels = rev(TGC_FieldArea_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 5.5,length = 0)
+arrows(x0 = rev(TGC_FieldArea_cf$lci),y0 = 1:length(TGC_FieldArea_cf$term),x1 = rev(TGC_FieldArea_cf$uci),y1 = 1:length(TGC_FieldArea_cf$term),length = 0)
 
 ###D Group----
 
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(3,3),mgp=c(2.5,1,0),xpd = T)
+TGD_NDVIfield_cf
+TGD_GC_cf
+TGD_FieldArea_cf
+TGD_Height_cf
+TGD_Rip_cf
 
-plot(x = FDModel$Crop_Age_Days,y = FDModel$TG_G,xlab = "Crop Age (Days)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred5$Crop_Age_Days),to=max(TG_D_pred5$Crop_Age_Days),length.out=4),labels=round(seq(from=min(FDModel$Crop_Age_Days),to=max(FDModel$Crop_Age_Days),length.out=4)),cex.axis=0.95)
-mtext(side=3,line=0,at = 45,'a)',cex=0.95)
+dev.new(height=8,width=15,dpi=60,pointsize=14,noRStudioGD = T)
+par(mar=c(6,10,1,1),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = F)
 
-polygon(x = c(TG_D_pred5$Crop_Age_Days[DD.2],rev(TG_D_pred5$Crop_Age_Days[DD.2])), y = c(TG_D_pred5$lci[DD.2],rev(TG_D_pred5$uci[DD.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred5$Crop_Age_Days[DD.2],y = TG_D_pred5$fit[DD.2],lwd = 2,col = 'grey30',lty = 1)
+plot(x=rev(TGD_NDVIfield_cf$est),y=1:length(TGD_NDVIfield_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_NDVIfield_cf$lci),max(TGD_NDVIfield_cf$uci)))
+axis(2, at=1:length(TGD_NDVIfield_cf$term),labels = rev(TGD_NDVIfield_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
+arrows(x0 = rev(TGD_NDVIfield_cf$lci),y0 = 1:length(TGD_NDVIfield_cf$term),x1 = rev(TGD_NDVIfield_cf$uci),y1 = 1:length(TGD_NDVIfield_cf$term),length = 0)
+mtext("a)",side = 3,line = -0.5,at=-14,cex = 0.9)
 
-polygon(x = c(TG_D_pred5$Crop_Age_Days[DDD.2],rev(TG_D_pred5$Crop_Age_Days[DDD.2])), y = c(TG_D_pred5$lci[DDD.2],rev(TG_D_pred5$uci[DDD.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred5$Crop_Age_Days[DDD.2],y = TG_D_pred5$fit[DDD.2],lwd = 2,col = 'grey30',lty = 2)
-legend('bottomright',legend = c('Edge', "Interior"), lty = c(1,2), col = 'grey30',pt.cex = 1)
+plot(x=rev(TGD_GC_cf$est),y=1:length(TGD_GC_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_GC_cf$lci),max(TGD_GC_cf$uci)))
+axis(2, at=1:length(TGD_GC_cf$term),labels = rev(TGD_GC_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
+arrows(x0 = rev(TGD_GC_cf$lci),y0 = 1:length(TGD_GC_cf$term),x1 = rev(TGD_GC_cf$uci),y1 = 1:length(TGD_GC_cf$term),length = 0)
+mtext("b)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
+plot(x=rev(TGD_FieldArea_cf$est),y=1:length(TGD_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_FieldArea_cf$lci),max(TGD_FieldArea_cf$uci)))
+axis(2, at=1:length(TGD_FieldArea_cf$term),labels = rev(TGD_FieldArea_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
+arrows(x0 = rev(TGD_FieldArea_cf$lci),y0 = 1:length(TGD_FieldArea_cf$term),x1 = rev(TGD_FieldArea_cf$uci),y1 = 1:length(TGD_FieldArea_cf$term),length = 0)
+mtext("c)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
-plot(x = FDModel$Day_Sampled,y = FDModel$TG_G,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred5$Day_Sampled),to=max(TG_D_pred5$Day_Sampled),length.out=4),labels=round(seq(from=min(FDModel$Day_Sampled),to=max(FDModel$Day_Sampled),length.out=4)),cex.axis=0.95)
-mtext(side=3,line=0,at = 12,'b)',cex=0.95)
-mtext(side=1,line=3,at = 10,'Autumn/Winter',cex=0.6)
-mtext(side=1,line=3,at = 157,'Spring',cex=0.6)
-arrows(60,-0.55,135,-0.55, length =0.05)
+plot(x=rev(TGD_Height_cf$est),y=1:length(TGD_Height_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Height_cf$lci),max(TGD_Height_cf$uci)))
+axis(2, at=1:length(TGD_Height_cf$term),labels = rev(TGD_Height_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
+arrows(x0 = rev(TGD_Height_cf$lci),y0 = 1:length(TGD_Height_cf$term),x1 = rev(TGD_Height_cf$uci),y1 = 1:length(TGD_Height_cf$term),length = 0)
+mtext("d)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
-polygon(x = c(TG_D_pred5$Day_Sampled[D_D.2],rev(TG_D_pred5$Day_Sampled[D_D.2])), y = c(TG_D_pred5$lci[D_D.2],rev(TG_D_pred5$uci[D_D.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred5$Day_Sampled[D_D.2],y = TG_D_pred5$fit[D_D.2],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$NDVImean_Field,y = FDModel$TG_G,xlab = "Field NDVI",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred5$NDVImean_Field),to=max(TG_D_pred5$NDVImean_Field),length.out=4),labels=round(seq(from=min(FDModel$NDVImean_Field),to=max(FDModel$NDVImean_Field),length.out=4),2),cex.axis=0.9)
-mtext(side=3,line=0,at = 0.12,'c)',cex=0.95)
-
-polygon(x = c(TG_D_pred5$NDVImean_Field[D_DD.2],rev(TG_D_pred5$NDVImean_Field[D_DD.2])), y = c(TG_D_pred5$lci[D_DD.2],rev(TG_D_pred5$uci[D_DD.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred5$NDVImean_Field[D_DD.2],y = TG_D_pred5$fit[D_DD.2],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$GC,y = FDModel$TG_G,xlab = "Ground Cover (%)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.9,ylim = c(0,1))
-mtext(side=3,line=0,at = 3,'d)',cex=0.95)
-
-polygon(x = c(TG_D_pred8$GC[D_DD.3],rev(TG_D_pred8$GC[D_DD.3])), y = c(TG_D_pred8$lci[D_DD.3],rev(TG_D_pred8$uci[D_DD.3])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred8$GC[D_DD.3],y = TG_D_pred8$fit[D_DD.3],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$Field_Size_Scaled,y = FDModel$TG_G,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred11$Field_Size_Scaled),to=max(TG_D_pred11$Field_Size_Scaled),length.out=4),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=4)/10000,1),cex.axis=1)
-mtext(side=3,line=0,at = -2.3,'e)',cex=0.95)
-
-polygon(x = c(TG_D_pred11$Field_Size_Scaled[D_DD.4],rev(TG_D_pred11$Field_Size_Scaled[D_DD.4])), y = c(TG_D_pred11$lci[D_DD.4],rev(TG_D_pred11$uci[D_DD.4])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred11$Field_Size_Scaled[D_DD.4],y = TG_D_pred11$fit[D_DD.4],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$Height,y = FDModel$TG_G,xlab = "Crop Height (cm)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred14$Height),to=max(TG_D_pred14$Height),length.out=5),labels=round(seq(from=min(FDModel$Height),to=max(FDModel$Height),length.out=5)),cex.axis=0.95)
-mtext(side=3,line=0,at = 15,'f)',cex=0.95)
-
-polygon(x = c(TG_D_pred14$Height[D_DD.5],rev(TG_D_pred14$Height[D_DD.5])), y = c(TG_D_pred14$lci[D_DD.5],rev(TG_D_pred14$uci[D_DD.5])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred14$Height[D_DD.5],y = TG_D_pred14$fit[D_DD.5],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$X1km_Rip_Prop,y = FDModel$TG_G,xlab = "Riparian within 1km (%)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_D_pred17$X1km_Rip_Prop),to=max(TG_D_pred17$X1km_Rip_Prop),length.out=5),labels=round(seq(from=min(FDModel$X1km_Rip_Prop),to=max(FDModel$X1km_Rip_Prop),length.out=5)),cex.axis=0.95)
-mtext(side=3,line=0,at = -0.7,'g)',cex=0.95)
-
-polygon(x = c(TG_D_pred17$X1km_Rip_Prop[D_DD.6],rev(TG_D_pred17$X1km_Rip_Prop[D_DD.6])), y = c(TG_D_pred17$lci[D_DD.6],rev(TG_D_pred17$uci[D_DD.6])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_D_pred17$X1km_Rip_Prop[D_DD.6],y = TG_D_pred17$fit[D_DD.6],lwd = 2,col = 'grey30',lty = 1)
+plot(x=rev(TGD_Rip_cf$est),y=1:length(TGD_Rip_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Rip_cf$lci),max(TGD_Rip_cf$uci)))
+axis(2, at=1:length(TGD_Rip_cf$term),labels = rev(TGD_Rip_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
+arrows(x0 = rev(TGD_Rip_cf$lci),y0 = 1:length(TGD_Rip_cf$term),x1 = rev(TGD_Rip_cf$uci),y1 = 1:length(TGD_Rip_cf$term),length = 0)
+mtext("e)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
 
 ###G Group----
 
-dev.new(height=10,width=10,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = T)
+TGG_NDVIfield_cf
+TGG_FieldArea_cf
+TGG_GC_cf
+TGG_D_cf
 
-plot(x = FDModel$Day_Sampled,y = FDModel$TG_G,xlab = "Day Sampled",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_G_pred2$Day_Sampled),to=max(TG_G_pred2$Day_Sampled),length.out=6),labels=round(seq(from=min(FDModel$Day_Sampled),to=max(FDModel$Day_Sampled),length.out=6)),cex.axis=0.9)
-mtext(side=3,line=0,at = 12,'a)',cex=1)
-mtext(side=1,line=3,at = 10,'Autumn/Winter',cex=0.8)
-mtext(side=1,line=3,at = 157,'Spring',cex=0.8)
-arrows(50,-0.42,140,-0.42, length =0.1)
+dev.new(height=8,width=10,dpi=60,pointsize=14,noRStudioGD = T)
+par(mar=c(6,10,1,1),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = F)
 
-polygon(x = c(TG_G_pred2$Day_Sampled[GG],rev(TG_G_pred2$Day_Sampled[GG])), y = c(TG_G_pred2$lci[GG],rev(TG_G_pred2$uci[GG])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_G_pred2$Day_Sampled[GG],y = TG_G_pred2$fit[GG],lwd = 2,col = 'grey30',lty = 1)
+plot(x=rev(TGG_NDVIfield_cf$est),y=1:length(TGG_NDVIfield_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGG_NDVIfield_cf$lci),max(TGG_NDVIfield_cf$uci)))
+axis(2, at=1:length(TGG_NDVIfield_cf$term),labels = rev(TGG_NDVIfield_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 3.5,length = 0)
+arrows(x0 = rev(TGG_NDVIfield_cf$lci),y0 = 1:length(TGG_NDVIfield_cf$term),x1 = rev(TGG_NDVIfield_cf$uci),y1 = 1:length(TGG_NDVIfield_cf$term),length = 0)
+mtext("a)",side = 3,line = -0.5,at=-15,cex = 0.9)
 
+plot(x=rev(TGG_FieldArea_cf$est),y=1:length(TGG_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGG_FieldArea_cf$lci),max(TGG_FieldArea_cf$uci)))
+axis(2, at=1:length(TGG_FieldArea_cf$term),labels = rev(TGG_FieldArea_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 3.5,length = 0)
+arrows(x0 = rev(TGG_FieldArea_cf$lci),y0 = 1:length(TGG_FieldArea_cf$term),x1 = rev(TGG_FieldArea_cf$uci),y1 = 1:length(TGG_FieldArea_cf$term),length = 0)
+mtext("b)",side = 3,line = -0.5,at=-4,cex = 0.9)
 
-plot(x = FDModel$NDVImean_Field,y = FDModel$TG_G,xlab = "Field NDVI",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-mtext(side=3,line=0,at = 0.12,'b)', cex=1)
-axis(side=1, at=seq(from=min(TG_G_pred5$NDVImean_Field),to=max(TG_G_pred5$NDVImean_Field),length.out=5),labels=round(seq(from=min(FDModel$NDVImean_Field),to=max(FDModel$NDVImean_Field),length.out=5),2),cex.axis=0.95)
+plot(x=rev(TGG_GC_cf$est),y=1:length(TGG_GC_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGG_GC_cf$lci),max(TGG_GC_cf$uci)))
+axis(2, at=1:length(TGG_GC_cf$term),labels = rev(TGG_GC_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 3.5,length = 0)
+arrows(x0 = rev(TGG_GC_cf$lci),y0 = 1:length(TGG_GC_cf$term),x1 = rev(TGG_GC_cf$uci),y1 = 1:length(TGG_GC_cf$term),length = 0)
+mtext("c)",side = 3,line = -0.5,at=-4,cex = 0.9)
 
-polygon(x = c(TG_G_pred5$NDVImean_Field[GGG.2],rev(TG_G_pred5$NDVImean_Field[GGG.2])), y = c(TG_G_pred5$lci[GGG.2],rev(TG_G_pred5$uci[GGG.2])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_G_pred5$NDVImean_Field[GGG.2],y = TG_G_pred5$fit[GGG.2],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$Field_Size_Scaled,y = FDModel$TG_G,xlab = "Field Size (ha)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1),xaxt = 'n')
-axis(side=1, at=seq(from=min(TG_G_pred8$Field_Size_Scaled),to=max(TG_G_pred8$Field_Size_Scaled),length.out=5),labels=round(seq(from=min(FDModel$Field_Area_m2),to=max(FDModel$Field_Area_m2),length.out=5)/10000,1),cex.axis=1)
-mtext(side=3,line=0,at = -2.3,'c)', cex=1)
-
-polygon(x = c(TG_G_pred8$Field_Size_Scaled[GGG.3],rev(TG_G_pred8$Field_Size_Scaled[GGG.3])), y = c(TG_G_pred8$lci[GGG.3],rev(TG_G_pred8$uci[GGG.3])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_G_pred8$Field_Size_Scaled[GGG.3],y = TG_G_pred8$fit[GGG.3],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = FDModel$GC,y = FDModel$TG_G,xlab = "Ground Cover (%)",ylab = 'Probability of Occurrence', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.axis = 0.95,ylim = c(0,1))
-mtext(side=3,line=0,at = 3,'d)', cex=1)
-
-polygon(x = c(TG_G_pred11$GC[GGG.4],rev(TG_G_pred11$GC[GGG.4])), y = c(TG_G_pred11$lci[GGG.4],rev(TG_G_pred11$uci[GGG.4])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=TG_G_pred11$GC[GGG.4],y = TG_G_pred11$fit[GGG.4],lwd = 2,col = 'grey30',lty = 1)
-
+plot(x=rev(TGG_D_cf$est),y=1:length(TGG_D_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGG_D_cf$lci),max(TGG_D_cf$uci)))
+axis(2, at=1:length(TGG_D_cf$term),labels = rev(TGG_D_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 3.5,length = 0)
+arrows(x0 = rev(TGG_D_cf$lci),y0 = 1:length(TGG_D_cf$term),x1 = rev(TGG_D_cf$uci),y1 = 1:length(TGG_D_cf$term),length = 0)
+mtext("d)",side = 3,line = -0.5,at=-2.7,cex = 0.9)
 
 #END----

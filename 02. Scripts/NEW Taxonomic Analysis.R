@@ -358,93 +358,69 @@ head(Divpred2);dim(Divpred2)
 
 
 summary(Div_Crop)
-Div_Predictions_Crops <- seq(min(TaxModel$X1km_Prop_Crops),max(TaxModel$X1km_Prop_Crops),length.out=20)
 
+Div_Crop_cf <- summary(Div_Crop)$coefficients
 
-Divpred3 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,X1km_Prop_Crops = Div_Predictions_Crops)
-head(Divpred3);dim(Divpred3)
+Div_Crop_cf <- data.frame(term = row.names(Div_Crop_cf),Div_Crop_cf)
+row.names(Div_Crop_cf) <- 1:nrow(Div_Crop_cf)
 
-Divpred4 <- predict(object = Div_Crop,newdata= Divpred3,se.fit = T, type = "link",re.form = NA)
+colnames(Div_Crop_cf) <- c("term","est",'std_err',"t","p")
 
-Divpred5<-data.frame(Divpred3,fit.link=Divpred4$fit,se.link=Divpred4$se.fit)
+Div_Crop_cf$lci <- Div_Crop_cf$est-(1.96*Div_Crop_cf$std_err)
+Div_Crop_cf$uci <- Div_Crop_cf$est+(1.96*Div_Crop_cf$std_err)
 
-Divpred5$lci.link<-Divpred5$fit.link-(1.96*Divpred5$se.link)
-Divpred5$uci.link<-Divpred5$fit.link+(1.96*Divpred5$se.link)
+head(Div_Crop_cf)
 
-Divpred5$fit<-exp(Divpred5$fit.link)
-Divpred5$se<-exp(Divpred5$se.link)
-Divpred5$lci<-exp(Divpred5$lci.link)
-Divpred5$uci<-exp(Divpred5$uci.link)
-
-head(Divpred5);dim(Divpred5)
+Div_Crop_cf$term <- c("Intercept", "Day", "Age", "Crops in 1km","Day:Age")
 
 
 summary(Div_FieldNDVI)
-Div_Predictions_FieldNDVI <- seq(min(TaxModel$NDVImean_Field),max(TaxModel$NDVImean_Field),length.out=20)
+Div_FieldNDVI_cf <- summary(Div_FieldNDVI)$coefficients
 
+Div_FieldNDVI_cf <- data.frame(term = row.names(Div_FieldNDVI_cf),Div_FieldNDVI_cf)
+row.names(Div_FieldNDVI_cf) <- 1:nrow(Div_FieldNDVI_cf)
 
-Divpred6 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,NDVImean_Field = Div_Predictions_FieldNDVI)
-head(Divpred6);dim(Divpred6)
+colnames(Div_FieldNDVI_cf) <- c("term","est",'std_err',"z","p")
 
-Divpred7 <- predict(object = Div_FieldNDVI,newdata= Divpred6,se.fit = T, type = "link",re.form = NA)
+Div_FieldNDVI_cf$lci <- Div_FieldNDVI_cf$est-(1.96*Div_FieldNDVI_cf$std_err)
+Div_FieldNDVI_cf$uci <- Div_FieldNDVI_cf$est+(1.96*Div_FieldNDVI_cf$std_err)
 
-Divpred8<-data.frame(Divpred6,fit.link=Divpred7$fit,se.link=Divpred7$se.fit)
+head(Div_FieldNDVI_cf)
 
-Divpred8$lci.link<-Divpred8$fit.link-(1.96*Divpred8$se.link)
-Divpred8$uci.link<-Divpred8$fit.link+(1.96*Divpred8$se.link)
-
-Divpred8$fit<-exp(Divpred8$fit.link)
-Divpred8$se<-exp(Divpred8$se.link)
-Divpred8$lci<-exp(Divpred8$lci.link)
-Divpred8$uci<-exp(Divpred8$uci.link)
-
-head(Divpred8);dim(Divpred8)
+Div_FieldNDVI_cf$term <- c("Intercept", "Day", "Age", "Field NDVI","Day:Age")
 
 
 summary(Div_NDVI1km)
-Div_Predictions_NDVI1km <- seq(min(TaxModel$NDVIsum_1km),max(TaxModel$NDVIsum_1km),length.out=20)
+Div_NDVI1km_cf <- summary(Div_NDVI1km)$coefficients
 
+Div_NDVI1km_cf <- data.frame(term = row.names(Div_NDVI1km_cf),Div_NDVI1km_cf)
+row.names(Div_NDVI1km_cf) <- 1:nrow(Div_NDVI1km_cf)
 
-Divpred9 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,NDVIsum_1km = Div_Predictions_NDVI1km)
-head(Divpred9);dim(Divpred9)
+colnames(Div_NDVI1km_cf) <- c("term","est",'std_err',"t","p")
 
-Divpred10 <- predict(object = Div_NDVI1km,newdata= Divpred9,se.fit = T, type = "link",re.form = NA)
+Div_NDVI1km_cf$lci <- Div_NDVI1km_cf$est-(1.96*Div_NDVI1km_cf$std_err)
+Div_NDVI1km_cf$uci <- Div_NDVI1km_cf$est+(1.96*Div_NDVI1km_cf$std_err)
 
-Divpred11<-data.frame(Divpred9,fit.link=Divpred10$fit,se.link=Divpred10$se.fit)
+head(Div_NDVI1km_cf)
 
-Divpred11$lci.link<-Divpred11$fit.link-(1.96*Divpred11$se.link)
-Divpred11$uci.link<-Divpred11$fit.link+(1.96*Divpred11$se.link)
-
-Divpred11$fit<-exp(Divpred11$fit.link)
-Divpred11$se<-exp(Divpred11$se.link)
-Divpred11$lci<-exp(Divpred11$lci.link)
-Divpred11$uci<-exp(Divpred11$uci.link)
-
-head(Divpred11);dim(Divpred11)
-
+Div_NDVI1km_cf$term <- c("Intercept", "Day", "Age", "NDVI in 1km","Day:Age")
 
 
 summary(Div_GC)
 
-Div_Predictions_GC <- seq(min(TaxModel$GC),max(TaxModel$GC),length.out=20)
+Div_GC_cf <- summary(Div_GC)$coefficients
 
+Div_GC_cf <- data.frame(term = row.names(Div_GC_cf),Div_GC_cf)
+row.names(Div_GC_cf) <- 1:nrow(Div_GC_cf)
 
-Divpred12 <- expand.grid(Age_Scaled = Predictions_Age, Day_Scaled = Predictions_Day,GC = Div_Predictions_GC)
-head(Divpred12);dim(Divpred12)
+colnames(Div_GC_cf) <- c("term","est",'std_err',"t","p")
 
-Divpred13 <- predict(object = Div_GC,newdata= Divpred12,se.fit = T, type = "link",re.form = NA)
+Div_GC_cf$lci <- Div_GC_cf$est-(1.96*Div_GC_cf$std_err)
+Div_GC_cf$uci <- Div_GC_cf$est+(1.96*Div_GC_cf$std_err)
 
-Divpred14<-data.frame(Divpred12,fit.link=Divpred13$fit,se.link=Divpred13$se.fit)
+head(Div_GC_cf)
 
-Divpred14$lci.link<-Divpred14$fit.link-(1.96*Divpred14$se.link)
-Divpred14$uci.link<-Divpred14$fit.link+(1.96*Divpred14$se.link)
-
-Divpred14$fit<-exp(Divpred14$fit.link)
-Divpred14$se<-exp(Divpred14$se.link)
-Divpred14$lci<-exp(Divpred14$lci.link)
-Divpred14$uci<-exp(Divpred14$uci.link)
-
-head(Divpred14);dim(Divpred14)
+Div_GC_cf$term <- c("Intercept", "Day", "Age", "Ground Cover","Day:Age")
 
 
 ##Step 5 - Model Visalisation----
@@ -473,61 +449,39 @@ legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt
 
 
 ##Supporting Info Models----
-
-ZZ <- Divpred5$Day_Scaled == Predictions_Day[10] & Divpred5$Age_Scaled == Predictions_Age[10]
-ZZZ <- Divpred8$Day_Scaled == Predictions_Day[10] & Divpred8$Age_Scaled == Predictions_Age[10]
-Z_Z <- Divpred11$Day_Scaled == Predictions_Day[10] & Divpred11$Age_Scaled == Predictions_Age[10]
-ZZ_ZZ <- Divpred14$Day_Scaled == Predictions_Day[10] & Divpred14$Age_Scaled == Predictions_Age[10]
-
+Div_Crop_cf
+Div_FieldNDVI_cf
+Div_NDVI1km_cf
+Div_GC_cf
 
 
-dev.new(height=10,width=15,dpi=80,pointsize=14,noRStudioGD = T)
-par(mar=c(4,4,2,2),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = T)
+dev.new(height=8,width=10,dpi=60,pointsize=14,noRStudioGD = T)
+par(mar=c(6,10,1,1),mfrow=c(2,2),mgp=c(2.5,1,0),xpd = F)
 
-plot(x = TaxModel$Age_Scaled,y = TaxModel$Diversity,xlab = "Crop Age (Days)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2, xaxt = 'n',cex.lab= 1.3,cex.axis=1.2)
-axis(side=1, at=seq(from=min(Divpred2$Age_Scaled),to=max(Divpred2$Age_Scaled),length.out=6),labels=round(seq(from=min(TaxModel$Crop_Age_Days),to=max(TaxModel$Crop_Age_Days),length.out=6),-1),cex.axis=1.2)
-mtext(side=3,line=0,at = -2.1,'a)',cex=1)
+plot(x=rev(Div_Crop_cf$est),y=1:length(Div_Crop_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(Div_Crop_cf$lci),max(Div_Crop_cf$uci)))
+axis(2, at=1:length(Div_Crop_cf$term),labels = rev(Div_Crop_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 5.5,length = 0)
+arrows(x0 = rev(Div_Crop_cf$lci),y0 = 1:length(Div_Crop_cf$term),x1 = rev(Div_Crop_cf$uci),y1 = 1:length(Div_Crop_cf$term),length = 0)
+mtext("a)",side = 3,line = -0.5,at=-8,cex = 0.9)
 
-polygon(x = c(Divpred2$Age_Scaled[YY],rev(Divpred2$Age_Scaled[YY])), y = c(Divpred2$lci[YY],rev(Divpred2$uci[YY])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred2$Age_Scaled[YY],y = Divpred2$fit[YY],lwd = 2,col = 'grey30',lty = 1)
+plot(x=rev(Div_FieldNDVI_cf$est),y=1:length(Div_FieldNDVI_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(Div_FieldNDVI_cf$lci),max(Div_FieldNDVI_cf$uci)))
+axis(2, at=1:length(Div_FieldNDVI_cf$term),labels = rev(Div_FieldNDVI_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 5.5,length = 0)
+arrows(x0 = rev(Div_FieldNDVI_cf$lci),y0 = 1:length(Div_FieldNDVI_cf$term),x1 = rev(Div_FieldNDVI_cf$uci),y1 = 1:length(Div_FieldNDVI_cf$term),length = 0)
+mtext("b)",side = 3,line = -0.5,at=-7,cex = 0.9)
 
-polygon(x = c(Divpred2$Age_Scaled[Y_Y],rev(Divpred2$Age_Scaled[Y_Y])), y = c(Divpred2$lci[Y_Y],rev(Divpred2$uci[Y_Y])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred2$Age_Scaled[Y_Y],y = Divpred2$fit[Y_Y],lwd = 2,col = 'grey30',lty = 2)
+plot(x=rev(Div_NDVI1km_cf$est),y=1:length(Div_NDVI1km_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(Div_NDVI1km_cf$lci),max(Div_NDVI1km_cf$uci)))
+axis(2, at=1:length(Div_NDVI1km_cf$term),labels = rev(Div_NDVI1km_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 5.5,length = 0)
+arrows(x0 = rev(Div_NDVI1km_cf$lci),y0 = 1:length(Div_NDVI1km_cf$term),x1 = rev(Div_NDVI1km_cf$uci),y1 = 1:length(Div_NDVI1km_cf$term),length = 0)
+mtext("0.0",side = 1,line = 1,at=0,cex = 0.95)
+mtext("1.0",side = 1,line = 1,at=1,cex = 0.95)
+mtext("c)",side = 3,line = -0.5,at=-2.5,cex = 0.9)
 
-legend('topleft',legend = c('Winter', "Spring"), lty = c(1,2), col = 'grey30',pt.cex = 1.3)
-
-
-plot(x = TaxModel$X1km_Prop_Crops,y = TaxModel$Diversity,xlab = "Crops within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2)
-mtext(side=3,line=0,at = 79.2,'b)',cex=1)
-
-polygon(x = c(Divpred5$X1km_Prop_Crops[ZZ],rev(Divpred5$X1km_Prop_Crops[ZZ])), y = c(Divpred5$lci[ZZ],rev(Divpred5$uci[ZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred5$X1km_Prop_Crops[ZZ],y = Divpred5$fit[ZZ],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = TaxModel$NDVImean_Field,y = TaxModel$Diversity,xlab = "Field NDVI",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2,xaxt = 'n')
-axis(side=1, at=seq(from=min(Divpred8$NDVImean_Field),to=max(Divpred8$NDVImean_Field),length.out=5),labels=round(seq(from=min(TaxModel$NDVImean_Field),to=max(TaxModel$NDVImean_Field),length.out=5),2),cex.axis=1.2)
-mtext(side=3,line=0,at = 0.12,'c)',cex=1)
-
-polygon(x = c(Divpred8$NDVImean_Field[ZZZ],rev(Divpred8$NDVImean_Field[ZZZ])), y = c(Divpred8$lci[ZZZ],rev(Divpred8$uci[ZZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred8$NDVImean_Field[ZZZ],y = Divpred8$fit[ZZZ],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = TaxModel$NDVIsum_1km,y = TaxModel$Diversity,xlab = "NDVI within 1km",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2,xaxt = 'n')
-axis(side=1, at=seq(from=min(Divpred11$NDVIsum_1km),to=max(Divpred11$NDVIsum_1km),length.out=5),labels=round(seq(from=min(TaxModel$NDVIsum_1km),to=max(TaxModel$NDVIsum_1km),length.out=5),-1),cex.axis=1.2)
-mtext(side=3,line=0,at = 370,'d)',cex=1)
-
-polygon(x = c(Divpred11$NDVIsum_1km[Z_Z],rev(Divpred11$NDVIsum_1km[Z_Z])), y = c(Divpred11$lci[Z_Z],rev(Divpred11$uci[Z_Z])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred11$NDVIsum_1km[Z_Z],y = Divpred11$fit[Z_Z],lwd = 2,col = 'grey30',lty = 1)
-
-
-plot(x = TaxModel$GC,y = TaxModel$Diversity,xlab = "Ground Cover (%)",ylab = 'Diversity', type = 'p', pch = 16,cex =0.2,col = 'black', las = 1, lwd = 2,cex.lab= 1.3,cex.axis=1.2)
-mtext(side=3,line=0,at = 3,'e)',cex=1)
-
-polygon(x = c(Divpred14$GC[ZZ_ZZ],rev(Divpred14$GC[ZZ_ZZ])), y = c(Divpred14$lci[ZZ_ZZ],rev(Divpred14$uci[ZZ_ZZ])),col = rgb(0.5, 0.5, 0.5, 0.5),border = NA)
-lines(x=Divpred14$GC[ZZ_ZZ],y = Divpred14$fit[ZZ_ZZ],lwd = 2,col = 'grey30',lty = 1)
-
-
-
-
+plot(x=rev(Div_GC_cf$est),y=1:length(Div_GC_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(Div_GC_cf$lci),max(Div_GC_cf$uci)))
+axis(2, at=1:length(Div_GC_cf$term),labels = rev(Div_GC_cf$term),las=1)
+arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 5.5,length = 0)
+arrows(x0 = rev(Div_GC_cf$lci),y0 = 1:length(Div_GC_cf$term),x1 = rev(Div_GC_cf$uci),y1 = 1:length(Div_GC_cf$term),length = 0)
+mtext("d)",side = 3,line = -0.5,at=-2.3,cex = 0.9)
 
 #END----
