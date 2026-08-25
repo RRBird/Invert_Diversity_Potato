@@ -1,7 +1,7 @@
 # Invert_Diversity_Potato
-Analysis of invertebrate diversity and community composition in potato fields
+Analysis of invertebrate biodiversity and functional diversity in potato fields
 
-R scripts, project and data for invertebrate predator dominance analysis
+R scripts, project and data for invertebrate diversity analysis
 
 # Content Description 
 1. Data: Data from surveys in potato fields
