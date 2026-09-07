@@ -754,7 +754,6 @@ aictab(TGC_modlist2)
 
 ##Step 3: Check for Spatial Autocorrelation----
 
-#running loon two models this for C so make sure to change over between running the loop
 summary(TGC_Rip)
 summary(TGC_FieldArea)
 
@@ -2172,7 +2171,7 @@ lines(x=TG_G_pred2$Day_Sampled[GG],y = TG_G_pred2$fit[GG],lwd = 2,col = 'grey30'
 
 TGC_FieldArea_cf
 
-dev.new(height=8,width=10,dpi=60,pointsize=14,noRStudioGD = T)
+dev.new(height=4,width=5,dpi=60,pointsize=14,noRStudioGD = T)
 par(mar=c(6,10,1,1),mfrow=c(1,1),mgp=c(2.5,1,0),xpd = F)
 
 plot(x=rev(TGC_FieldArea_cf$est),y=1:length(TGC_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGC_FieldArea_cf$lci),max(TGC_FieldArea_cf$uci)))
@@ -2188,35 +2187,35 @@ TGD_FieldArea_cf
 TGD_Height_cf
 TGD_Rip_cf
 
-dev.new(height=8,width=15,dpi=60,pointsize=14,noRStudioGD = T)
+dev.new(height=10,width=18,dpi=60,pointsize=14,noRStudioGD = T)
 par(mar=c(6,10,1,1),mfrow=c(2,3),mgp=c(2.5,1,0),xpd = F)
 
-plot(x=rev(TGD_NDVIfield_cf$est),y=1:length(TGD_NDVIfield_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_NDVIfield_cf$lci),max(TGD_NDVIfield_cf$uci)))
-axis(2, at=1:length(TGD_NDVIfield_cf$term),labels = rev(TGD_NDVIfield_cf$term),las=1)
+plot(x=rev(TGD_NDVIfield_cf$est),y=1:length(TGD_NDVIfield_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_NDVIfield_cf$lci),max(TGD_NDVIfield_cf$uci)),cex.axis=1.3,cex.lab=1.3,cex=1.2)
+axis(2, at=1:length(TGD_NDVIfield_cf$term),labels = rev(TGD_NDVIfield_cf$term),las=1,cex.axis=1.3)
 arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
 arrows(x0 = rev(TGD_NDVIfield_cf$lci),y0 = 1:length(TGD_NDVIfield_cf$term),x1 = rev(TGD_NDVIfield_cf$uci),y1 = 1:length(TGD_NDVIfield_cf$term),length = 0)
 mtext("a)",side = 3,line = -0.5,at=-14,cex = 0.9)
 
-plot(x=rev(TGD_GC_cf$est),y=1:length(TGD_GC_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_GC_cf$lci),max(TGD_GC_cf$uci)))
-axis(2, at=1:length(TGD_GC_cf$term),labels = rev(TGD_GC_cf$term),las=1)
+plot(x=rev(TGD_GC_cf$est),y=1:length(TGD_GC_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_GC_cf$lci),max(TGD_GC_cf$uci)),cex.axis=1.3,cex.lab=1.3,cex=1.2)
+axis(2, at=1:length(TGD_GC_cf$term),labels = rev(TGD_GC_cf$term),las=1,cex.axis=1.3)
 arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
 arrows(x0 = rev(TGD_GC_cf$lci),y0 = 1:length(TGD_GC_cf$term),x1 = rev(TGD_GC_cf$uci),y1 = 1:length(TGD_GC_cf$term),length = 0)
 mtext("b)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
-plot(x=rev(TGD_FieldArea_cf$est),y=1:length(TGD_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_FieldArea_cf$lci),max(TGD_FieldArea_cf$uci)))
-axis(2, at=1:length(TGD_FieldArea_cf$term),labels = rev(TGD_FieldArea_cf$term),las=1)
+plot(x=rev(TGD_FieldArea_cf$est),y=1:length(TGD_FieldArea_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_FieldArea_cf$lci),max(TGD_FieldArea_cf$uci)),cex.axis=1.3,cex.lab=1.3,cex=1.2)
+axis(2, at=1:length(TGD_FieldArea_cf$term),labels = rev(TGD_FieldArea_cf$term),las=1,cex.axis=1.3)
 arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
 arrows(x0 = rev(TGD_FieldArea_cf$lci),y0 = 1:length(TGD_FieldArea_cf$term),x1 = rev(TGD_FieldArea_cf$uci),y1 = 1:length(TGD_FieldArea_cf$term),length = 0)
 mtext("c)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
-plot(x=rev(TGD_Height_cf$est),y=1:length(TGD_Height_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Height_cf$lci),max(TGD_Height_cf$uci)))
-axis(2, at=1:length(TGD_Height_cf$term),labels = rev(TGD_Height_cf$term),las=1)
+plot(x=rev(TGD_Height_cf$est),y=1:length(TGD_Height_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Height_cf$lci),max(TGD_Height_cf$uci)),cex.axis=1.3,cex.lab=1.3,cex=1.2)
+axis(2, at=1:length(TGD_Height_cf$term),labels = rev(TGD_Height_cf$term),las=1,cex.axis=1.3)
 arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
 arrows(x0 = rev(TGD_Height_cf$lci),y0 = 1:length(TGD_Height_cf$term),x1 = rev(TGD_Height_cf$uci),y1 = 1:length(TGD_Height_cf$term),length = 0)
 mtext("d)",side = 3,line = -0.5,at=-12,cex = 0.9)
 
-plot(x=rev(TGD_Rip_cf$est),y=1:length(TGD_Rip_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Rip_cf$lci),max(TGD_Rip_cf$uci)))
-axis(2, at=1:length(TGD_Rip_cf$term),labels = rev(TGD_Rip_cf$term),las=1)
+plot(x=rev(TGD_Rip_cf$est),y=1:length(TGD_Rip_cf$term),ylab="",xlab="Model Estimate",pch=16,yaxt="n",xlim = c(min(TGD_Rip_cf$lci),max(TGD_Rip_cf$uci)),cex.axis=1.3,cex.lab=1.3,cex=1.2)
+axis(2, at=1:length(TGD_Rip_cf$term),labels = rev(TGD_Rip_cf$term),las=1,cex.axis=1.3)
 arrows(x0 = 0,y0 = 0.5,x1 = 0,y1 = 6.5,length = 0)
 arrows(x0 = rev(TGD_Rip_cf$lci),y0 = 1:length(TGD_Rip_cf$term),x1 = rev(TGD_Rip_cf$uci),y1 = 1:length(TGD_Rip_cf$term),length = 0)
 mtext("e)",side = 3,line = -0.5,at=-12,cex = 0.9)
